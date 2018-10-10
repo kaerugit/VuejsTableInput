@@ -1,0 +1,575 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>都道府県マスタテスト</title>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <!--
+    bulma
+    https://bulma.io/
+
+    form基本
+    https://bulma.io/documentation/form/general/
+
+    columns (grid)システム(is-0 ～ is-12)
+    https://bulma.io/documentation/columns/sizes/
+    https://bulma.io/documentation/columns/gap/
+
+    メッセージ
+    https://bulma.io/documentation/components/message/
+    ボタン(色)
+    https://bulma.io/documentation/modifiers/syntax/
+    https://bulma.io/documentation/elements/button/
+
+    元
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    -->
+
+    <link rel="stylesheet" href="./css/bulma.min.css">
+    <!--
+        fa-××のアイコン
+        https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
+
+        ※こちらのコンポーネント直リンクしないとアイコンでない
+    -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+    <!-- Vue.js
+        https://npmcdn.com/vue/dist/vue.js
+        https://unpkg.com/vue@2.4.0/dist/vue.js
+
+        元
+        <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    -->
+    <script src="./javascript/vue.js"></script>
+
+
+    <!-- プロジェクト用 -->
+    <!-- enterキー移動 -->
+    <script src="./javascript/focus.js"></script>
+    <!-- バリデーション -->
+    <script src="./javascript/project.js"></script>
+
+    <!-- vue拡張 -->
+    <script src="./javascript/doracomponent.js"></script>
+
+    <link rel="stylesheet" href="./css/project.css">
+
+</head>
+<body>
+    <div id="app">
+        <!-- マスタページっぽいもの -->
+        <div class="columns">
+            <div class="column" style="margin-top:10px">
+                <span class="icon" onclick="window.top.location.href = 'menu.html';">
+                    <i class="fas fa-home"></i>
+                </span>
+                サンプルシステム（固定ページ）
+            </div>
+        </div>
+
+        <div class="columns"> 
+            <!-- !isDisplayWherePanel の場合 css WherePanelMinWidth(project.cssで定義)を利用 -->
+            <div class="column" v-bind:class="{ '' : isDisplayWherePanel,'WherePanelMinWidth' : !isDisplayWherePanel}">
+                <article class="message is-success">
+                    <!-- 自分でOPEN CLOSE -->
+                    <div class="message-header" v-on:click="isDisplayWherePanel = !isDisplayWherePanel;">
+                        <!-- スマホ(画面が小さい)の場合はそのまま -->
+                        <p v-bind:class="{ '' : isDisplayWherePanel,'WherePanelTitleVisible' : !isDisplayWherePanel}">条件</p>
+
+                        <span class="icon">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <div class="message-body WherePanel" v-show="isDisplayWherePanel">
+                        <template v-for="(elem, elemIndex) in whereItems">
+                            <!-- 表形式と同様にする為必ず配列ループを基本とする -->
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">都道府県CD</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <div class="select">
+                                                <select v-model.lazy="elem.都道府県CD" v-dora_updateflag="elem" v-dora_selectitems="todofukenItems" dora_blanktext="(選択なし)"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">都道府県CD(ラジオ)</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <span>
+                                                <input type="radio" id="opt" value="" v-dora_updateflag="elem" v-model="elem.都道府県CD" class="radio">
+                                                <label for="opt">(選択なし)</label>
+                                            </span>
+                                            <!-- radio単一選択(複数存在する場合は 'opt'を変更する) -->
+                                            <span v-for="option in todofukenItems">
+                                                <input type="radio" v-bind:id="['opt' + elemIndex + '_' + option.value]" v-bind:value="option.value" v-dora_updateflag="elem" v-model="elem.都道府県CD" class="radio">
+                                                <label v-bind:for="['opt' + elemIndex + '_' + option.value]">{{option.text}}</label>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">都道府県CD(複数選択)</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <!-- checkbox複数(複数存在する場合は 'chk'を変更する)-->
+                                            <span v-for="option in todofukenItems">
+                                                <input type="checkbox" v-model.lazy="elem.都道府県CD複数" v-dora_updateflag="elem" v-bind:id="['chk' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
+                                                <label v-bind:for="['chk' + elemIndex + '_' + option.value]">{{option.text}}</label>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">市区町村</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field has-addons">
+                                        <!-- has-addons で一行表示-->
+                                        <p class="control">
+                                            <input v-model.lazy="elem.市区町村" v-dora_updateflag="elem" class="input" />
+                                        </p>
+                                        <p class="control">
+                                            <a class="button is-static">
+                                                を含む
+                                            </a>
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </template>
+
+                        <button class="button is-info" v-on:click="search()">検索</button>
+                    </div>
+                </article>
+            </div>
+
+            <div class="column" v-bind:class="{ 'is-8' : isDisplayWherePanel,'is-11' : !isDisplayWherePanel}">
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p>入力</p>
+                        <span class="icon">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                    </div>
+                    <div class="message-body">
+
+                        <button class="button is-primary" v-on:click="submit()">更新</button>
+                        <button class="button is-danger" v-on:click="clear()">クリア</button>
+                        <button class="button is-warning" v-on:click="append()">1件追加</button>
+
+                        <!-- dora-pagingのdora_bind_divと連動 -->
+                        <div id="divPaging" class="TablePanel">
+                            <!-- スタイルをbind v-bind:style="{ width: tablewidth + 'px' }" -->
+                            <!-- v-dora_table="" は　width　の自動計算をしているだけです -->
+                            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="" >
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;" class="is-link">削除</th>
+                                        <th style="width: 200px;" class="is-link">住所CD</th>
+                                        <th style="width: 200px;" class="is-link">都道府県CD</th>
+                                        <th style="width: 200px;" class="is-link">都道府県</th>
+                                        <th style="width: 200px;" class="is-link">市区町村CD</th>
+                                        <th style="width: 200px;" class="is-link">市区町村</th>
+                                        <th style="width: 200px;" class="is-link">町域CD</th>
+                                        <th style="width: 200px;" class="is-link">町域</th>
+                                        <th style="width: 200px;" class="is-link">町域補足</th>
+                                        <th style="width: 200px;" class="is-link">郵便番号</th>
+                                        <th style="width: 120px;" class="is-link">事業所フラグ</th>
+                                        <th style="width: 100px;" class="is-link">廃止フラグ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 各要素を表示 -->
+                                    <tr v-for="(elem, elemIndex) in displayItems">
+                                        <td style="text-align:center">
+                                            <!-- v-dora_updateflag="elem"(directive) で format, UPDATE_FLAGの処理を実行  -->
+                                            <input type="checkbox" v-model.lazy="elem.DELETE_FLAG" v-dora_updateflag="elem" class="checkbox" />
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.住所CD" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.都道府県CD" v-dora_updateflag="elem" class="input" v-on:change="changeTodofuken(elem)" />
+
+                                        </td>
+                                        <td>
+                                            <div class="select">
+                                                <select v-model.lazy="elem.都道府県CD" v-dora_updateflag="elem" v-dora_selectitems="todofukenItems" dora_blanktext="(選択なし)" v-on:change="changeTodofuken(elem)"></select>
+
+                                                <!-- 素の記述
+                                        <select v-model.lazy="elem.都道府県CD" v-dora_updateflag="elem" >
+                                            <option value="">(選択なし)</option>
+                                            <option v-for="option in todofukenItems" v-bind:value="option.value">
+                                                {{ option.text }}
+                                            </option>
+                                        </select>
+                                        -->
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.市区町村CD" v-dora_updateflag="elem" class="input" v-on:change="changeShikuchoson(elem)" />
+                                        </td>
+                                        <td>
+                                            <!--都道府県により変更-->
+                                            <div class="select">
+                                                <select v-model.lazy="elem.市区町村CD" v-dora_updateflag="elem" v-dora_selectitems="getShikuchoson(elem.都道府県CD)" dora_blanktext="(選択なし)" v-on:change="changeShikuchoson(elem)"></select>
+                                            </div>
+
+
+                                            <!-- 素の記述
+                                    <select v-model.lazy="elem.市区町村CD" v-dora_updateflag="elem">
+                                        <option value="">(選択なし)</option>
+                                        <option v-for="option in getShikuchoson(elem.都道府県CD)" v-bind:value="option.value">
+                                            {{ option.text }}
+                                        </option>
+                                    </select>
+                                    -->
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.町域CD" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td>
+                                            <!--都道府県、市区町村により変更-->
+                                            <div class="select">
+                                                <select v-model.lazy="elem.町域CD" v-dora_updateflag="elem" v-dora_selectitems="getChoiki(elem.都道府県CD,elem.市区町村CD)" dora_blanktext="(選択なし)"></select>
+                                            </div>
+                                            <!-- 素の記述
+                                            <select v-model.lazy="elem.町域CD" v-dora_updateflag="elem">
+                                                <option value="">(選択なし)</option>
+                                                <option v-for="option in getChoiki(elem.都道府県CD,elem.市区町村CD)" v-bind:value="option.value">
+                                                    {{ option.text }}
+                                                </option>
+                                            </select>
+                                                -->
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.町域補足" v-dora_updateflag="elem" class="input" />
+                                        </td>
+
+                                        <td>
+                                            <input v-model.lazy="elem.郵便番号" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td style="text-align:center">
+                                            <input type="checkbox" v-model.lazy="elem.事業所フラグ" v-dora_updateflag="elem" class="checkbox" />
+                                        </td>
+                                        <td style="text-align:center">
+                                            <input type="checkbox" v-model.lazy="elem.廃止フラグ" v-dora_updateflag="elem" class="checkbox" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </article>
+
+                <!--
+        ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
+        v-bind:dora_size（1ページに表示するデータ件数） v-bind:dora_page_range（ページングに表示するページ数） こちらで変更可
+        dora_display_panel は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
+        -->
+                <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayItems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" v-bind:dora_display_panel.sync="isDisplayWherePanel" ref="page"></dora-paging>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        'use strict';
+
+        var vm = new Vue({
+            el: '#app',
+            created: function () {
+                //domが絡む場合はmountedを初期にしたほうがよい
+            }
+            ,
+            mounted: function () {
+                let self = this;        //ieを考慮する場合、アロー関数(()=>)が使えないのでこちらの書き方推奨
+                //json get data
+                var xmlHttpRequest = new XMLHttpRequest();
+                xmlHttpRequest.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        if (this.response) {
+                            //データのセット
+                            if (typeof this.response == 'object') {
+                                self.mainItems = this.response;
+                            }
+                            else {
+                                self.mainItems = JSON.parse(this.response);
+                            }
+
+                            //都道府県
+                            let appendList = new Set();
+
+                            for (let item in self.mainItems) {
+
+                                if (appendList.has(self.mainItems[item].都道府県CD) == false) {
+
+                                    //追加
+                                    appendList.add(self.mainItems[item].都道府県CD);
+
+                                    self.todofukenItems.push({
+                                        value: self.mainItems[item].都道府県CD,
+                                        text: self.mainItems[item].都道府県,
+                                    });
+
+                                }
+                            }
+
+                            //sort
+                            self.todofukenItems.sort(
+                                function (a, b) {
+                                    if (a.value < b.value) { return -1; }
+                                    else if (a.value > b.value) { return 1; }
+                                    return 0;
+                                }
+                                );
+
+                            //市区町村
+                            appendList = new Set();
+                            for (let item in self.mainItems) {
+
+                                if (appendList.has(self.mainItems[item].市区町村CD) == false) {
+
+                                    //追加
+                                    appendList.add(self.mainItems[item].市区町村CD);
+
+                                    self.shikuchosonItems.push({
+                                        都道府県CD: self.mainItems[item].都道府県CD,
+                                        value: self.mainItems[item].市区町村CD,
+                                        text: self.mainItems[item].市区町村,
+                                    });
+
+                                }
+                            }
+
+                            //sort
+                            self.shikuchosonItems.sort(
+                                function (a, b) {
+                                    if (a.value < b.value) { return -1; }
+                                    else if (a.value > b.value) { return 1; }
+                                    return 0;
+                                }
+                                );
+
+                            //町域
+                            appendList = new Set();
+                            for (let item in self.mainItems) {
+
+                                if (self.mainItems[item].町域CD && appendList.has(self.mainItems[item].町域CD) == false) {
+
+                                    //追加
+                                    appendList.add(self.mainItems[item].町域CD);
+
+                                    self.choikiItems.push({
+                                        都道府県CD: self.mainItems[item].都道府県CD,
+                                        市区町村CD: self.mainItems[item].市区町村CD,
+                                        value: self.mainItems[item].町域CD,
+                                        text: self.mainItems[item].町域 ? self.mainItems[item].町域 : '(該当なし)' ,
+                                    });
+
+                                }
+                            }
+
+                            //sort
+                            self.choikiItems.sort(
+                                function (a, b) {
+                                    if (a.value < b.value) { return -1; }
+                                    else if (a.value > b.value) { return 1; }
+                                    return 0;
+                                }
+                                );
+
+                            alert(self.mainItems.length + 'のデータ');
+                        }
+                    }
+                }
+
+                xmlHttpRequest.open('GET', '/chugoku.json', true);
+                xmlHttpRequest.responseType = 'json';
+                xmlHttpRequest.send(null);
+
+                this.clear();
+            }
+            ,
+            data: {
+                mainItems: [],      //都道府県メインデータ（本来はAPIなどで取得）
+
+                whereItems: [],     //条件バインド用(本来は各条件に一つの変数？)
+
+                bindItems: [],      //バインド用
+                displayItems: [],   //表示用 (bindItems をページ用コンポーネントでfilter)
+
+                todofukenItems: [],     //都道府県コンボ用
+                shikuchosonItems: [],   //市区町村コンボ用
+                choikiItems: [],        //町域コンボ用
+
+
+                //検索用のパネルの制御(本来は部品化したい) ※こちらのサンプルでは半部品化
+                isDisplayWherePanel: true,
+            },
+            methods: {
+                // 要素を追加
+                append: function () {
+                    //先頭に追加(基本こちらで問題ないが、他項目と連動する場合は、デフォルト値をセットする事)
+                    //this.bindItems.unshift({});
+
+                    //先頭に追加(デフォルト値あり) 新規入力の場合、こちらセットしないとプルダウンの連動が出来ない
+                    this.bindItems.unshift({
+                        都道府県CD: '',
+                        市区町村CD: '',
+                        町域CD: '',
+                    });
+
+                    //ページを１ページにする
+                    this.$refs.page.pageSelect(1);
+                },
+
+                submit: function () {
+                    //todo チェック
+
+                    //本来はAPIなどでデータの更新(更新する際 UPDATE_FLAG、DELETE_FLAGを活用)
+                    alert(JSON.stringify(this.bindItems));
+                }
+                ,
+                search: function () {
+                    //条件オブジェクト
+                    let whereItem = this.whereItems[0];
+
+                    //本来はAPI推奨(とりあえずゴリゴリ)
+                    this.bindItems = this.mainItems.filter(
+                        function (item) {
+                            let findFlag = true;
+
+                            if (findFlag == true && whereItem.都道府県CD && whereItem.都道府県CD.toString().length > 0) {
+                                if (item.都道府県CD != whereItem.都道府県CD) {
+                                    findFlag = false;
+                                }
+                            }
+
+                            if (findFlag == true && whereItem.都道府県CD複数 && whereItem.都道府県CD複数.length > 0) {
+                                //都道府県CD複数(or検索)
+                                let todofukenFind = false;
+                                for (let itemtodofuken in whereItem.都道府県CD複数) {
+                                    if (item.都道府県CD == whereItem.都道府県CD複数[itemtodofuken]) {
+                                        todofukenFind = true;
+                                        break;
+                                    }
+                                }
+                                findFlag = todofukenFind;
+                            }
+
+                            if (findFlag == true && whereItem.市区町村 && whereItem.市区町村.length > 0) {
+                                if (item.市区町村.indexOf(whereItem.市区町村) == -1) {
+                                    findFlag = false;
+                                }
+                            }
+
+                            return findFlag;
+                        }
+                    );
+
+                    //ページを１ページにする
+                    this.$refs.page.pageSelect(1);
+                }
+                ,
+                clear: function () {
+
+                    //条件(コンボボックスの値を確実に表示したい場合はデフォルト値をセット)
+                    this.whereItems = [];
+                    this.whereItems.push({
+                        都道府県CD: '',
+                        都道府県CD複数:[]		//配列の場合は定義が必要
+                    });
+
+                    //データのクリア
+                    this.bindItems = [];
+                }
+                ,
+                //市区町村の取得
+                getShikuchoson: function (todofukenCD) {
+                    if (todofukenCD == null || todofukenCD.length == 0) {
+                        return [];
+                    }
+                    
+                    return this.shikuchosonItems.filter(
+                        function (item) {
+                            let findFlag = true;
+
+                            if (findFlag == true && item.都道府県CD != todofukenCD) {
+                                findFlag = false;
+                            }
+
+                            return findFlag;
+                        }
+                    );
+                    
+                }
+                ,
+                //町域の取得
+                getChoiki: function (todofukenCD,shikuchosonCD) {
+                    if (todofukenCD == null || todofukenCD.length == 0) {
+                        return [];
+                    }
+
+                    if (shikuchosonCD == null || shikuchosonCD.length == 0) {
+                        return [];
+                    }
+
+                    return this.choikiItems.filter(
+                        function (item) {
+                            let findFlag = true;
+
+                            if (findFlag == true && item.都道府県CD != todofukenCD) {
+                                findFlag = false;
+                            }
+
+                            if (findFlag == true && item.市区町村CD != shikuchosonCD) {
+                                findFlag = false;
+                            }
+
+                            return findFlag;
+                        }
+                    );
+
+                }
+                ,
+                //都道府県変更時
+                changeTodofuken: function (elem){
+                    elem.市区町村CD = '';
+                    elem.町域CD = '';
+                },
+                //市区町村変更時
+                changeShikuchoson: function (elem) {
+                    elem.町域CD = '';
+                },
+            },
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>test</title>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <!--
+    bulma
+    https://bulma.io/
+
+    form基本
+    https://bulma.io/documentation/form/general/
+
+    columns (grid)システム(is-0 ～ is-12)
+    https://bulma.io/documentation/columns/sizes/
+    https://bulma.io/documentation/columns/gap/
+
+    メッセージ
+    https://bulma.io/documentation/components/message/
+    ボタン(色)
+    https://bulma.io/documentation/modifiers/syntax/
+    https://bulma.io/documentation/elements/button/
+
+    元
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    -->
+
+    <link rel="stylesheet" href="./css/bulma.min.css">
+    <!--
+        fa-××のアイコン
+        https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
+
+        ※こちらのコンポーネント直リンクしないとアイコンでない
+    -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+    <!-- Vue.js
+        https://npmcdn.com/vue/dist/vue.js
+        https://unpkg.com/vue@2.4.0/dist/vue.js
+
+        元
+        <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    -->
+    <script src="./javascript/vue.js"></script>
+
+    <!-- プロジェクト用 -->
+    <!-- enterキー移動 -->
+    <script src="./javascript/focus.js"></script>
+    <!-- バリデーション -->
+    <script src="./javascript/project.js"></script>
+
+    <!-- vue拡張 -->
+    <script src="./javascript/doracomponent.js"></script>
+
+    <link rel="stylesheet" href="./css/project.css">
+
+</head>
+<body>
+    <div id="app">
+        <!-- マスタページっぽいもの -->
+        <div class="columns">
+            <div class="column" style="margin-top:10px">
+                <span class="icon" onclick="window.location.href = 'menu.html';">
+                    <i class="fas fa-home"></i>
+                </span>
+                サンプルシステム（固定ページ）
+            </div>
+        </div>
+
+        <div class="columns">
+            <div class="column">
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p>入力</p>
+                        <span class="icon">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                    </div>
+                    <div class="message-body">
+
+                        <button class="button is-primary" v-on:click="submit()">更新</button>
+                        <button class="button is-danger" v-on:click="clear()">クリア</button>
+                        <button class="button is-warning" v-on:click="append()">1件追加</button>
+
+                        <!-- dora-pagingのex_bind_divと連動 -->
+                        <div id="divPaging" class="TablePanel">
+                            <!-- スタイルをbind v-bind:style="{ width: tablewidth + 'px' }" -->
+                            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="" >
+                                <thead>
+                                    <tr>
+                                        <!-- 先頭の記号が同じものは連動-->
+                                        <th style="width: 50px;" class="is-link">削除</th>
+                                        <th style="width: 200px;" class="is-link">ID</th>
+                                        <th style="width: 200px;" class="is-link">Name</th>
+                                        <th style="width: 200px;" class="is-link">Name(表示のみ)</th>
+                                        <th style="width: 200px;" class="is-link">■コンボ選択値</th>
+                                        <th style="width: 200px;" class="is-link">■コンボ</th>
+                                        <th style="width: 200px;" class="is-link">■ラジオ</th>
+                                        <th style="width: 200px;" class="is-link">★リスト(multiple)選択値</th>
+                                        <th style="width: 200px;" class="is-link">★リスト(multiple)</th>
+                                        <th style="width: 200px;" class="is-link">★チェックボックス(multiple)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 各要素を表示 -->
+                                    <tr v-for="(elem, elemIndex) in displayitems">
+                                        <td style="text-align:center">
+                                            <!-- v-dora_updateflag="elem"(directive) で format, UPDATE_FLAGの処理を実行  -->
+                                            <input type="checkbox" v-model.lazy="elem.DELETE_FLAG" v-dora_updateflag="elem" class="checkbox" />
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.id" dora_format="" v-dora_updateflag="elem" class="input" />
+
+                                            <input type="hidden" name="h_name" value="隠しデータ">
+                                            <!--
+            <input type="password" name="p_name1">
+            <textarea name="t_name" rows="10"></textarea>
+            -->
+                                            <!--
+            <input type="checkbox" v-model="elem.DELETE_FLAG" v-ex_updateflag="elem" class="form-control" />
+            <dora-input v-model="elem.id" dora_format="" v-ex_updateflag="elem" class="form-control"></dora-input>
+            -->
+                                        </td>
+                                        <td>
+
+                                            <!-- .number つけると変な動き（フォーカスが勝手に移動してしまう）するのでつけないほうがよい -->
+                                            <input v-model.lazy="elem.name" dora_format="#,##0" v-dora_updateflag="elem" class="input" />
+
+                                            <!-- 入力(formatサンプル)
+            <dora-input v-model="elem.name" dora_format="," v-ex_updateflag="elem" class="input"></dora-input>
+            -->
+                                        </td>
+                                        <td>
+                                            <!-- 表示のみ -->
+                                            {{ elem.name | dora_formatDelimiter('#,##0')}}
+                                        </td>
+                                        <td>
+
+                                            <input v-model.lazy="elem.selectvalue" v-dora_updateflag="elem" class="input" />
+
+                                            <!--
+            <dora-input v-model="elem.selectvalue" v-ex_updateflag="elem" class="input" readonly="true"></dora-input>
+            -->
+                                        </td>
+                                        <td>
+                                            <select v-model.lazy="elem.selectvalue" v-dora_updateflag="elem" v-dora_selectitems="selectItems" dora_blanktext="--選択してください--" class="select"></select>
+
+                                            <!--
+                v-bind:dora_selectitems 連動する値
+                dora_blanktext       空欄のテキストをセット（dora_blanktextを指定しない場合　空の選択なし）
+
+                size="3"  を追加するとList
+
+            <select v-model.lazy="elem.selectvalue" v-dora_updateflag="elem" class="select">
+                <option value="">××選択してください××</option>
+                <option v-for="option in selectItems" v-bind:value="option.value">
+                    {{ option.text }}
+                </option>
+            </select>
+            -->
+                                        </td>
+                                        <td>
+                                                <!-- radio単一選択(複数存在する場合は 'opt'を変更する) -->
+                                                <span v-for="option in selectItems">
+                                                    <input type="radio" v-bind:id="['opt' + elemIndex + '_' + option.value]" v-bind:value="option.value" v-dora_updateflag="elem" v-model="elem.selectvalue" class="radio">
+                                                    <label v-bind:for="['opt' + elemIndex + '_' + option.value]">{{option.text}}</label>
+                                                </span>
+
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.multipleselectvalue" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td>
+
+                                            <select v-model.lazy="elem.multipleselectvalue" v-dora_updateflag="elem" v-dora_selectitems="selectItems" dora_blanktext="選択してください" class="select is-multiple" size="3" multiple></select>
+
+
+                                            <!-- コンポーネント前の書き方-->
+                                            <!--
+            <select v-model.lazy="elem.multipleselectvalue" v-dora_updateflag="elem" size="3" class="select is-multiple" multiple>
+                <option value="">××選択してください××</option>
+                <option v-for="option in selectItems" v-bind:value="option.value">
+                    {{ option.text }}
+                </option>
+            </select>
+            -->
+
+                                        </td>
+                                        <td>
+                                            <!-- checkbox複数-->
+                                            <span v-for="option in selectItems">
+                                                <input type="checkbox" v-model.lazy="elem.multipleselectvalue" v-dora_updateflag="elem" v-bind:id="['chk' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
+                                                <label v-bind:for="['chk' + elemIndex + '_' + option.value]">{{option.text}}</label>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </article>
+                <!--
+    ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
+    v-bind:ex_size（1ページに表示するデータ件数） v-bind:ex_page_range（ページングに表示するページ数） こちらで変更可
+    -->
+                <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayitems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" ref="page"></dora-paging>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        'use strict';
+
+        var vm = new Vue({
+            el: '#app',
+            created: function () {
+                this.clear();
+            }
+            ,
+            data: {
+                bindItems: [],      //バインド用
+                displayitems: [],   //表示用 (bindItems をページ用コンポーネントでfilter)
+
+                //コンボボックスの値(value textは固定)  valueの型（文字なら文字　数値なら数値にしないと一致しないので注意！）
+                selectItems:
+                    [
+                    {
+                        value: 10,
+                        text: '選択1'
+                    }
+                    ,
+                    {
+                        value: 20,
+                        text: '選択2'
+                    }
+                    ,
+                    {
+                        value: 30,
+                        text: '選択3'
+                    }
+
+                    ]
+                    ,
+            },
+            methods: {
+                // 要素を追加
+                append: function () {
+
+                    //先頭に追加
+                    this.bindItems.unshift({});
+
+                    //ページを１ページにする
+                    this.$refs.page.pageSelect(1);
+
+                    //先頭に追加(デフォルト値あり)
+                    //this.bindItems.unshift({
+                    //    name: '',
+                    //    selectvalue: '',
+                    //    multipleselectvalue: [],
+                    //});
+
+                },
+
+                submit: function () {
+                    //本来はAPIなどでデータの更新(更新する際 UPDATE_FLAG、DELETE_FLAGを活用)
+                    alert(JSON.stringify(this.bindItems));
+                }
+                ,
+                search: function () {
+                    for (let i = 0; i < 1000; i++) {
+                        this.bindItems.push({
+                            id: i,
+                            name: ('1000' + i.toString()),
+                            multipleselectvalue: [10, 30],
+                            selectvalue: 20,
+                        });
+                    }
+                }
+                ,
+                clear: function () {
+
+                    this.bindItems = [];
+                    this.search();
+                }
+                ,
+
+            },
+        });
+
+    </script>
+</body>
+</html>

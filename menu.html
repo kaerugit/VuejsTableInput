@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Menu</title>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <!--
+    bulma
+    https://bulma.io/
+
+    form基本
+    https://bulma.io/documentation/form/general/
+
+    columns (grid)システム(is-0 ～ is-12)
+    https://bulma.io/documentation/columns/sizes/
+    https://bulma.io/documentation/columns/gap/
+
+    メッセージ
+    https://bulma.io/documentation/components/message/
+    ボタン(色)
+    https://bulma.io/documentation/modifiers/syntax/
+    https://bulma.io/documentation/elements/button/
+
+    元
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    -->
+
+    <link rel="stylesheet" href="./css/bulma.min.css">
+    <!--
+        fa-××のアイコン
+        https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
+
+        ※こちらのコンポーネント直リンクしないとアイコンでない
+    -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+</head>
+<body>
+    <div id="app">
+
+        <div class="column">
+            <article class="message is-success">
+                <div class="message-header">
+                    <p>メインメニュー</p>
+                </div>
+                <div class="message-body">
+                    <div class="field is-horizontal">
+                        <div class="field-body">
+                            <button class="button is-info is-fullwidth" onclick="window.location.href = 'chugoku.html';">住所表（純粋なvue.jsのみ）※</button>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-body">
+                            <button class="button is-info is-fullwidth" onclick="window.location.href = 'chugokupulldown.html';">住所表コンボ選択 ページング（doracomponent.js使用）等あり</button>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-body">
+                            <button class="button is-info is-fullwidth" onclick="window.location.href = 'formattest.html';">フォーマット(＆バリデーション)</button>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-body">
+                            <button class="button is-info is-fullwidth" onclick="window.location.href = 'shainmaster.html';">本気の社員マスタ（ほぼぐちゃぐちゃ）</button>
+                        </div>
+                    </div>
+
+                    <div class="field is-horizontal">
+                        <div class="field-body">
+                            <button class="button is-info is-fullwidth" onclick="window.location.href = 'shainmasterlist.html';">本気の社員マスタ（一覧＋詳細入力）基本こちら？</button>
+                        </div>
+                    </div>
+
+                </div>
+            </article>
+        </div>
+    </div>
+
+</body>
+</html>

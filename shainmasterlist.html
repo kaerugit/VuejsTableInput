@@ -1,0 +1,714 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>社員マスタ一覧</title>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <!--
+    bulma
+    https://bulma.io/
+
+    form基本
+    https://bulma.io/documentation/form/general/
+
+    columns (grid)システム(is-0 ～ is-12)
+    https://bulma.io/documentation/columns/sizes/
+    https://bulma.io/documentation/columns/gap/
+
+    メッセージ
+    https://bulma.io/documentation/components/message/
+    ボタン(色)
+    https://bulma.io/documentation/modifiers/syntax/
+    https://bulma.io/documentation/elements/button/
+
+    元
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    -->
+
+    <link rel="stylesheet" href="./css/bulma.min.css">
+    <!--
+        fa-××のアイコン
+        https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
+
+        ※こちらのコンポーネント直リンクしないとアイコンでない
+    -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+    <!-- Vue.js
+        https://npmcdn.com/vue/dist/vue.js
+        https://unpkg.com/vue@2.4.0/dist/vue.js
+
+        元
+        <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    -->
+    <script src="./javascript/vue.js"></script>
+
+
+    <!-- プロジェクト用 -->
+    <!-- enterキー移動 -->
+    <script src="./javascript/focus.js"></script>
+    <!-- バリデーション -->
+    <script src="./javascript/project.js"></script>
+
+    <!-- vue拡張 -->
+    <script src="./javascript/doracomponent.js"></script>
+
+    <link rel="stylesheet" href="./css/project.css">
+
+</head>
+<body>
+    <!--
+    <div class="loading"></div>
+-->
+    <div id="app">
+        <!-- マスタページっぽいもの -->
+        <div class="columns">
+            <div class="column" style="margin-top:10px">
+                <span class="icon" onclick="window.top.location.href = 'menu.html';">
+                    <i class="fas fa-home"></i>
+                </span>
+                サンプルシステム（固定ページ）
+            </div>
+        </div>
+
+        <div class="columns">
+            <!-- !isDisplayWherePanel の場合 css WherePanelMinWidth(project.cssで定義)を利用 -->
+            <div class="column" v-bind:class="{ '' : isDisplayWherePanel,'WherePanelMinWidth' : !isDisplayWherePanel}">
+                <article class="message is-success">
+                    <!-- 自分でOPEN CLOSE -->
+                    <div class="message-header" v-on:click="isDisplayWherePanel = !isDisplayWherePanel;">
+                        <!-- スマホ(画面が小さい)の場合はそのまま -->
+                        <p v-bind:class="{ '' : isDisplayWherePanel,'WherePanelTitleVisible' : !isDisplayWherePanel}">条件</p>
+
+                        <span class="icon">
+                            <i class="fas fa-search"></i>
+                        </span>
+                    </div>
+                    <div class="message-body WherePanel" v-show="isDisplayWherePanel">
+                        <template v-for="(elem, elemIndex) in whereItems">
+                            <!-- 表形式と同様にする為必ず配列ループを基本とする -->
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">社員コード</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input v-model.lazy="elem.社員コード" v-dora_updateflag="elem" class="input" isime="false" ishankaku="true" maxlengthvalue="5" textalign="center" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">社員名</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field has-addons">
+                                        <!-- has-addons で一行表示-->
+                                        <p class="control">
+                                            <input v-model.lazy="elem.社員名" v-dora_updateflag="elem" isime="true" maxlengthvalue="10" class="input" />
+                                        </p>
+                                        <p class="control">
+                                            <a class="button is-static">
+                                                を含む
+                                            </a>
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">都道府県CD</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <div class="select">
+                                                <select v-model.lazy="elem.都道府県CD" v-dora_updateflag="elem" v-dora_selectitems="todofukenItems" dora_blanktext="(選択なし)"></select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">都道府県CD(ラジオ)</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <span>
+                                                <input type="radio" id="opt" value="" v-dora_updateflag="elem" v-model="elem.都道府県CD" class="radio">
+                                                <label for="opt">(選択なし)</label>
+                                            </span>
+                                            <!-- radio単一選択(複数存在する場合は 'opt'を変更する) -->
+                                            <span v-for="option in todofukenItems">
+                                                <input type="radio" v-bind:id="['opt' + elemIndex + '_' + option.value]" v-bind:value="option.value" v-dora_updateflag="elem" v-model="elem.都道府県CD" class="radio">
+                                                <label v-bind:for="['opt' + elemIndex + '_' + option.value]">{{option.text}}</label>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">都道府県CD(複数選択)</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <!-- checkbox複数(複数存在する場合は 'chk'を変更する)-->
+                                            <span v-for="option in todofukenItems">
+                                                <input type="checkbox" v-model.lazy="elem.都道府県CD複数" v-dora_updateflag="elem" v-bind:id="['chk' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
+                                                <label v-bind:for="['chk' + elemIndex + '_' + option.value]">{{option.text}}</label>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <button class="button is-info" v-on:click="search()">検索</button>
+                    </div>
+                </article>
+            </div>
+
+            <div class="column" v-bind:class="{ 'is-8' : isDisplayWherePanel,'is-11' : !isDisplayWherePanel}">
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p>入力</p>
+                        <span class="icon">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                    </div>
+                    <div class="message-body">
+                        <button class="button is-warning" v-on:click="append()">新規追加</button>
+                        <button class="button is-danger" v-on:click="clear()">クリア</button>
+
+
+                        <button class="button is-primary" v-on:click="submit(false)">更新</button>
+                        <button class="button is-primary" v-on:click="submit(true)">【テスト】更新(サーバチェックエラー)</button>
+                        <button class="button is-warning" v-on:click="tes()">1件追加</button>
+
+
+                        <!-- dora-pagingのdora_bind_divと連動 -->
+                        <div id="divPaging" class="TablePanel">
+                            <!-- スタイルをbind v-bind:style="{ width: tablewidth + 'px' }" -->
+                            <!-- v-dora_table="" は　width　の自動計算をしているだけです -->
+                            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="" >
+                                <thead>
+                                    <tr>
+                                        <th style="width: 100px;" class="is-link">編集</th>
+                                        <th style="width: 100px;" class="is-link">社員コード</th>
+                                        <th style="width: 200px;" class="is-link">社員名</th>
+                                        <th style="width: 200px;" class="is-link">入社年月日</th>
+                                        <th style="width: 100px;" class="is-link">性別</th>
+                                        <th style="width: 300px;" class="is-link">扶養家族</th>
+                                        <th style="width: 300px;" class="is-link">住所</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 各要素を表示 -->
+                                    <!-- err-common はproject.cssに定義(エラー行に色を付ける) -->
+                                    <tr v-for="(elem, elemIndex) in displayItems">
+                                        <td style="text-align:center">
+                                            <button class="button is-primary" v-on:click="edit(elem)">編集</button>
+                                        </td>
+                                        <td style="text-align:center">
+                                            {{elem.社員コード}}
+                                        </td>
+                                        <td>
+                                            {{elem.社員名}}
+                                        </td>
+                                        <td style="text-align:center">
+                                            {{elem.入社年月日  | dora_formatDelimiter('yyyy/MM/dd') }}
+                                        </td>
+                                        <td style="text-align:center">
+                                            <template v-if="elem.性別区分=='1'">
+                                                男性
+                                            </template>
+                                            <template v-if="elem.性別区分=='2'">
+                                                女性
+                                            </template>
+                                        </td>
+                                        <td>
+                                            {{dispfuyokazokuType(elem.扶養家族区分)}}
+                                        </td>
+                                        <td>
+                                            {{dispaddress(elem.都道府県CD,elem.市区町村CD,elem.町域CD,elem.住所)}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </article>
+
+                <!--
+                ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
+                ページングが複数あるような画面は ref="page2" と名前を変更する
+                v-bind:dora_size（1ページに表示するデータ件数） v-bind:dora_page_range（ページングに表示するページ数） こちらで変更可
+                dora_display_panel は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
+                -->
+                <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayItems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" v-bind:dora_display_panel.sync="isDisplayWherePanel" ref="page"></dora-paging>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        'use strict';
+
+        var vm = new Vue({
+            el: '#app',
+            created: function () {
+                //domが絡む場合はmountedを初期にしたほうがよい
+            }
+            ,
+            mounted: function () {
+                let self = this;        //ieを考慮する場合、アロー関数(()=>)が使えないのでこちらの書き方推奨
+                //json get data
+                var xmlHttpRequest = new XMLHttpRequest();
+                xmlHttpRequest.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        if (this.response) {
+                            //データのセット
+                            let mainItems;
+                            if (typeof this.response == 'object') {
+                                mainItems = this.response;
+                            }
+                            else {
+                                mainItems = JSON.parse(this.response);
+                            }
+
+                            //都道府県
+                            let appendList = new Set();
+
+                            for (let item in mainItems) {
+
+                                if (appendList.has(mainItems[item].都道府県CD) == false) {
+
+                                    //追加
+                                    appendList.add(mainItems[item].都道府県CD);
+
+                                    self.todofukenItems.push({
+                                        value: mainItems[item].都道府県CD,
+                                        text: mainItems[item].都道府県,
+                                    });
+
+                                }
+                            }
+
+                            //sort
+                            self.todofukenItems.sort(
+                                function (a, b) {
+                                    if (a.value < b.value) { return -1; }
+                                    else if (a.value > b.value) { return 1; }
+                                    return 0;
+                                }
+                                );
+
+                            //市区町村
+                            appendList = new Set();
+                            for (let item in mainItems) {
+
+                                if (appendList.has(mainItems[item].市区町村CD) == false) {
+
+                                    //追加
+                                    appendList.add(mainItems[item].市区町村CD);
+
+                                    self.shikuchosonItems.push({
+                                        都道府県CD: mainItems[item].都道府県CD,
+                                        value: mainItems[item].市区町村CD,
+                                        text: mainItems[item].市区町村,
+                                    });
+
+                                }
+                            }
+
+                            //sort
+                            self.shikuchosonItems.sort(
+                                function (a, b) {
+                                    if (a.value < b.value) { return -1; }
+                                    else if (a.value > b.value) { return 1; }
+                                    return 0;
+                                }
+                                );
+
+
+                            //町域
+                            appendList = new Set();
+                            for (let item in mainItems) {
+
+                                if (mainItems[item].町域CD && appendList.has(mainItems[item].町域CD) == false) {
+
+                                    //追加
+                                    appendList.add(mainItems[item].町域CD);
+
+                                    self.choikiItems.push({
+                                        都道府県CD: mainItems[item].都道府県CD,
+                                        市区町村CD: mainItems[item].市区町村CD,
+                                        value: mainItems[item].町域CD,
+                                        text: mainItems[item].町域 ? mainItems[item].町域 : '(該当なし)',
+                                    });
+
+                                }
+                            }
+
+                            //sort
+                            self.choikiItems.sort(
+                                function (a, b) {
+                                    if (a.value < b.value) { return -1; }
+                                    else if (a.value > b.value) { return 1; }
+                                    return 0;
+                                }
+                                );
+
+
+                        }
+                    }
+                }
+
+                xmlHttpRequest.open('GET', '/chugoku.json', true);
+                xmlHttpRequest.responseType = 'json';
+                xmlHttpRequest.send(null);
+
+                this.clear();
+            }
+            ,
+            data: {
+                InputItems: [],      //入力用データ（テスト用　本来は必要なし）
+
+                whereItems: [],     //条件バインド用()
+
+                bindItems: [],      //バインド用
+                displayItems: [],   //表示用 (bindItems をページ用コンポーネントでfilter)
+
+                //性別区分
+                seibetuType: [
+                                {
+                                    value: 1,
+                                    text: '男性'
+                                },
+                                {
+                                    value: 2,
+                                    text: '女性'
+                                },
+
+                ],
+
+                //扶養家族区分（複数選択）
+                fuyokazokuType: [
+                                {
+                                    value: 1,
+                                    text: '配偶者'
+                                },
+                                {
+                                    value: 2,
+                                    text: '第一子'
+                                },
+                                {
+                                    value: 3,
+                                    text: '第二子'
+                                },
+                                {
+                                    value: 4,
+                                    text: '第三子'
+                                },
+
+                ],
+
+                todofukenItems: [],     //都道府県コンボ用
+                shikuchosonItems: [],   //市区町村コンボ用
+                choikiItems: [],        //町域コンボ用
+
+
+                //検索用のパネルの制御(本来は部品化したい) ※こちらのサンプルでは半部品化
+                isDisplayWherePanel: true,
+            },
+            methods: {
+                append: function (appendCont) {
+                    Project.OpenDialog("shainmasterinput.html", null, this.dialogreturn);
+                },
+                tes: function () {
+                    this.bindItems.unshift({
+                        NEW_FLAG: true,
+                    });
+                    //this.$refs.page.pageSelect(1);
+
+                },
+
+                submit: function (testFlag) {       //引数testFlagは必要なし
+
+                    alert(JSON.stringify(this.bindItems));
+                }
+                ,
+                search: function () {
+                    //条件オブジェクト
+                    let whereItem = this.whereItems[0];
+
+                    //本来はAPI推奨(とりあえずゴリゴリ)
+                    this.bindItems = this.bindItems.filter(
+                        function (item) {
+                            let findFlag = true;
+
+                            if (findFlag == true && whereItem.社員コード && whereItem.社員コード.length > 0) {
+                                if (item.社員コード == whereItem.社員コード) {
+                                    findFlag = false;
+                                }
+                            }
+
+                            if (findFlag == true && whereItem.社員名 && whereItem.社員名.length > 0) {
+                                if (item.社員名.indexOf(whereItem.社員名) == -1) {
+                                    findFlag = false;
+                                }
+                            }
+
+                            if (findFlag == true && whereItem.都道府県CD && whereItem.都道府県CD.toString().length > 0) {
+                                if (item.都道府県CD != whereItem.都道府県CD) {
+                                    findFlag = false;
+                                }
+                            }
+
+                            if (findFlag == true && whereItem.都道府県CD複数 && whereItem.都道府県CD複数.length > 0) {
+                                //都道府県CD複数(or検索)
+                                let todofukenFind = false;
+                                for (let itemtodofuken in whereItem.都道府県CD複数) {
+                                    if (item.都道府県CD == whereItem.都道府県CD複数[itemtodofuken]) {
+                                        todofukenFind = true;
+                                        break;
+                                    }
+                                }
+                                findFlag = todofukenFind;
+                            }
+
+                            return findFlag;
+                        }
+                    );
+
+                    //ページを１ページにする
+                    this.$refs.page.pageSelect(1);
+                }
+                ,
+                clear: function () {
+
+                    //条件(コンボボックスの値を確実に表示したい場合はデフォルト値をセット)
+                    this.whereItems = [];
+                    this.whereItems.push({
+                        都道府県CD: '',
+                        都道府県CD複数: []		//配列の場合は定義が必要
+                    });
+
+                    //テスト用
+                    this.bindItems = [];
+                    this.bindItems =
+                        [
+                            { "扶養家族区分": [1, 4], "性別区分": 1, "都道府県CD": "34", "市区町村CD": "", "住所": "テスト住所", "社員コード": "11111", "社員名": "テスト　太郎", "入社年月日": "2000/04/01 00:00:00" }
+                        ];
+                    
+                    //ページを１ページにする
+                    this.$refs.page.pageSelect(1);
+                }
+                ,
+                //市区町村の取得
+                getShikuchoson: function (todofukenCD) {
+                    if (todofukenCD == null || todofukenCD.length == 0) {
+                        return [];
+                    }
+
+                    return this.shikuchosonItems.filter(
+                        function (item) {
+                            let findFlag = true;
+
+                            if (findFlag == true && item.都道府県CD != todofukenCD) {
+                                findFlag = false;
+                            }
+
+                            return findFlag;
+                        }
+                    );
+                }
+                ,
+                //町域の取得
+                getChoiki: function (todofukenCD, shikuchosonCD) {
+                    if (todofukenCD == null || todofukenCD.length == 0) {
+                        return [];
+                    }
+
+                    if (shikuchosonCD == null || shikuchosonCD.length == 0) {
+                        return [];
+                    }
+
+                    return this.choikiItems.filter(
+                        function (item) {
+                            let findFlag = true;
+
+                            if (findFlag == true && item.都道府県CD != todofukenCD) {
+                                findFlag = false;
+                            }
+
+                            if (findFlag == true && item.市区町村CD != shikuchosonCD) {
+                                findFlag = false;
+                            }
+
+                            return findFlag;
+                        }
+                    );
+
+                }
+                ,
+                //都道府県変更時
+                changeTodofuken: function (elem) {
+                    elem.市区町村CD = '';
+                    elem.町域CD = '';
+                },
+                //市区町村変更時
+                changeShikuchoson: function (elem) {
+                    elem.町域CD = '';
+                },
+
+                edit: function (elem) {
+                    Project.OpenDialog("shainmasterinput.html",elem, this.dialogreturn);
+                },
+                dialogreturn: function (returnValue) {
+                    //ダイアログがOKの場合に呼びだれれるfunction (Project.OpenDialogでセット)
+
+                    //データのマージ
+                    let self = this;
+
+                    this.bindItems =
+                        Project.MargeInputData(
+                            this.bindItems, returnValue, ['社員コード'],
+                            function () {
+                                //ページを１ページにする
+                                self.$refs.page.pageSelect(1);
+                            }
+                        );
+                }
+                ,
+                dispfuyokazokuType: function (dispfuyokazokuValue) {
+                    if (dispfuyokazokuValue == null) {
+                        return '';
+                    }
+
+                    let fuyokazokuString = '';
+
+                    for (var i = 0; i < dispfuyokazokuValue.length; i++) {
+
+                        let items = this.fuyokazokuType.filter(
+                                function (item) {
+                                    if (item.value == dispfuyokazokuValue[i]) {
+                                        return true;
+                                    }
+                                    return false;
+                                }
+                            )
+                        
+                        if (items.length > 0) {
+                            fuyokazokuString += items[0].text + ' ';
+                        }
+                    }
+                    
+                    return fuyokazokuString
+                }
+                ,
+                dispaddress: function (todofukenCD, shikuchosonCD, choikiCD, address) {
+                    let returnAddress = '';
+
+                    if (todofukenCD != null && todofukenCD.length > 0) {
+                        let items =
+                            this.todofukenItems.filter(
+                                function (item) {
+                                    if (item.value == todofukenCD) {
+                                        return true;
+                                    }
+                                    return false;
+                                }
+                            );
+
+                        if (items.length > 0) {
+                            returnAddress += items[0].text;
+                        }
+                    }
+
+                    if (
+                        (todofukenCD != null && todofukenCD.length > 0) &&
+                        (shikuchosonCD != null && shikuchosonCD.length > 0)
+                        ) {
+
+                        let items = this.shikuchosonItems.filter(
+                            function (item) {
+                                let findFlag = true;
+
+                                if (findFlag == true && item.都道府県CD != todofukenCD) {
+                                    findFlag = false;
+                                }
+
+                                if (findFlag == true && item.value != shikuchosonCD) {
+                                    findFlag = false;
+                                }
+
+                                return findFlag;
+                            }
+                        );
+
+                        if (items.length > 0) {
+                            returnAddress += items[0].text;
+                        }
+                    }
+
+                    if (
+                        (todofukenCD != null && todofukenCD.length > 0) &&
+                        (shikuchosonCD != null && shikuchosonCD.length > 0) && 
+                        (choikiCD != null && choikiCD.length > 0)
+                        ) {
+
+                        let items = this.choikiItems.filter(
+                            function (item) {
+                                let findFlag = true;
+
+                                if (findFlag == true && item.都道府県CD != todofukenCD) {
+                                    findFlag = false;
+                                }
+
+                                if (findFlag == true && item.市区町村CD != shikuchosonCD) {
+                                    findFlag = false;
+                                }
+
+                                if (findFlag == true && item.value != choikiCD) {
+                                    findFlag = false;
+                                }
+
+                                return findFlag;
+                            }
+                        );
+
+                        if (items.length > 0) {
+                            returnAddress += items[0].text;
+                        }
+
+                    }
+
+
+                    if (address !=null){
+                        returnAddress += address;
+                    }
+
+                    return returnAddress;
+                },
+            },
+        });
+
+    </script>
+</body>
+</html>

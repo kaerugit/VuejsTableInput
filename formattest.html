@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>test</title>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <!--
+    bulma
+    https://bulma.io/
+
+    form基本
+    https://bulma.io/documentation/form/general/
+
+    columns (grid)システム(is-0 ～ is-12)
+    https://bulma.io/documentation/columns/sizes/
+    https://bulma.io/documentation/columns/gap/
+
+    メッセージ
+    https://bulma.io/documentation/components/message/
+    ボタン(色)
+    https://bulma.io/documentation/modifiers/syntax/
+    https://bulma.io/documentation/elements/button/
+
+    元
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    -->
+
+    <link rel="stylesheet" href="./css/bulma.min.css">
+    <!--
+        fa-××のアイコン
+        https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
+
+        ※こちらのコンポーネント直リンクしないとアイコンでない
+    -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+    <!-- Vue.js
+        https://npmcdn.com/vue/dist/vue.js
+        https://unpkg.com/vue@2.4.0/dist/vue.js
+
+        元
+        <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    -->
+    <script src="./javascript/vue.js"></script>
+
+
+    <!-- プロジェクト用 -->
+    <!-- enterキー移動 -->
+    <script src="./javascript/focus.js"></script>
+    <!-- バリデーション -->
+    <script src="./javascript/project.js"></script>
+
+    <!-- vue拡張 -->
+    <script src="./javascript/doracomponent.js"></script>
+
+    <link rel="stylesheet" href="./css/project.css">
+
+</head>
+<body>
+    <div id="app">
+        <!-- マスタページっぽいもの -->
+        <div class="columns">
+            <div class="column" style="margin-top:10px">
+                <span class="icon" onclick="window.top.location.href = 'menu.html';">
+                    <i class="fas fa-home"></i>
+                </span>
+                サンプルシステム（固定ページ）
+            </div>
+        </div>
+
+        <div class="columns">
+            <div class="column">
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p>入力</p>
+                        <span class="icon">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                    </div>
+                    <div class="message-body">
+
+                        <button class="button is-primary" v-on:click="submit()">更新</button>
+                        <button class="button is-danger" v-on:click="clear()">クリア</button>
+                        <button class="button is-warning" v-on:click="append()">1件追加</button>
+
+                        <!-- dora-pagingのex_bind_divと連動 -->
+                        <div id="divPaging" class="TablePanel">
+                            <!-- スタイルをbind v-bind:style="{ width: tablewidth + 'px' }" -->
+                            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="" >
+                                <thead>
+                                    <tr>
+                                        <!-- 先頭の記号が同じものは連動-->
+                                        <th style="width: 50px;" class="is-link">削除</th>
+                                        <th style="width: 200px;" class="is-link">テキスト入力</th>
+                                        <th style="width: 200px;" class="is-link">0フォーマット</th>
+                                        <th style="width: 200px;" class="is-link">★パーセント</th>
+                                        <th style="width: 200px;" class="is-link">★小数点</th>
+                                        <th style="width: 200px;" class="is-link">☆金額</th>
+                                        <th style="width: 200px;" class="is-link">☆金額(0非表示)</th>
+                                        <th style="width: 200px;" class="is-link">☆数値</th>
+                                        <th style="width: 200px;" class="is-link">金額と小数点</th>
+                                        <th style="width: 250px;" class="is-link">■日付（フル）</th>
+                                        <th style="width: 200px;" class="is-link">■日付</th>
+                                        <th style="width: 250px;" class="is-link">時刻</th>
+                                        <th style="width: 250px;" class="is-link">日付+時刻（表示のみ）</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- 各要素を表示 -->
+                                    <tr v-for="(elem, elemIndex) in displayitems">
+
+                                        <td style="text-align:center">
+                                            <!-- v-dora_updateflag="elem"(directive) で format, UPDATE_FLAGの処理を実行  -->
+                                            <input type="checkbox" v-model.lazy="elem.DELETE_FLAG" v-dora_updateflag="elem" class="checkbox" />
+                                        </td>
+                                        <td>
+                                            <!-- バリデーション 5桁～10桁(minlengthvalue="2" maxlengthvalue="5")  imeON(project.jsで処理) -->
+                                            <input v-model.lazy="elem.text" v-dora_updateflag="elem" class="input" isime="true" minlengthvalue="5" maxlengthvalue="10" />
+                                        </td>
+
+                                        <td>
+                                            <!-- バリデーション 半角のみ(ishankaku)  textalignはテキストの位置(project.jsで処理 ★基本 dora_format から自動設定) -->
+                                            <input v-model.lazy="elem.zero" dora_format="00000" v-dora_updateflag="elem" class="input" ishankaku="true" textalign="left" />
+                                        </td>
+                                        <td>
+                                            <!-- バリデーション 範囲 -100%～100%(minvalue="-1" maxvalue="1")-->
+                                            <input v-model.lazy="elem.percent" dora_format="0.0%" v-dora_updateflag="elem" class="input" minvalue="-1" maxvalue="1" />
+
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.percent" dora_format="0.000" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.currency" dora_format="#,##0" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td>
+                                            <!-- v-dora_updateflag.bindingvaluedisp でフォーカス取得時modelのvalueを表示 ⇒通常の編集はカンマ付だが、bindingvaluedispをつけるとフォーカス取得時カンマがなくなる -->
+                                            <input v-model.lazy="elem.currency" dora_format="#,###" v-dora_updateflag.bindingvaluedisp="elem" class="input" />
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.currency" dora_format="0" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.currencyAndShosu" dora_format="#,###.000" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.datetime" dora_format="yyyy/MM/dd HH:mm:ss" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.datetime" dora_format="yyyy/MM/dd" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td>
+                                            <input v-model.lazy="elem.time" dora_format="HH:mm:ss" v-dora_updateflag="elem" class="input" />
+                                        </td>
+                                        <td style="vertical-align:middle;">
+                                            <!-- 表示のみ -->
+                                            {{ elem.datetime | dora_formatDelimiter('yyyy/MM/dd')}} {{ elem.time | dora_formatDelimiter('HH:mm:ss')}}
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </article>
+                <!--
+    ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
+    v-bind:ex_size（1ページに表示するデータ件数） v-bind:ex_page_range（ページングに表示するページ数） こちらで変更可
+    -->
+                <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayitems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" ref="page"></dora-paging>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        'use strict';
+
+        var vm = new Vue({
+            el: '#app',
+            created: function () {
+                //alert('created');
+                //alert(JSON.stringify(this.bindItems));
+
+            },
+            beforeMount: function () {
+                //alert('beforeMount');
+                //this.clear();
+                //alert(JSON.stringify(this.bindItems));
+
+            }
+            ,
+            mounted: function () {
+                //alert('mounted');
+                this.clear();
+                //alert(JSON.stringify(this.bindItems));
+            }
+            ,
+            data: {
+                bindItems: [],      //バインド用
+                displayitems: [],   //表示用 (bindItems をページ用コンポーネントでfilter)
+            },
+            methods: {
+                // 要素を追加
+                append: function () {
+
+                    //先頭に追加
+                    this.bindItems.unshift({zero:2});
+
+                    //ページを１ページにする
+                    this.$refs.page.pageSelect(1);
+
+                    //先頭に追加(デフォルト値あり)
+                    //this.bindItems.unshift({
+                    //    name: '',
+                    //    selectvalue: '',
+                    //    multipleselectvalue: [],
+                    //});
+
+                },
+
+                submit: function () {
+                    //本来はAPIなどでデータの更新(更新する際 UPDATE_FLAG、DELETE_FLAGを活用)
+                    alert(JSON.stringify(this.bindItems));
+                    //alert(JSON.stringify(this.displayitems));
+
+                }
+                ,
+                search: function () {
+                    /*
+                    for (let i = 0; i < 1000; i++) {
+                        this.bindItems.push({
+                            id: i,
+                            name: ('1000' + i.toString()),
+                            multipleselectvalue: [10, 30],
+                            selectvalue: 20,
+                        });
+                    }
+                    */
+
+                    //ページを１ページにする
+                    this.$refs.page.pageSelect(1);
+
+                }
+                ,
+                clear: function () {
+
+                    this.bindItems = [];
+                    this.search();
+                }
+                ,
+
+            },
+        });
+
+    </script>
+</body>
+</html>
