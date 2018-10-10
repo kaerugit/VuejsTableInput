@@ -40,6 +40,7 @@ typescript(java支援)→一つ学習コストが増える（一人で作るの�
 
 index.htmlを起動してください。
 オンラインサンプル
+https://kaerugit.github.io/VuejsTableInput
 
 メニューが下になるほど、記述が簡易的になるのですが
 オレオレクラス(doracomponent.js)の依存度が高まる為
