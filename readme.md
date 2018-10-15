@@ -101,9 +101,11 @@ https://bulma.io/documentation/elements/icon を使用
 コンボボックスの選択値を簡略化するために使用
 （こちらを使用せず、素の記述でも良いと思います）
 
+
 ### Vue.filter
 #### dora_formatDelimiter
 フォーマット用
+
 
 ### Vue.component
 #### dora-paging
