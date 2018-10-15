@@ -22,7 +22,7 @@ Vue.directive('dora_table', {
 
 
         }
-        console.log('★');
+        
         let tbodyArray = el.querySelectorAll('tbody');
 
         if (widthArray.length > 0 && tbodyArray.length > 0) {
