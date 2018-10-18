@@ -88,8 +88,8 @@ https://bulma.io/documentation/elements/icon を使用
 
 ## オレオレクラス(doracomponent.js 名称にdora_をつけています)の簡易説明
 
-### **Vue.directive**
 ***
+### **Vue.directive**
 #### dora_table
 テーブルタグの全幅をセット  
 （こちらを使用せず、素の記述でも良いと思います）  
@@ -101,19 +101,18 @@ https://bulma.io/documentation/elements/icon を使用
 コンボボックスの選択値を簡略化するために使用  
 （こちらを使用せず、素の記述でも良いと思います）  
 
-
-### **Vue.filter**
 ***
+### **Vue.filter**
 #### dora_formatDelimiter
 フォーマット用  
 
-
-### **Vue.component**
 ***
+### **Vue.component**
 #### dora-paging
 ページング用コンポーネント  
 （無限スクロールでもよかったのですが、（私の技術では）上下キー移動でスクロールさせる事ができなかったので断念）  
 
+***
 ## サンプルソースについて
 
 ### v-から始まるものについて
