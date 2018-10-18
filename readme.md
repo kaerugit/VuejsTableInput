@@ -88,7 +88,7 @@ https://bulma.io/documentation/elements/icon を使用
 
 ## オレオレクラス(doracomponent.js 名称にdora_をつけています)の簡易説明
 
-### **Vue.directive**
+### ***Vue.directive
 #### dora_table
 テーブルタグの全幅をセット  
 （こちらを使用せず、素の記述でも良いと思います）  
@@ -101,12 +101,12 @@ https://bulma.io/documentation/elements/icon を使用
 （こちらを使用せず、素の記述でも良いと思います）  
 
 
-### **Vue.filter**
+### ***Vue.filter
 #### dora_formatDelimiter
 フォーマット用  
 
 
-### **Vue.component**
+### ***Vue.component
 #### dora-paging
 ページング用コンポーネント  
 （無限スクロールでもよかったのですが、（私の技術では）上下キー移動でスクロールさせる事ができなかったので断念）  
@@ -179,7 +179,9 @@ isprimarykeyタグ 新規入力は入力可（既存行は入力不可）の処�
 ※フォーマットはdora_formatタグ  
 
 タグ例（ime=off、入力位置はcenter、半角入力（全角不可）で5文字まで）  
+```
 <input v-model.lazy="elem.社員コード" class="input" isime="false" ishankaku="true" maxlengthvalue="5" textalign="center" />  
+```
 ⇒textalign="center"、isime="false"は cssに直接書くのがレスポンス的にもよいと思います。  
 
 ### class（class hoge {}）の使用
