@@ -3,6 +3,7 @@
 window.addEventListener("keydown", keydownHandler);
 
 function keydownHandler(e) {
+
     if (!(e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40)) {
         return
     }
@@ -89,6 +90,8 @@ function keydownHandler(e) {
     }
     //上下(tableタグ前提で上下移動)
     else if (e.keyCode == 38 || e.keyCode == 40) {
+        
+
         let objActive = document.activeElement;
         if (objActive.type == null) {
             return;
@@ -103,7 +106,7 @@ function keydownHandler(e) {
         else if (objActiveType.indexOf("select") == 0) {
             return;
         }
-
+        
         let plusValue = 1;
         if (e.keyCode == 38) {      //上
             plusValue = -1
@@ -121,7 +124,7 @@ function keydownHandler(e) {
                     break;
                 }
             }
-
+            
             //親にtdが存在した場合
             if (findFlag == true) {
 
@@ -129,7 +132,8 @@ function keydownHandler(e) {
                 let parentTR = parentTD.parentNode;
                 let listArray = parentTR.querySelectorAll('td');
                 let findIndexTD = -1;
-                for (i = 0; i < listArray.length; i++) {
+
+                for (let i = 0; i < listArray.length; i++) {
                     let obj = listArray[i];
                     if (parentTD == obj) {
                         findIndexTD = i;
@@ -139,16 +143,17 @@ function keydownHandler(e) {
 
                 if (findIndexTD != -1) {
                     let findIndexTR = -1;
-
+             
                     //trのindexを求める
                     let listArrayTR = parentTR.parentNode.querySelectorAll('tr');
-                    for (i = 0; i < listArrayTR.length; i++) {
+                    for (let i = 0; i < listArrayTR.length; i++) {
                         let obj = listArrayTR[i];
                         if (parentTR == obj) {
                             findIndexTR = i + plusValue;
                             break;
                         }
                     }
+
                     if (findIndexTR != -1 && listArrayTR.length >= findIndexTR) {
                         let nextFlag = true;
                         do {
@@ -157,7 +162,7 @@ function keydownHandler(e) {
                                 listArray = listArrayTR[findIndexTR].querySelectorAll('td');
                                 listArray = listArray[findIndexTD].querySelectorAll('input,textarea');
 
-                                for (i = 0; i < listArray.length; i++) {
+                                for (let i = 0; i < listArray.length; i++) {
                                     let obj = listArray[i];
                                     let objType = obj.type.toLowerCase();
                                     if (objType == objActiveType) {

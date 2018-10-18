@@ -124,9 +124,9 @@ function ValidateCheck(field, value) {
 
 //https://zukucode.com/2017/04/javascript-string-length.html 参考
 function GetbyteLength(value) {
-    var length = 0;
-    for (var i = 0; i < value.length; i++) {
-        var c = value.charCodeAt(i);
+    let length = 0;
+    for (let i = 0; i < value.length; i++) {
+        let c = value.charCodeAt(i);
         if ((c >= 0x0 && c < 0x81) || (c === 0xf8f0) || (c >= 0xff61 && c < 0xffa0) || (c >= 0xf8f1 && c < 0xf8f4)) {
             length += 1;
         } else {
