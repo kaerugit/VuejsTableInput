@@ -28,10 +28,10 @@ Vue.directive('dora_table', {
         if (widthArray.length > 0 && tbodyArray.length > 0) {
             let trArray = tbodyArray[0].querySelectorAll('tr');
             
-            if (trArray.length > 0) {
-
-                let tdArray = trArray[0].querySelectorAll('td');
-
+            //if (trArray.length > 0) {
+            //edgeだと全件ループしないと正しくセットされない（chrome,ieは最初の一件で問題ない）
+            for (let i = 0; i < trArray.length; i++) {
+                let tdArray = trArray[i].querySelectorAll('td');
 
                 if (tdArray.length > 0) {
 
@@ -45,20 +45,19 @@ Vue.directive('dora_table', {
 
                         //存在する場合
                         if (obj) {
-
                             obj.style.width = width + 'px';
                         }
                     }
                 }
             }
+            
         }
     }
 }   
-);
-
+)
 
 // v-dora_updateflag.bindingvaluedisp 指定でフォーカス取得時 バインディングの値をそのままセット
-// dora_format="HH:mm:ss" とした場合、入力の日付はfull(yyyy/MM/dd HH:mm:ss) 表示はHH:mm:ss となる
+// v-dora_updateflag.bindingvaluedispをセットし、dora_format="#,###" とした場合、入力は 1000(modelの値) 表示は1,000 となる
 Vue.directive('dora_updateflag', {
     //データ更新時にフラグを追加
     bind: function (el, binding, vnode) {
@@ -164,8 +163,9 @@ Vue.directive('dora_updateflag', {
             function (e) {
                 let ae = e.target;
                         
+
                 //こちらを入れないと選択状態にならない
-                setTimeout(
+                Vue.nextTick(
                         function () {
                             if (ae != document.activeElement){
                                 return;
@@ -187,8 +187,8 @@ Vue.directive('dora_updateflag', {
                                 */
                             }
                         }
-                        , 200);
-                }
+                );
+            }
             , false);
 
         //modelをそのまま表示している場合はフォーカス喪失時に再度フォーマット
@@ -196,6 +196,7 @@ Vue.directive('dora_updateflag', {
 
             el.addEventListener("blur",
             function (e) {
+                
                 let ae = e.target;
                 //if (typeof ae.select == 'function') {
                 //    //選択解除
@@ -211,11 +212,13 @@ Vue.directive('dora_updateflag', {
                         return;
                     }
 
+                    
                     if (ae.bindingvalue.value[ae.modelvalue] != null) {
                         if (binding.modifiers.bindingvaluedisp == true) {
-                            ae.value = parseFormat(binding.value[ae.modelvalue], format);
+                            ae.value = parseFormat(ae.bindingvalue.value[ae.modelvalue], format);
                         }
                     }
+                    
                 }   
             , false);
         }
@@ -243,7 +246,7 @@ Vue.directive('dora_updateflag', {
         }
 
         if (binding.value[el.modelvalue] != null) {
-            el.value = parseFormat(binding.value[el.modelvalue], format);
+            el.value = parseFormat(binding.value[el.modelvalue], format);   
         }
 
     },

@@ -514,7 +514,7 @@ Project.MoveErrorFocus = function (items, error, pageMoveFunction) {
                 errorItems[0][error.Field + '_ISERROR'] = true;
             }
 
-            setTimeout(
+            Vue.nextTick(
                 function () {
                     let el;
                     if (pageMoveFunction != null) {
@@ -535,7 +535,7 @@ Project.MoveErrorFocus = function (items, error, pageMoveFunction) {
                     }
 
                 }
-                , 200);
+            );
         }
 
         return true;
