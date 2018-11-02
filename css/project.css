@@ -4,12 +4,12 @@
 
 /* 以下project.jsと連動 */
 
-/** IMEモードONのスタイル */
+/** IMEモードONのスタイル(IE専用) */
 .ime-on {
   ime-mode:active;
 }
 
-/** IMEモードOFFのスタイル */
+/** IMEモードOFFのスタイル(IE専用) */
 .ime-off {
   ime-mode:disabled;
 }
@@ -88,50 +88,11 @@ tbody > .err-common{
 
 /* 以下project.jsと連動(終) */
 
-
-/* 以下テーブルヘッダ固定(IE以外) */
-/* sticky table 
-.sticky_table {
-    display: block;
-    overflow: hidden;
-    width: calc(100vw - 3.0rem); /* fixed value 
-    height: calc(100vh - 7.0rem); /* fixed value 
-    margin: 0 auto;
-}
-*/
-
-/*
-table {
-    display: block !important;
-    
-    position: relative;
-    overflow: scroll;
-    width: 100%;
-    height: 100%;
-    border-collapse: collapse;
-}
-*/
+/*タイトル固定*/
 thead, tbody {
     display: block; 
-    /*
-    width: max-content;
-    */
 }
 
-
-/*
-th, td {
-    display: inline-block;
-    min-width: 8.0rem; /* fixed value 
-    background: #fff;
-    font-size: 1.0rem;
-}
-
-tbody th {
-    position: sticky;
-    left: 0;
-    z-index: 1;
-}*/
 
 thead {
     position: sticky;
@@ -139,17 +100,19 @@ thead {
     z-index: 100;
 }
 
-/*
-    thead th.blank {
-        position: sticky;
-        top: 0;
-        left: 0;
-        z-index: 3;
-    }
-*/
 
+/*ページング用のパネル*/
+.PageingPanel{
+    padding: 5px;
+}
 
-
+/* <article class="message" の中だとページングの表示がおかしくなるのでちょっと力技 */
+.PageingPanel  a {
+    text-decoration:none !important;
+}
+.PageingPanel  a[class~=is-current]   {
+    color: #fff !important;
+}
 
 @media only screen and (min-width: 769px) { /* 769以上　PC用 */
     .WherePanelMinWidth {
@@ -160,11 +123,13 @@ thead {
         display: none;
     }
 
-    .WherePanel {
+    /*メッセージ(DIV)の高さ*/
+    .MessageBodyPanel {
         overflow: auto;
         height: calc(100vh - 9.0rem);
     }
 
+    /*タイトルを固定しているテーブルの高さ*/
     .TablePanel {
         overflow: scroll;
         overflow-x: scroll;
@@ -182,7 +147,7 @@ thead {
     .WherePanelTitleVisible {
     }
 
-    .WherePanel{
+    .MessageBodyPanel{
     }
 
     .TablePanel{

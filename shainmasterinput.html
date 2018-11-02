@@ -82,12 +82,12 @@
                             <i class="fas fa-edit"></i>
                         </span>
                     </div>
-                    <div class="message-body">  
-                        <button class="button is-primary" v-on:click="submit(false)">更新</button>
+                    <div class="message-body MessageBodyPanel">  
+                        <button class="button is-primary" v-on:click="submit(false)">登録</button>
                         <button class="button is-primary" v-on:click="submit(true)">【テスト】更新(サーバチェックエラー)</button>
 
                         <button class="button is-danger" v-on:click="clear()">クリア</button>
-                        <button class="button is-warning" v-on:click="remove()">削除</button>
+                        <button class="button is-warning" v-on:click="remove()" v-show="!NewFlag">削除</button>
                         &nbsp;
                         <button class="button is-success" v-on:click="returnpage()">戻る</button>
 
@@ -362,6 +362,7 @@
             }
             ,
             data: {
+                NewFlag : false,
 
                 bindItems: [],      //バインド用
 
@@ -407,7 +408,7 @@
             },
             methods: {
 
-                submit: function (testFlag) {       //引数testFlagは必要なし
+                submit: function (testFlag) {       //本来は引数testFlagは必要なし引数testFlagは必要なし
                     
                     Project.SetLoading(true);   //２度押し防止用くるくる（開始）
 
@@ -438,6 +439,7 @@
 
                         //API送信後サーバのチェックでエラーが発生した場合のサンプル
                         if (testFlag) {
+                            //サーバエラー時にはこちらのjsonをセット
                             let error = {
                                 ErrorIdentity: this.bindItems[0]["IDENTITY_ID"],     //エラーフラグを付けるエラー行(本来はサーバ側でセット)
                                 Field: '社員コード',
@@ -470,9 +472,10 @@
 
                     //引数の取得（Project.OpenDialogでセット）
                     let args = Project.GetDialogArgs();
+                    
+                    this.NewFlag= false;
 
                     //新規データ
-                    let newFlag = false;
                     if (args == null) {
                         args = {};
 
@@ -483,10 +486,11 @@
                         args.市区町村CD= '';      //こちら入れないと関連している項目が動作しない
                         args.町域CD= '';
 
-                        newFlag = true;
+                        this.NewFlag = true;
                     }
-                    args.NEW_FLAG = newFlag;
+                    args.NEW_FLAG = this.NewFlag;
 
+                    //データのバインド
                     this.bindItems = [];
                     this.bindItems.push(args);
                 }

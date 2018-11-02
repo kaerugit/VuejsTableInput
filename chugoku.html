@@ -78,7 +78,7 @@
                             <i class="fas fa-search"></i>
                         </span>
                     </div>
-                    <div class="message-body WherePanel" v-show="isDisplayWherePanel">
+                    <div class="message-body MessageBodyPanel" v-show="isDisplayWherePanel">
                         <template v-for="(elem, elemIndex) in whereItems">
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
@@ -173,15 +173,14 @@
                             <i class="fas fa-edit"></i>
                         </span>
                     </div>
-                    <div class="message-body">
+                    <div class="message-body MessageBodyPanel">
 
                         <button class="button is-primary" v-on:click="submit()">更新</button>
                         <button class="button is-danger" v-on:click="clear()">クリア</button>
                         <button class="button is-warning" v-on:click="append()">1件追加</button>
 
                         <div id="divPaging" class="TablePanel">
-                            <!-- スタイルをbind v-bind:style="{ width: tablewidth + 'px' }" -->
-                            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" >
+                            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" style="width: 2350px" >
                                 <thead>
                                     <tr>
                                         <th style="width: 50px;" class="is-link">削除</th>
@@ -203,46 +202,46 @@
                                 <tbody>
                                     <!-- 各要素を表示 -->
                                     <tr v-for="(elem, elemIndex) in bindItems">
-                                        <td style="text-align:center">
+                                        <td style="text-align:center;width: 50px;">
                                             <input type="checkbox" v-model.lazy="elem.DELETE_FLAG" class="checkbox" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.住所CD" class="input" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.都道府県CD" class="input" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.市区町村CD" class="input" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.町域CD" class="input" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.郵便番号" class="input" />
                                         </td>
-                                        <td style="text-align:center">
+                                        <td style="text-align:center;width: 50px;">
                                             <input type="checkbox" v-model.lazy="elem.事業所フラグ" class="checkbox" />
                                         </td>
-                                        <td style="text-align:center">
+                                        <td style="text-align:center;width: 200px;">
                                             <input type="checkbox" v-model.lazy="elem.廃止フラグ" class="checkbox" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.都道府県" class="input" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.都道府県カナ" class="input" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.市区町村" class="input" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.市区町村カナ" class="input" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.町域カナ" class="input" />
                                         </td>
-                                        <td>
+                                        <td style="width: 200px;">
                                             <input v-model.lazy="elem.町域補足" class="input" />
                                         </td>
                                     </tr>

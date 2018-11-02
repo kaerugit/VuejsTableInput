@@ -86,7 +86,7 @@
                             <i class="fas fa-search"></i>
                         </span>
                     </div>
-                    <div class="message-body WherePanel" v-show="isDisplayWherePanel">
+                    <div class="message-body MessageBodyPanel" v-show="isDisplayWherePanel">
                         <template v-for="(elem, elemIndex) in whereItems">
                             <!-- 表形式と同様にする為必ず配列ループを基本とする -->
 
@@ -191,7 +191,7 @@
                             <i class="fas fa-edit"></i>
                         </span>
                     </div>
-                    <div class="message-body">
+                    <div class="message-body MessageBodyPanel">
 
                         <button class="button is-primary" v-on:click="submit(false)">更新</button>
                         <button class="button is-primary" v-on:click="submit(true)">【テスト】更新(サーバチェックエラー)</button>
@@ -288,17 +288,18 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!--
+                        ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
+                        ページングが複数あるような画面は ref="page2" と名前を変更する
+                        v-bind:dora_size（1ページに表示するデータ件数） v-bind:dora_page_range（ページングに表示するページ数） こちらで変更可
+                        dora_display_panel は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
+                        -->
+                        <div class="PageingPanel">
+                            <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayItems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" v-bind:dora_display_panel.sync="isDisplayWherePanel" ref="page"></dora-paging>
+                        </div>
                     </div>
                 </article>
-
-                <!--
-                ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
-                ページングが複数あるような画面は ref="page2" と名前を変更する
-                v-bind:dora_size（1ページに表示するデータ件数） v-bind:dora_page_range（ページングに表示するページ数） こちらで変更可
-                dora_display_panel は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
-                -->
-                <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayItems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" v-bind:dora_display_panel.sync="isDisplayWherePanel" ref="page"></dora-paging>
-
             </div>
         </div>
     </div>
@@ -505,7 +506,7 @@
                     this.$refs.page.pageSelect(1);
                 },
 
-                submit: function (testFlag) {       //引数testFlagは必要なし
+                submit: function (testFlag) {       //本来は引数testFlagは必要なし
                     
                     Project.SetLoading(true);   //２度押し防止用くるくる（開始）
 
@@ -555,7 +556,7 @@
 
                         //API送信後サーバのチェックでエラーが発生した場合のサンプル
                         if (testFlag) {
-                            //とりあえず、テスト用にIDENTITYを取得
+                            //とりあえず、テスト用にIDENTITYを取得（サンプルのみ必要な処理）
                             let selectItems = this.bindItems.filter(
                                 function (item) {
 
@@ -572,6 +573,7 @@
                             );
 
                             if (selectItems.length > 0) {
+                                //サーバエラー時にはこちらのjsonをセット
                                 let error = {
                                     ErrorIdentity: selectItems[0]["IDENTITY_ID"],     //エラーフラグを付けるエラー行(本来はサーバ側でセット)
                                     Field: '社員コード',

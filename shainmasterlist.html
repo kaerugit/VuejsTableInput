@@ -86,7 +86,7 @@
                             <i class="fas fa-search"></i>
                         </span>
                     </div>
-                    <div class="message-body WherePanel" v-show="isDisplayWherePanel">
+                    <div class="message-body MessageBodyPanel" v-show="isDisplayWherePanel">
                         <template v-for="(elem, elemIndex) in whereItems">
                             <!-- 表形式と同様にする為必ず配列ループを基本とする -->
 
@@ -191,14 +191,12 @@
                             <i class="fas fa-edit"></i>
                         </span>
                     </div>
-                    <div class="message-body">
+                    <div class="message-body MessageBodyPanel">
                         <button class="button is-warning" v-on:click="append()">新規追加</button>
                         <button class="button is-danger" v-on:click="clear()">クリア</button>
 
 
-                        <button class="button is-primary" v-on:click="submit(false)">更新</button>
-                        <button class="button is-primary" v-on:click="submit(true)">【テスト】更新(サーバチェックエラー)</button>
-                        <button class="button is-warning" v-on:click="tes()">1件追加</button>
+                        <button class="button is-primary" v-on:click="submit()">登録されたjsonの確認</button>
 
 
                         <!-- dora-pagingのdora_bind_divと連動 -->
@@ -251,17 +249,18 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!--
+                        ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
+                        ページングが複数あるような画面は ref="page2" と名前を変更する
+                        v-bind:dora_size（1ページに表示するデータ件数） v-bind:dora_page_range（ページングに表示するページ数） こちらで変更可
+                        dora_display_panel は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
+                        -->
+                        <div class="PageingPanel">
+                            <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayItems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" v-bind:dora_display_panel.sync="isDisplayWherePanel" ref="page"></dora-paging>
+                        </div>
                     </div>
                 </article>
-
-                <!--
-                ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
-                ページングが複数あるような画面は ref="page2" と名前を変更する
-                v-bind:dora_size（1ページに表示するデータ件数） v-bind:dora_page_range（ページングに表示するページ数） こちらで変更可
-                dora_display_panel は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
-                -->
-                <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayItems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" v-bind:dora_display_panel.sync="isDisplayWherePanel" ref="page"></dora-paging>
-
             </div>
         </div>
     </div>
@@ -440,15 +439,7 @@
                 append: function (appendCont) {
                     Project.OpenDialog("shainmasterinput.html", null, this.dialogreturn);
                 },
-                tes: function () {
-                    this.bindItems.unshift({
-                        NEW_FLAG: true,
-                    });
-                    //this.$refs.page.pageSelect(1);
-
-                },
-
-                submit: function (testFlag) {       //引数testFlagは必要なし
+                submit: function () {       
 
                     alert(JSON.stringify(this.bindItems));
                 }
@@ -578,10 +569,12 @@
                 },
 
                 edit: function (elem) {
+                    //引数に、elemをセットし、OK時にdialogreturn関数を実行
                     Project.OpenDialog("shainmasterinput.html",elem, this.dialogreturn);
                 },
                 dialogreturn: function (returnValue) {
                     //ダイアログがOKの場合に呼びだれれるfunction (Project.OpenDialogでセット)
+                    //returnValue には　Project.CloseDialog　の引数と連動
 
                     //データのマージ
                     let self = this;

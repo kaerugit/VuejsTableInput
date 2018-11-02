@@ -78,7 +78,6 @@ Project.InitValidate = function(el, field) {
         //プロジェクト独自なチェックが必要な場合　オリジナルなタグを用意し、処理を追加
         // < <input ～ isHankaku="true" />
 
-
         //半角
         if (el.getAttribute("ishankaku") != null) {
             obj.isHankaku = isBoolean(el.getAttribute("ishankaku"));
@@ -591,7 +590,7 @@ Project.OpenDialog = function (openHtmlPage, args, returnFunc) {
 
     //メインのスクロールを非表示にする(bulmaで定義されているので無理やり上書き)
     //こちらを記述しないとスクロールバーが2個並んでしまいます。
-    //CloseDialogで無理矢理とっています。
+    //CloseDialogで強制的に削除。
     let head = wTop.document.getElementsByTagName('head')[0];
     let style = wTop.document.createElement("style");
     style.setAttribute("d", true);
@@ -724,7 +723,9 @@ function GetbyteLength(value) {
 }
 
 function isBoolean(value) {
-    if (String(true).toLocaleLowerCase() == value.toString().toLocaleLowerCase()) {
+    if (value != null && 
+        String(true).toLocaleLowerCase() == value.toString().toLocaleLowerCase()) 
+    {
         return  true;
     }
     else {

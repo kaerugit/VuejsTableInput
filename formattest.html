@@ -70,8 +70,8 @@
             </div>
         </div>
 
-        <div class="columns">
-            <div class="column">
+        <div class="columns" >
+            <div class="column is-12">
                 <article class="message is-primary">
                     <div class="message-header">
                         <p>入力</p>
@@ -79,7 +79,7 @@
                             <i class="fas fa-edit"></i>
                         </span>
                     </div>
-                    <div class="message-body">
+                    <div class="message-body MessageBodyPanel">
 
                         <button class="button is-primary" v-on:click="submit()">更新</button>
                         <button class="button is-danger" v-on:click="clear()">クリア</button>
@@ -164,14 +164,18 @@
                             </table>
 
                         </div>
+                        <!--
+                        ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
+                        ページングが複数あるような画面は ref="page2" と名前を変更する
+                        v-bind:dora_size（1ページに表示するデータ件数） v-bind:dora_page_range（ページングに表示するページ数） こちらで変更可
+                        dora_display_panel は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
+                        -->
+                        <div class="PageingPanel">
+                            <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayitems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" ref="page"></dora-paging>
+                        </div>
+
                     </div>
                 </article>
-                <!--
-    ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
-    v-bind:ex_size（1ページに表示するデータ件数） v-bind:ex_page_range（ページングに表示するページ数） こちらで変更可
-    -->
-                <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayitems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" ref="page"></dora-paging>
-
             </div>
         </div>
     </div>
