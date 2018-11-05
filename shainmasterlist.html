@@ -192,7 +192,7 @@
                         </span>
                     </div>
                     <div class="message-body MessageBodyPanel">
-                        <button class="button is-warning" v-on:click="append()">新規追加</button>
+                        <button class="button is-warning" v-on:click="appendoredit(null)">新規追加</button>
                         <button class="button is-danger" v-on:click="clear()">クリア</button>
 
 
@@ -220,7 +220,7 @@
                                     <!-- err-common はproject.cssに定義(エラー行に色を付ける) -->
                                     <tr v-for="(elem, elemIndex) in displayItems">
                                         <td style="text-align:center">
-                                            <button class="button is-primary" v-on:click="edit(elem)">編集</button>
+                                            <button class="button is-primary" v-on:click="appendoredit(elem)">編集</button>
                                         </td>
                                         <td style="text-align:center">
                                             {{elem.社員コード}}
@@ -277,7 +277,7 @@
             mounted: function () {
                 let self = this;        //ieを考慮する場合、アロー関数(()=>)が使えないのでこちらの書き方推奨
                 //json get data
-                var xmlHttpRequest = new XMLHttpRequest();
+                let xmlHttpRequest = new XMLHttpRequest();
                 xmlHttpRequest.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
                         if (this.response) {
@@ -436,11 +436,7 @@
                 isDisplayWherePanel: true,
             },
             methods: {
-                append: function (appendCont) {
-                    Project.OpenDialog("shainmasterinput.html", null, this.dialogreturn);
-                },
                 submit: function () {       
-
                     alert(JSON.stringify(this.bindItems));
                 }
                 ,
@@ -511,67 +507,37 @@
                     this.$refs.page.pageSelect(1);
                 }
                 ,
-                //市区町村の取得
-                getShikuchoson: function (todofukenCD) {
-                    if (todofukenCD == null || todofukenCD.length == 0) {
-                        return [];
-                    }
 
-                    return this.shikuchosonItems.filter(
-                        function (item) {
-                            let findFlag = true;
+                //elem=nullが新規
+                appendoredit: function (elem) {
 
-                            if (findFlag == true && item.都道府県CD != todofukenCD) {
-                                findFlag = false;
-                            }
+                    //ダイアログサンプル
+                    let args = {};
 
-                            return findFlag;
-                        }
-                    );
-                }
-                ,
-                //町域の取得
-                getChoiki: function (todofukenCD, shikuchosonCD) {
-                    if (todofukenCD == null || todofukenCD.length == 0) {
-                        return [];
-                    }
+                    //データ
+                    args["data"] = elem;
 
-                    if (shikuchosonCD == null || shikuchosonCD.length == 0) {
-                        return [];
-                    }
+                    //サーバから読み込んでいるデータを（再度アクセスしないように）引き渡し
+                    //都道府県コンボ用
+                    args["todofukenItems"] = this.todofukenItems;
 
-                    return this.choikiItems.filter(
-                        function (item) {
-                            let findFlag = true;
+                    //市区町村コンボ用
+                    args["shikuchosonItems"] = this.shikuchosonItems;
 
-                            if (findFlag == true && item.都道府県CD != todofukenCD) {
-                                findFlag = false;
-                            }
+                    //町域コンボ用
+                    args["choikiItems"] = this.choikiItems;
 
-                            if (findFlag == true && item.市区町村CD != shikuchosonCD) {
-                                findFlag = false;
-                            }
+                    //性別区分
+                    args["seibetuType"] = this.seibetuType;
 
-                            return findFlag;
-                        }
-                    );
+                    //扶養家族区分
+                    args["fuyokazokuType"] = this.fuyokazokuType;
 
-                }
-                ,
-                //都道府県変更時
-                changeTodofuken: function (elem) {
-                    elem.市区町村CD = '';
-                    elem.町域CD = '';
+
+                    //引数に、argsをセットし、OK時にdialogreturn関数を実行（複数ダイアログがある場合は、dialogreturnを違うfunctionにする）
+                    Project.OpenDialog("shainmasterinput.html", args, this.dialogreturn);
                 },
-                //市区町村変更時
-                changeShikuchoson: function (elem) {
-                    elem.町域CD = '';
-                },
-
-                edit: function (elem) {
-                    //引数に、elemをセットし、OK時にdialogreturn関数を実行
-                    Project.OpenDialog("shainmasterinput.html",elem, this.dialogreturn);
-                },
+               
                 dialogreturn: function (returnValue) {
                     //ダイアログがOKの場合に呼びだれれるfunction (Project.OpenDialogでセット)
                     //returnValue には　Project.CloseDialog　の引数と連動

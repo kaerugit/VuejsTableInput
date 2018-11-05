@@ -5,8 +5,8 @@ var Project = {};
 
 //プロジェクトカスタマイズ用javascript
 
-//バリデーションのチェックを入れる配列
-var validatefield = [];
+//バリデーションのチェックを入れるオブジェクト
+var validatefield = {};
 
 /*
 ★こちらのバリデーションの課題
@@ -263,7 +263,7 @@ Project.SetControlCss = function (el, binding, errorFlag) {
     if (primarykey != null) {
         el.disabled = false;
         if (String(true).toLocaleLowerCase() == primarykey.toString().toLocaleLowerCase()) {
-            if (!(binding.value["NEW_FLAG"] == true)) {
+            if (!(binding.value[DoraConst.FIELD_NEW_FLAG] == true)) {
                 el.disabled = true;
             }
         }
@@ -308,8 +308,8 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
         let item = items[i];
 
         //ERROR_FLAGをクリア
-        item["ERROR_FLAG"] = false;
-        item["IDENTITY_ID"] = i;           //サーバ処理でのエラー時にでも使用してください。
+        item[DoraConst.FIELD_ERROR_FLAG] = false;
+        item[DoraConst.FIELD_IDENTITY_ID] = i;           //サーバ処理でのエラー時にでも使用してください。
 
 
         //コントロールのエラーを一旦削除
@@ -329,13 +329,13 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
         let deleteFlag = false;
 
         //Deleteの場合は無視
-        if (item["DELETE_FLAG"] == true) {
+        if (item[DoraConst.FIELD_DELETE_FLAG] == true) {
             deleteFlag = true;
         }
 
         /*
         if (requiredFlag == true) {
-            if (item["NEW_FLAG"] == true) { //append: function () { でセット
+            if (item[DoraConst.FIELD_NEW_FLAG] == true) { //append: function () { でセット
 
                 requiredFlag = false;
                 for (let j = 0; j < requiredfield.length; j++) {
@@ -347,7 +347,7 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
 
                 if (requiredFlag == false) {
                     //更新フラグを取り下げ
-                    item["UPDATE_FLAG"] = false;
+                    item[DoraConst.FIELD_UPDATE_FLAG] = false;
                 }
                 else {
                     for (let j = 0; j < requiredfield.length; j++) {
@@ -365,7 +365,7 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
         */
 
         //更新している行のみ (pageMoveFunction == null は単票画面)
-        if (item["UPDATE_FLAG"] == true || pageMoveFunction == null) {
+        if (item[DoraConst.FIELD_UPDATE_FLAG] == true || pageMoveFunction == null) {
 
             if (deleteFlag == false && error.Message.length == 0) {
                 for (let j = 0; j < requiredfield.length; j++) {
@@ -382,12 +382,12 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
             //重複チェック
             if (deleteFlag == false && error.Message.length == 0) {
                 //新規データが対象（既存行の重複チェックはしない）
-                if (item["NEW_FLAG"] == true) {
+                if (item[DoraConst.FIELD_NEW_FLAG] == true) {
                     if (keyFiled.length > 0) {
                         let dupeitems = items.filter(
                             function (dupeitem) {
 
-                                if (dupeitem["IDENTITY_ID"] == item["IDENTITY_ID"]) {
+                                if (dupeitem[DoraConst.FIELD_IDENTITY_ID] == item[DoraConst.FIELD_IDENTITY_ID]) {
                                     return false;
                                 }
 
@@ -417,7 +417,7 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
 
             //入力時エラーが、そのままの場合があるので、個別(桁数など)のチェックをもう一度行う
             if (deleteFlag == false && error.Message.length == 0) {
-                for (var key in item) {
+                for (let key in item) {
                     let message = Project.CheckValidate(key, item[key]);
                     if (message.length > 0) {
                         error = {
@@ -437,7 +437,7 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
 
         }
         if (error.Message.length > 0) {
-            item["ERROR_FLAG"] = true;
+            item[DoraConst.FIELD_ERROR_FLAG] = true;
 
             //エラーメッセージの表示
             Project.MoveErrorFocus(items, error, pageMoveFunction);
@@ -465,15 +465,15 @@ Project.MoveErrorFocus = function (items, error, pageMoveFunction) {
             let errorItems = items.filter(
                 function (item) {
 
-                    if (item["IDENTITY_ID"].toString() == error.ErrorIdentity.toString()) {
+                    if (item[DoraConst.FIELD_IDENTITY_ID].toString() == error.ErrorIdentity.toString()) {
                         return true;
                     }
                     return false;
                 }
             );
 
-            for (var i = 0; i < errorItems.length; i++) {
-                errorItems[i]["ERROR_FLAG"] = true;
+            for (let i = 0; i < errorItems.length; i++) {
+                errorItems[i][DoraConst.FIELD_ERROR_FLAG] = true;
             }
 
         }
@@ -485,11 +485,11 @@ Project.MoveErrorFocus = function (items, error, pageMoveFunction) {
             function (a, b) {
 
                 //true 1 false 0 なので注意
-                if (isBoolean(a["ERROR_FLAG"]) > isBoolean(b["ERROR_FLAG"])) { return -1; }
-                else if (isBoolean(a["ERROR_FLAG"]) < isBoolean(b["ERROR_FLAG"])) { return 1; }
+                if (isBoolean(a[DoraConst.FIELD_ERROR_FLAG]) > isBoolean(b[DoraConst.FIELD_ERROR_FLAG])) { return -1; }
+                else if (isBoolean(a[DoraConst.FIELD_ERROR_FLAG]) < isBoolean(b[DoraConst.FIELD_ERROR_FLAG])) { return 1; }
 
-                if (a["IDENTITY_ID"] < b["IDENTITY_ID"]) { return -1; }
-                else if (a["IDENTITY_ID"] > b["IDENTITY_ID"]) { return 1; }
+                if (a[DoraConst.FIELD_IDENTITY_ID] < b[DoraConst.FIELD_IDENTITY_ID]) { return -1; }
+                else if (a[DoraConst.FIELD_IDENTITY_ID] > b[DoraConst.FIELD_IDENTITY_ID]) { return 1; }
 
                 return 0;
             }
@@ -505,7 +505,7 @@ Project.MoveErrorFocus = function (items, error, pageMoveFunction) {
         if (error.Field.length > 0) {
             let errorItems = items.filter(
                 function (item) {
-                    return item["ERROR_FLAG"] == true;
+                    return item[DoraConst.FIELD_ERROR_FLAG] == true;
                 }
             );
             if (errorItems.length > 0) {
@@ -585,7 +585,7 @@ Project.OpenDialog = function (openHtmlPage, args, returnFunc) {
     iframe.src = openHtmlPage;
     iframe.classList.add('iframeDialog');
 
-    var element = wTop.document.body; //.querySelector("body");
+    let element = wTop.document.body; //.querySelector("body");
     element.appendChild(iframe);
 
     //メインのスクロールを非表示にする(bulmaで定義されているので無理やり上書き)
@@ -672,7 +672,7 @@ Project.GetDialogArgs = function () {
 Project.MargeInputData = function (items, updateData, keyFiled, pageMoveFunction) {
 
     //新規データの場合、先頭に追加
-    if (updateData.NEW_FLAG == true) {
+    if (updateData[DoraConst.FIELD_NEW_FLAG] == true) {
         items.unshift(updateData);
 
         if (typeof pageMoveFunction == 'function') {
@@ -695,7 +695,7 @@ Project.MargeInputData = function (items, updateData, keyFiled, pageMoveFunction
                 if (findFlag == true) {
                     //自動的に変更されないので一旦削除してから追加する
                     items.splice(i, 1);
-                    if (!(updateData.DELETE_FLAG == true)) {
+                    if (!(updateData[DoraConst.FIELD_DELETE_FLAG] == true)) {
                         items.splice(i, 0, updateData);
                     }
                     break;
@@ -710,9 +710,9 @@ Project.MargeInputData = function (items, updateData, keyFiled, pageMoveFunction
 
 //https://zukucode.com/2017/04/javascript-string-length.html 参考
 function GetbyteLength(value) {
-    var length = 0;
-    for (var i = 0; i < value.length; i++) {
-        var c = value.charCodeAt(i);
+    let length = 0;
+    for (let i = 0; i < value.length; i++) {
+        let c = value.charCodeAt(i);
         if ((c >= 0x0 && c < 0x81) || (c === 0xf8f0) || (c >= 0xff61 && c < 0xffa0) || (c >= 0xf8f1 && c < 0xf8f4)) {
             length += 1;
         } else {

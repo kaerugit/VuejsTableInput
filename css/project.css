@@ -6,23 +6,23 @@
 
 /** IMEモードONのスタイル(IE専用) */
 .ime-on {
-  ime-mode:active;
+    ime-mode:active;
 }
 
 /** IMEモードOFFのスタイル(IE専用) */
 .ime-off {
-  ime-mode:disabled;
+    ime-mode:disabled;
 }
 
 /** テキスト位置 */
 .text-center
 {
-text-align: center;
+    text-align: center;
 }
 
 .text-right
 {
-text-align: right;
+    text-align: right;
 }
 
 /* tableタグのみ 適用(エラー行のcss) */
@@ -74,6 +74,7 @@ tbody > .err-common{
     100% {transform: rotate(360deg);}
 }
 
+/*iframeダイアログのcss */
 .iframeDialog{
     position:absolute;
     top: 0px;
@@ -83,23 +84,21 @@ tbody > .err-common{
     
     width: 100%;
     height: 100%;
-
 }
 
 /* 以下project.jsと連動(終) */
 
-/*タイトル固定*/
+
+/*タイトル固定(IE(position: sticky)は未対応)*/
 thead, tbody {
     display: block; 
 }
-
 
 thead {
     position: sticky;
     top: 0px;
     z-index: 100;
 }
-
 
 /*ページング用のパネル*/
 .PageingPanel{
@@ -154,5 +153,4 @@ thead {
             overflow-x:scroll;
             /*overflow-x: scroll;*/
     }
-
 }

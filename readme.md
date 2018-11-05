@@ -144,6 +144,7 @@ NEW_FLAG：新規データ=true
 UPDATE_FLAG：更新データ=true（dora_updateflag内で処理）  
 DELETE_FLAG：画面に表示  
 ERROR_FLAG：エラー行=true(先頭に表示するために使用)  
+※DoraConst.～で定義
 
 エラー時には ○○_ISERROR　を自動的に追加し  
 エラー項目の判定で使用しています。  
@@ -255,6 +256,7 @@ select(プルダウン)の中身が再作成される
 
 htmlだけなので、基本なんでもよいです。（テキストエディタでもOK）  
 本プロジェクトはvscodeで作成しました。  
+(一応　visual studioで動くようにweb.configも同梱)
 
 ## License
 

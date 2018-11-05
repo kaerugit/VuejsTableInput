@@ -1,14 +1,25 @@
-﻿
+﻿var DoraConst = {
+    FIELD_NEW_FLAG: "NEW_FLAG",
+    FIELD_UPDATE_FLAG: "UPDATE_FLAG",
+    /*テンプレート内は記述できないので注意！ */
+    FIELD_DELETE_FLAG: "DELETE_FLAG",
+    /*テンプレート内は記述できないので注意！ */
+    FIELD_ERROR_FLAG: "ERROR_FLAG",
+    /*自動的に連番付与するフィールド*/
+    FIELD_IDENTITY_ID: "IDENTITY_ID"
+
+};
+
 Vue.directive('dora_table', {
 
-    componentUpdated : function (el, binding, vnode) {
+    componentUpdated: function (el, binding, vnode) {
         let theadArray = el.querySelectorAll('thead');
         let widthArray = [];
 
         if (theadArray.length > 0) {
             let thArray = theadArray[0].querySelectorAll('th');
 
-            var width = 0;
+            let width = 0;
             for (let i = 0; i < thArray.length; i++) {
                 let currentWidth = parseInt(thArray[i].style.width);
 
@@ -22,12 +33,12 @@ Vue.directive('dora_table', {
 
 
         }
-        
+
         let tbodyArray = el.querySelectorAll('tbody');
 
         if (widthArray.length > 0 && tbodyArray.length > 0) {
             let trArray = tbodyArray[0].querySelectorAll('tr');
-            
+
             //if (trArray.length > 0) {
             //edgeだと全件ループしないと正しくセットされない（chrome,ieは最初の一件で問題ない）
             for (let i = 0; i < trArray.length; i++) {
@@ -50,10 +61,10 @@ Vue.directive('dora_table', {
                     }
                 }
             }
-            
+
         }
     }
-}   
+}
 )
 
 // v-dora_updateflag.bindingvaluedisp 指定でフォーカス取得時 バインディングの値をそのままセット
@@ -84,7 +95,7 @@ Vue.directive('dora_updateflag', {
         if (typeof Project.InitValidate == 'function') {
             Project.InitValidate(el, el.modelvalue);
         }
-        
+
         if (typeof Project.SetControlCss == 'function') {
             let errorFlag = false;
             if (el.bindingvalue.value[el.modelvalue + '_ISERROR'] != null) {
@@ -103,13 +114,13 @@ Vue.directive('dora_updateflag', {
         el.addEventListener("change",
             function (evt) {
                 //フラグの更新
-                let defultField = "UPDATE_FLAG";
+                let defultField = DoraConst.FIELD_UPDATE_FLAG;
 
                 el.bindingvalue.value[defultField] = true;
 
                 let message = '';
                 //バインドデータの更新（日付などを正しい値にする）
-                var format = el.getAttribute("dora_format");
+                let format = el.getAttribute("dora_format");
 
                 if (!(format == null || format.length == 0)) {
                     if (el.value.length == 0) {
@@ -154,7 +165,7 @@ Vue.directive('dora_updateflag', {
 
                     return false;
                 }
-                
+
             }
             , false);
 
@@ -162,12 +173,12 @@ Vue.directive('dora_updateflag', {
         el.addEventListener("focus",
             function (e) {
                 let ae = e.target;
-                        
+
 
                 //こちらを入れないと選択状態にならない
                 Vue.nextTick(
                         function () {
-                            if (ae != document.activeElement){
+                            if (ae != document.activeElement) {
                                 return;
                             }
 
@@ -196,7 +207,7 @@ Vue.directive('dora_updateflag', {
 
             el.addEventListener("blur",
             function (e) {
-                
+
                 let ae = e.target;
                 //if (typeof ae.select == 'function') {
                 //    //選択解除
@@ -206,29 +217,29 @@ Vue.directive('dora_updateflag', {
                 //    } catch (e) { }
                 //}
 
-                    var format = ae.getAttribute("dora_format");
+                let format = ae.getAttribute("dora_format");
 
-                    if (format == null || format.length == 0) {
-                        return;
-                    }
+                if (format == null || format.length == 0) {
+                    return;
+                }
 
-                    
-                    if (ae.bindingvalue.value[ae.modelvalue] != null) {
-                        if (binding.modifiers.bindingvaluedisp == true) {
-                            ae.value = parseFormat(ae.bindingvalue.value[ae.modelvalue], format);
-                        }
+
+                if (ae.bindingvalue.value[ae.modelvalue] != null) {
+                    if (binding.modifiers.bindingvaluedisp == true) {
+                        ae.value = parseFormat(ae.bindingvalue.value[ae.modelvalue], format);
                     }
-                    
-                }   
+                }
+
+            }
             , false);
         }
-    
+
     },
 
     update: function (el, binding, vnode) { //, oldValue) {
         //あまりよろしくないがbinding データを保存
         el.bindingvalue = binding;
-        
+
         if (typeof Project.SetControlCss == 'function') {
             let errorFlag = false;
             if (el.bindingvalue.value[el.modelvalue + '_ISERROR'] != null) {
@@ -239,14 +250,14 @@ Vue.directive('dora_updateflag', {
         }
 
         //フォーマットの処理
-        var format = el.getAttribute("dora_format");
+        let format = el.getAttribute("dora_format");
 
         if (format == null || format.length == 0) {
             return;
         }
 
         if (binding.value[el.modelvalue] != null) {
-            el.value = parseFormat(binding.value[el.modelvalue], format);   
+            el.value = parseFormat(binding.value[el.modelvalue], format);
         }
 
     },
@@ -261,13 +272,13 @@ Vue.directive('dora_selectitems', {
     //データ更新時にフラグを追加
     bind: function (el, binding, vnode) {
 
-        var options = el.options;
+        let options = el.options;
         options.length = 0;
         //for (var i = options.length - 1; 0 <= i; --i) {
         //    el.remove(i);
         //}
 
-        var blanktext = el.getAttribute("dora_blanktext");
+        let blanktext = el.getAttribute("dora_blanktext");
 
         //存在しない場合は無視(修正した場合updateにコピー)
         if (blanktext != null) {
@@ -288,8 +299,8 @@ Vue.directive('dora_selectitems', {
     },
     update: function (el, binding, vnode) { //(el, binding, vnode) {
 
-        var optionLength = el.options.length;
-        var blanktext = el.getAttribute("dora_blanktext");
+        let optionLength = el.options.length;
+        let blanktext = el.getAttribute("dora_blanktext");
 
         if (blanktext != null) {
             optionLength--;
@@ -309,10 +320,10 @@ Vue.directive('dora_selectitems', {
             //}
         }
 
-        var options = el.options;
+        let options = el.options;
         options.length = 0;
 
-        //for (var i = options.length - 1; 0 <= i; --i) {
+        //for (let i = options.length - 1; 0 <= i; --i) {
         //    el.remove(i);
         //}
 
@@ -384,7 +395,7 @@ Vue.component('dora-paging', {
         }
     }
     ,
-            template: '\
+    template: '\
 <div class="" >\
   <nav v-show="isShow" class="pagination is-centered" role="navigation" aria-label="pagination">\
         <a @click="first" class="pagination-previous" href="#">&laquo;</a>\
@@ -402,164 +413,164 @@ Vue.component('dora-paging', {
 </div>\
         '
         ,
-        computed: {
-            /**
-             * ページ数を取得する
-             * @return {number} 総ページ数(1はじまり)
-             */
-            pages: function () {
-                return Math.ceil(this.dora_bind_items.length / this.dora_size);
-            },
-            /**
-             * ページネーションで表示するページ番号の範囲を取得する
-             * @return {Array<number>} ページ番号の配列
-             */
-            displayPageRange: function () {
+    computed: {
+        /**
+         * ページ数を取得する
+         * @return {number} 総ページ数(1はじまり)
+         */
+        pages: function () {
+            return Math.ceil(this.dora_bind_items.length / this.dora_size);
+        },
+        /**
+         * ページネーションで表示するページ番号の範囲を取得する
+         * @return {Array<number>} ページ番号の配列
+         */
+        displayPageRange: function () {
 
-                const half = Math.ceil(this.dora_page_range / 2);
-                let start, end;
+            const half = Math.ceil(this.dora_page_range / 2);
+            let start, end;
 
-                if (this.pages < this.dora_page_range) {
-                    // ページネーションのrangeよりページ数がすくない場合
-                    start = 1;
-                    end = this.pages;
+            if (this.pages < this.dora_page_range) {
+                // ページネーションのrangeよりページ数がすくない場合
+                start = 1;
+                end = this.pages;
 
-                } else if (this.currentPage < half) {
-                    // 左端のページ番号が1になったとき
-                    start = 1;
-                    end = start + this.dora_page_range - 1;
+            } else if (this.currentPage < half) {
+                // 左端のページ番号が1になったとき
+                start = 1;
+                end = start + this.dora_page_range - 1;
 
-                } else if (this.pages - half < this.currentPage) {
-                    // 右端のページ番号が総ページ数になったとき
-                    end = this.pages;
-                    start = end - this.dora_page_range + 1;
+            } else if (this.pages - half < this.currentPage) {
+                // 右端のページ番号が総ページ数になったとき
+                end = this.pages;
+                start = end - this.dora_page_range + 1;
 
-                } else {
-                    // activeページを中央にする
-                    start = this.currentPage - half + 1;
-                    end = this.currentPage + half;
-                }
-
-                let indexes = [];
-                for (let i = start; i <= end; i++) {
-                    indexes.push(i);
-                }
-                return indexes;
-            },
-
-            isShow: function () {
-                //全件の場合
-                if (this.dora_size == 0) {
-                    return false;
-                }
-                if (this.dora_bind_items == null || this.dora_bind_items.length == 0) {
-                    return false;
-                }
-                return true;
+            } else {
+                // activeページを中央にする
+                start = this.currentPage - half + 1;
+                end = this.currentPage + half;
             }
 
+            let indexes = [];
+            for (let i = start; i <= end; i++) {
+                indexes.push(i);
+            }
+            return indexes;
         },
-        methods: {
-            /**
-             * ページ先頭に移動する
-             */
-            first: function () {
-                this.currentPage = 0;
-                this.selectHandler(true);
-            },
-            /**
-             * ページ後尾に移動する
-             */
-            last: function () {
-                this.currentPage = this.pages - 1;
-                this.selectHandler(true);
-            },
-            /**
-             * 1ページ前に移動する
-             */
-            prev: function () {
-                if (this.currentPage > 0) {
-                    this.currentPage--;
-                    this.selectHandler(true);
-                }
-            },
-            /**
-             * 1ページ次に移動する
-             */
-            next: function () {
-                if (this.currentPage < this.pages - 1) {
-                    this.currentPage++;
-                    this.selectHandler(true);
-                }
-            },
-            /**
-             * 指定したページに移動する
-             * @param {number} index ページ番号
-             * 戻り値 データが存在する場合:true
-             *        外から this.$refs.page.pageSelect する場合は mounted以降で呼び出し
-             */
-            pageSelect: function (index) {
-                this.currentPage = index - 1;
-                this.selectHandler(true);
-            },
-            /**
-             * ページを変更したときの処理
-             */
-            selectHandler: function (scrollflag) {
 
-                if (scrollflag == true) {
-                    //スクロールをtopにする
-                    if (this.dora_bind_div != null) {
-                        var bindDiv = this.dora_bind_div.split(',');
+        isShow: function () {
+            //全件の場合
+            if (this.dora_size == 0) {
+                return false;
+            }
+            if (this.dora_bind_items == null || this.dora_bind_items.length == 0) {
+                return false;
+            }
+            return true;
+        }
 
-                        for (let i in bindDiv) {
-                            document.getElementById(bindDiv[i]).scrollTop = 0;
-                            document.getElementById(bindDiv[i]).scrollLeft = 0;
-                        }
+    },
+    methods: {
+        /**
+         * ページ先頭に移動する
+         */
+        first: function () {
+            this.currentPage = 0;
+            this.selectHandler(true);
+        },
+        /**
+         * ページ後尾に移動する
+         */
+        last: function () {
+            this.currentPage = this.pages - 1;
+            this.selectHandler(true);
+        },
+        /**
+         * 1ページ前に移動する
+         */
+        prev: function () {
+            if (this.currentPage > 0) {
+                this.currentPage--;
+                this.selectHandler(true);
+            }
+        },
+        /**
+         * 1ページ次に移動する
+         */
+        next: function () {
+            if (this.currentPage < this.pages - 1) {
+                this.currentPage++;
+                this.selectHandler(true);
+            }
+        },
+        /**
+         * 指定したページに移動する
+         * @param {number} index ページ番号
+         * 戻り値 データが存在する場合:true
+         *        外から this.$refs.page.pageSelect する場合は mounted以降で呼び出し
+         */
+        pageSelect: function (index) {
+            this.currentPage = index - 1;
+            this.selectHandler(true);
+        },
+        /**
+         * ページを変更したときの処理
+         */
+        selectHandler: function (scrollflag) {
+
+            if (scrollflag == true) {
+                //スクロールをtopにする
+                if (this.dora_bind_div != null) {
+                    let bindDiv = this.dora_bind_div.split(',');
+
+                    for (let i in bindDiv) {
+                        document.getElementById(bindDiv[i]).scrollTop = 0;
+                        document.getElementById(bindDiv[i]).scrollLeft = 0;
                     }
                 }
+            }
 
-                if (this.dora_size == 0) {
-                    //全件
-                    this.$emit('input', this.dora_bind_items);
-                }
-                else {
-                    let head = this.currentPage * this.dora_size;
-                    //親に通知
-                    this.$emit('input', this.dora_bind_items.slice(head, head + this.dora_size));
-                }
-
+            if (this.dora_size == 0) {
+                //全件
+                this.$emit('input', this.dora_bind_items);
+            }
+            else {
+                let head = this.currentPage * this.dora_size;
+                //親に通知
+                this.$emit('input', this.dora_bind_items.slice(head, head + this.dora_size));
             }
 
         }
+
+    }
         ,
-        watch: {
-            dora_bind_items: function (value) {
-                if (this.dora_bind_items == null || this.dora_bind_items.length == 0) {
-                    this.currentPage = -1;
-                }
+    watch: {
+        dora_bind_items: function (value) {
+            if (this.dora_bind_items == null || this.dora_bind_items.length == 0) {
+                this.currentPage = -1;
+            }
 
-                if (this.currentPage == -1 && this.dora_bind_items.length > 0) {
-                    this.currentPage = 0;
-                }
+            if (this.currentPage == -1 && this.dora_bind_items.length > 0) {
+                this.currentPage = 0;
+            }
 
-                //こちらの場合スクロールを行わない
-                this.selectHandler(false);
+            //こちらの場合スクロールを行わない
+            this.selectHandler(false);
 
-                //親はこのように指定
-                //v-bind:dora_display_panel.sync="isDisplayWherePanel"
-                if (value && value.length != 0) {
-                    //条件パネルを非表示
-                    this.$emit('update:dora_display_panel', false);
-                }
-                else {
-                    //条件パネルを非表
-                    this.$emit('update:dora_display_panel', true);
-                }
+            //親はこのように指定
+            //v-bind:dora_display_panel.sync="isDisplayWherePanel"
+            if (value && value.length != 0) {
+                //条件パネルを非表示
+                this.$emit('update:dora_display_panel', false);
+            }
+            else {
+                //条件パネルを非表
+                this.$emit('update:dora_display_panel', true);
             }
         }
+    }
         ,
-        });
+});
 
 var FORMATTYPES = {
     none: 0,
@@ -720,13 +731,13 @@ function parseFormat(value, formatString) {
                 else {
 
                     value = formatString;
-                    var year = dateValue.getFullYear().toString();
-                    var month = (dateValue.getMonth() + 1).toString();
-                    var day = dateValue.getDate().toString();
+                    let year = dateValue.getFullYear().toString();
+                    let month = (dateValue.getMonth() + 1).toString();
+                    let day = dateValue.getDate().toString();
 
-                    var hour = dateValue.getHours().toString();
-                    var minute = dateValue.getMinutes().toString();
-                    var second = dateValue.getSeconds().toString()
+                    let hour = dateValue.getHours().toString();
+                    let minute = dateValue.getMinutes().toString();
+                    let second = dateValue.getSeconds().toString()
 
 
                     value = value.replace("yyyy", year);
@@ -830,7 +841,7 @@ function transformFormat(value, formatString) {
             if (isNaN(value) == true) {
                 value = null;    //数値でない
             }
-            else{
+            else {
                 if (formattype == FORMATTYPES.parcent) {
                     //100% → 1にする
 
@@ -869,13 +880,13 @@ function transformFormat(value, formatString) {
                 else {
                     value = "yyyy/MM/dd HH:mm:ss";
 
-                    var year = dateValue.getFullYear().toString();
-                    var month = (dateValue.getMonth() + 1).toString();
-                    var day = dateValue.getDate().toString();
+                    let year = dateValue.getFullYear().toString();
+                    let month = (dateValue.getMonth() + 1).toString();
+                    let day = dateValue.getDate().toString();
 
-                    var hour = dateValue.getHours().toString();
-                    var minute = dateValue.getMinutes().toString();
-                    var second = dateValue.getSeconds().toString()
+                    let hour = dateValue.getHours().toString();
+                    let minute = dateValue.getMinutes().toString();
+                    let second = dateValue.getSeconds().toString()
 
 
                     value = value.replace("yyyy", year);
@@ -922,17 +933,17 @@ function changeDateValue(value) {
         timestring = sep[1];
     }
 
-    var nowDateTime = new Date();
+    let nowDateTime = new Date();
 
     //年・月・日・曜日を取得する
-    var year = nowDateTime.getFullYear().toString();
-    var month = (nowDateTime.getMonth() + 1).toString();
+    let year = nowDateTime.getFullYear().toString();
+    let month = (nowDateTime.getMonth() + 1).toString();
     //var week = nowDateTime.getDay().toString();
-    var day = nowDateTime.getDate().toString();
+    let day = nowDateTime.getDate().toString();
 
-    var hour = "0";//= nowDateTime.getHours().toString();
-    var minute = "0";// = nowDateTime.getMinutes().toString();
-    var second = "0";//= nowDateTime.getSeconds().toString();
+    let hour = "0";//= nowDateTime.getHours().toString();
+    let minute = "0";// = nowDateTime.getMinutes().toString();
+    let second = "0";//= nowDateTime.getSeconds().toString();
 
     //時刻のみ
     if (value.indexOf(":") != -1 && timestring.length == 0) {

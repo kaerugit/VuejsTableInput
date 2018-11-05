@@ -223,25 +223,26 @@
                                 <tbody>
                                     <!-- 各要素を表示 -->
                                     <!-- err-common はproject.cssに定義(エラー行に色を付ける) -->
-                                    <tr v-for="(elem, elemIndex) in displayItems" v-bind:class="{'err-common' : elem.ERROR_FLAG==true}">
+                                    <!-- elem[DoraConst.FIELD_ERROR_FLAG]と書けない -->
+                                    <tr v-for="(elem, elemIndex) in displayItems" v-bind:class="{'err-common' : elem['ERROR_FLAG']==true}">
                                         <td style="text-align:center;position: sticky;left: 0px;z-index: 10;background-color:white;">
                                             <!-- v-dora_updateflag="elem"(directive) で テキストボックスのformat, UPDATE_FLAGの処理を実行  -->
-                                            <input type="checkbox" v-model.lazy="elem.DELETE_FLAG" v-dora_updateflag="elem" class="checkbox" />
+                                            <input type="checkbox" v-model.lazy="elem['FIELD_DELETE_FLAG']" v-dora_updateflag="elem" class="checkbox" />
                                         </td>
-                                        <td >
+                                        <td>
                                             <!-- 新規の場合しか入力不可(isprimarykey="true" & NEW_FLAG=trueの場合 ⇒ project.js Project.SetControlCss で処理) -->
                                             <!--
-                                            バリデーション 半角入力 ～5桁  textalignはproject.jsで処理(本来はclass に直接記述する事推奨)
-                                            -->
-                                            <input  v-model.lazy="elem.社員コード" v-dora_updateflag="elem" class="input" isime="false" isprimarykey="true" ishankaku="true" maxlengthvalue="5" textalign="center" />
+            バリデーション 半角入力 ～5桁  textalignはproject.jsで処理(本来はclass に直接記述する事推奨)
+            -->
+                                            <input v-model.lazy="elem.社員コード" v-dora_updateflag="elem" class="input" isime="false" isprimarykey="true" ishankaku="true" maxlengthvalue="5" textalign="center" />
                                         </td>
-                                        <td >
+                                        <td>
                                             <!-- バリデーション ～10桁  isime(project.jsで処理) -->
-                                            <input  v-model.lazy="elem.社員名" v-dora_updateflag="elem" isime="true" maxlengthvalue="10" class="input" />
+                                            <input v-model.lazy="elem.社員名" v-dora_updateflag="elem" isime="true" maxlengthvalue="10" class="input" />
                                         </td>
-                                        <td >
+                                        <td>
                                             <!-- フォーマットが入っているものは自動的に imeoff -->
-                                            <input  v-model.lazy="elem.入社年月日" v-dora_updateflag="elem" dora_format="yyyy/MM/dd" class="input" />
+                                            <input v-model.lazy="elem.入社年月日" v-dora_updateflag="elem" dora_format="yyyy/MM/dd" class="input" />
                                         </td>
                                         <td style="text-align:center">
                                             <!-- radio-->
@@ -250,40 +251,37 @@
                                                 <label v-bind:for="['optSeibetu' + elemIndex + '_' + option.value]">{{option.text}}</label>
                                             </span>
                                         </td>
-                                        <td >
+                                        <td>
                                             <!-- checkbox複数(ラベルチェック時にONにする処理不要であれば v-bind:id v-bind:for の処理は削除可) -->
                                             <span v-for="option in fuyokazokuType">
                                                 <input type="checkbox" v-model.lazy="elem.扶養家族区分" v-dora_updateflag="elem" v-bind:id="['chkFuyo' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
                                                 <label v-bind:for="['chkFuyo' + elemIndex + '_' + option.value]">{{option.text}}</label>
                                             </span>
                                             <!-- List複数
-                                            <select v-model.lazy="elem.扶養家族区分" v-dora_updateflag="elem" v-dora_selectitems="fuyokazokuType" dora_blanktext="選択してください" class="select is-multiple" size="3" multiple></select>
-                                            -->
+            <select v-model.lazy="elem.扶養家族区分" v-dora_updateflag="elem" v-dora_selectitems="fuyokazokuType" dora_blanktext="選択してください" class="select is-multiple" size="3" multiple></select>
+            -->
                                         </td>
-
                                         <td s>
                                             <div class="select">
                                                 <select v-model.lazy="elem.都道府県CD" v-dora_updateflag="elem" v-dora_selectitems.once="todofukenItems" dora_blanktext="(選択なし)" v-on:change="changeTodofuken(elem)"></select>
                                             </div>
                                         </td>
-                                        <td >
+                                        <td>
                                             <!--都道府県により変更-->
                                             <div class="select">
                                                 <select v-model.lazy="elem.市区町村CD" v-dora_updateflag="elem" v-dora_selectitems="getShikuchoson(elem.都道府県CD)" dora_blanktext="(選択なし)" v-on:change="changeShikuchoson(elem)"></select>
                                             </div>
                                         </td>
-                                        <td >
+                                        <td>
                                             <!--都道府県、市区町村により変更-->
                                             <div class="select">
                                                 <select v-model.lazy="elem.町域CD" v-dora_updateflag="elem" v-dora_selectitems="getChoiki(elem.都道府県CD,elem.市区町村CD)" dora_blanktext="(選択なし)"></select>
                                             </div>
                                         </td>
-                                        <td >
+                                        <td>
                                             <!-- バリデーション ～20桁  imeON(project.jsで処理) -->
-
                                             <input v-model.lazy="elem.住所" v-dora_updateflag="elem" isime="true" maxlengthvalue="20" class="input" />
                                         </td>
-
                                     </tr>
                                 </tbody>
                             </table>
@@ -316,7 +314,7 @@
             mounted: function () {
                 let self = this;        //ieを考慮する場合、アロー関数(()=>)が使えないのでこちらの書き方推奨
                 //json get data
-                var xmlHttpRequest = new XMLHttpRequest();
+                let xmlHttpRequest = new XMLHttpRequest();
                 xmlHttpRequest.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
                         if (this.response) {
@@ -492,13 +490,10 @@
                             //以下 基本的に必要ないが、他項目と連動する場合は、デフォルト値をセットする事
                             扶養家族区分: [],      //配列定義しないと全チェックになる
                             性別区分: 1,
-                            都道府県CD: '',
-                            市区町村CD: '',      //こちら入れないと関連している項目が動作しない
+                            都道府県CD: '',         //'31'
+                            市区町村CD: '',      //こちら入れないと関連している項目が動作しない 　課題：値入れると重たくなる '31371'　
                             町域CD: '',
-
-                            //都道府県CD: '31',
-                            //市区町村CD: '31371',      //こちら入れないと関連している項目が動作しない
-                            //町域CD: '',
+                            
                         });
                     }
 
@@ -545,7 +540,7 @@
                         //サーバに送信(全件送信してもいいですし、変更したデータのみ送信することも可能(通信速度を考慮するとこちら推奨))
                         let sendItems = this.bindItems.filter(
                             function (item) {
-                                return item.UPDATE_FLAG == true;
+                                return item[DoraConst.FIELD_UPDATE_FLAG] == true;
                             }
                         );
 
@@ -560,7 +555,7 @@
                             let selectItems = this.bindItems.filter(
                                 function (item) {
 
-                                    if (item.NEW_FLAG != null && item.NEW_FLAG == true) {
+                                    if (item[DoraConst.FIELD_NEW_FLAG] != null && item[DoraConst.FIELD_NEW_FLAG] == true) {
                                         return false;
                                     }
 
@@ -594,8 +589,8 @@
                             this.InputItems = this.bindItems.filter(
                                 function (item) {
 
-                                    if (item.NEW_FLAG != null && item.NEW_FLAG == true) {
-                                        return item.UPDATE_FLAG == true;
+                                    if (item[DoraConst.FIELD_NEW_FLAG] != null && item[DoraConst.FIELD_NEW_FLAG] == true) {
+                                        return item[DoraConst.FIELD_UPDATE_FLAG] == true;
                                     }
 
                                     return true;

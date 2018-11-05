@@ -208,7 +208,7 @@
                                     <tr v-for="(elem, elemIndex) in displayItems">
                                         <td style="text-align:center">
                                             <!-- v-dora_updateflag="elem"(directive) で format, UPDATE_FLAGの処理を実行  -->
-                                            <input type="checkbox" v-model.lazy="elem.DELETE_FLAG" v-dora_updateflag="elem" class="checkbox" />
+                                            <input type="checkbox" v-model.lazy="elem['FIELD_DELETE_FLAG']" v-dora_updateflag="elem" class="checkbox" />
                                         </td>
                                         <td>
                                             <input v-model.lazy="elem.住所CD" v-dora_updateflag="elem" class="input" />
@@ -312,7 +312,7 @@
             mounted: function () {
                 let self = this;        //ieを考慮する場合、アロー関数(()=>)が使えないのでこちらの書き方推奨
                 //json get data
-                var xmlHttpRequest = new XMLHttpRequest();
+                let xmlHttpRequest = new XMLHttpRequest();
                 xmlHttpRequest.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
                         if (this.response) {

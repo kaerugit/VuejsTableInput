@@ -1,0 +1,166 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>社員マスタ入力</title>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+    <!--
+    bulma
+    https://bulma.io/
+
+    form基本
+    https://bulma.io/documentation/form/general/
+
+    columns (grid)システム(is-0 ～ is-12)
+    https://bulma.io/documentation/columns/sizes/
+    https://bulma.io/documentation/columns/gap/
+
+    メッセージ
+    https://bulma.io/documentation/components/message/
+    ボタン(色)
+    https://bulma.io/documentation/modifiers/syntax/
+    https://bulma.io/documentation/elements/button/
+
+    元
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    -->
+    <link rel="stylesheet" href="./css/bulma.min.css">
+    <!--
+        fa-××のアイコン
+        https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
+
+        ※こちらのコンポーネント直リンクしないとアイコンでない
+    -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    <!-- Vue.js
+        https://npmcdn.com/vue/dist/vue.js
+        https://unpkg.com/vue@2.4.0/dist/vue.js
+
+        元
+        <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    -->
+    <script src="./javascript/vue.js"></script>
+
+    <!-- プロジェクト用 -->
+    <!-- enterキー移動 -->
+    <script src="./javascript/focus.js"></script>
+    <!-- バリデーション -->
+    <script src="./javascript/project.js"></script>
+    <!-- vue拡張 -->
+    <script src="./javascript/doracomponent.js"></script>
+    <link rel="stylesheet" href="./css/project.css">
+</head>
+<body>
+    <!--
+        <div class="loading"></div>
+    -->
+    <div id="app">
+        <!-- マスタページっぽいもの -->
+        <div class="columns">
+            <div class="column" style="margin-top:10px">
+                <span class="icon" onclick="window.top.location.href = 'index.html';">
+                    <i class="fas fa-home"></i>
+                </span>
+                サンプルシステム（固定ページ）
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column">
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p>入力</p>
+                        <span class="icon">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                    </div>
+                    <div class="message-body MessageBodyPanel">
+                        <button class="button is-primary" v-on:click="submit(false)">登録</button>
+                        &nbsp;
+                        <button class="button is-success" v-on:click="returnpage()">戻る</button>
+                        <div class="column is-offset-2 is-8" v-for="(elem, elemIndex) in bindItems">
+
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label">扶養家族</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <!-- checkbox複数(ラベルチェック時にONにする処理不要であれば v-bind:id v-bind:for の処理は削除可) -->
+                                            <span v-for="option in fuyokazokuType">
+                                                <input type="checkbox" v-model.lazy="elem.扶養家族区分" v-dora_updateflag="elem" v-bind:id="['chkFuyo' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
+                                                <label v-bind:for="['chkFuyo' + elemIndex + '_' + option.value]">{{option.text}}</label>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        'use strict';
+
+        var vm = new Vue({
+            el: '#app',
+            created: function () {
+                //domが絡む場合はmountedを初期にしたほうがよい
+            }
+            ,
+            mounted: function () {
+                this.clear();
+            }
+            ,
+            data: {
+
+                bindItems: [],      //バインド用
+
+                //扶養家族区分（複数選択） ※値は前画面から取得
+                fuyokazokuType: []
+
+
+            },
+            methods: {
+
+                submit: function () {
+                    //選択された扶養家族区分(値をそのまま)をセット
+                    Project.CloseDialog(this.bindItems[0].扶養家族区分);
+                }
+                ,
+                clear: function () {
+
+                    //引数の取得（Project.OpenDialogでセット）
+                    let args = Project.GetDialogArgs();
+
+                    //扶養家族区分
+                    this.fuyokazokuType = args["fuyokazokuType"];
+
+                    this.NewFlag = false;
+
+                    let elem = {};
+                    elem["扶養家族区分"] = args["扶養家族区分"];
+
+                    //新規データ
+                    if (elem["扶養家族区分"] == null) {
+                        elem["扶養家族区分"] = [];      //配列定義しないと全チェックになる
+                    }
+
+                    //データのバインド
+                    this.bindItems = [];
+                    this.bindItems.push(elem);
+                }
+                ,
+                returnpage: function () {
+                    //キャンセル（引数はなし(又はnull)で親側の画面の処理をしない）
+                    Project.CloseDialog();
+                }
+            },
+        });
+
+    </script>
+</body>
+</html>

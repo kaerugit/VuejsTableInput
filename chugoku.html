@@ -203,7 +203,7 @@
                                     <!-- 各要素を表示 -->
                                     <tr v-for="(elem, elemIndex) in bindItems">
                                         <td style="text-align:center;width: 50px;">
-                                            <input type="checkbox" v-model.lazy="elem.DELETE_FLAG" class="checkbox" />
+                                            <input type="checkbox" v-model.lazy="elem['FIELD_DELETE_FLAG']" class="checkbox" />
                                         </td>
                                         <td style="width: 200px;">
                                             <input v-model.lazy="elem.住所CD" class="input" />
@@ -269,7 +269,7 @@
             mounted: function () {
                 let self = this;        //ieを考慮する場合、アロー関数(()=>)が使えないのでこちらの書き方推奨
                 //json get data
-                var xmlHttpRequest = new XMLHttpRequest();
+                let xmlHttpRequest = new XMLHttpRequest();
                 xmlHttpRequest.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
                         if (this.response) {

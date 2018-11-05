@@ -113,7 +113,7 @@
 
                                         <td style="text-align:center">
                                             <!-- v-dora_updateflag="elem"(directive) で format, UPDATE_FLAGの処理を実行  -->
-                                            <input type="checkbox" v-model.lazy="elem.DELETE_FLAG" v-dora_updateflag="elem" class="checkbox" />
+                                            <input type="checkbox" v-model.lazy="elem['FIELD_DELETE_FLAG']" v-dora_updateflag="elem" class="checkbox" />
                                         </td>
                                         <td>
                                             <!-- バリデーション 5桁～10桁(minlengthvalue="2" maxlengthvalue="5")  imeON(project.jsで処理) -->
