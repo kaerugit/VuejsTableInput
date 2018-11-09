@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>ファイルアップロード</title>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <!--
+    bulma
+    https://bulma.io/
+
+    form基本
+    https://bulma.io/documentation/form/general/
+
+    columns (grid)システム(is-0 ～ is-12)
+    https://bulma.io/documentation/columns/sizes/
+    https://bulma.io/documentation/columns/gap/
+
+    メッセージ
+    https://bulma.io/documentation/components/message/
+    ボタン(色)
+    https://bulma.io/documentation/modifiers/syntax/
+    https://bulma.io/documentation/elements/button/
+
+    元
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    -->
+
+    <link rel="stylesheet" href="./css/bulma.min.css">
+    <!--
+        fa-××のアイコン
+        https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
+
+        ※こちらのコンポーネント直リンクしないとアイコンでない
+    -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+    <!-- Vue.js
+        https://npmcdn.com/vue/dist/vue.js
+        https://unpkg.com/vue@2.4.0/dist/vue.js
+
+        元
+        <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    -->
+    <script src="./javascript/vue.js"></script>
+
+
+    <!-- プロジェクト用 -->
+    <!-- enterキー移動 -->
+    <script src="./javascript/focus.js"></script>
+    <!-- バリデーション -->
+    <script src="./javascript/project.js"></script>
+
+    <!-- vue拡張 -->
+    <script src="./javascript/doracomponent.js"></script>
+
+    <!-- マスターページ（要変更） -->
+    <script src="./javascript/masterpagecomponent.js"></script>
+
+    <link rel="stylesheet" href="./css/project.css">
+
+</head>
+<body>
+    <div id="app">
+        <!-- マスタページっぽいもの(再利用可能なものはコンポーネント化する) -->
+        <master-page></master-page>
+
+        <div class="columns" >
+            <div class="column is-12">
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p>ファイルアップロードサンプル</p>
+                        <span class="icon">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                    </div>
+                    <div class="message-body MessageBodyPanel">
+
+                        <div class="column is-offset-2 is-8">
+                            <button class="button is-primary" v-on:click="submit()">更新</button>
+                            <button class="button is-danger" v-on:click="clear()">クリア</button>
+
+                            <div id="divPaging" class="">
+                                <!-- スタイルをbind v-bind:style="{ width: tablewidth + 'px' }" -->
+                                <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 400px;" class="is-link">ファイル名</th>
+                                            <th style="width: 400px;" class="is-link">ファイル選択</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- 各要素を表示 -->
+                                        <tr v-for="(elem, elemIndex) in bindItems">
+                                            <td>
+                                                <input v-model.lazy="elem.ファイル名" v-dora_updateflag="elem" class="input" maxlengthvalue="30" />
+                                            </td>
+                                            <td>
+                                                <input type="file" v-dora_updateflag="elem" class="input" v-on:change="uploadfile($event,elem)" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        'use strict';
+
+        var vm = new Vue({
+            el: '#app',
+            mounted: function () {
+                this.clear();
+            }
+            ,
+            data: {
+                bindItems: [],      //バインド用
+            },
+            methods: {
+
+                uploadfile: function (e,elem) {
+                    let files = e.target.files;
+
+                    elem["ファイル名"] = null;
+                    elem["ファイルバイナリ"] = null;
+
+                    //(ファイルサイズは少し大きくなるがbase64に変更、サーバ側でdecodeすればバイナリが取得可)
+                    //サイズが気になる場合はバイナリで処理することをお勧め
+                    if (files.length > 0) {
+                        let file = files[0];
+
+                        let size = file.size; // ファイル容量（byte）
+
+                        //ファイルサイズチェック（お好みで）
+                        if (1048576 * 3 < size) {  //3M 以上ならエラー
+                            alert("ファイルサイズがオーバーしています。");
+                            e.target.value = '';
+                            return;
+                        }
+
+                        Project.SetLoading(true);
+                        //base64に変更
+                        let reader = new FileReader();
+
+                        reader.onload = function (event) {
+                            elem["ファイル名"] = file.name;
+                            elem["ファイルバイナリ"] = event.target.result.split(',')[1];
+                            //確認用 表示された文字列を certutil -f -decode  コマンドで確認可
+                            //document.write(elem["ファイルバイナリ"]);
+                            
+                            Project.SetLoading(false);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+                ,
+                submit: function () {
+                    alert(JSON.stringify(this.bindItems));
+                }
+                ,
+                clear: function () {
+                    this.bindItems = [
+                                { 連番: 1, ファイル名: null },
+                                { 連番: 2, ファイル名: null },
+                                { 連番: 3, ファイル名: null },
+                            ];
+                }
+                ,
+            },
+        });
+    </script>
+</body>
+</html>

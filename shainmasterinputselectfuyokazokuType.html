@@ -47,8 +47,13 @@
     <script src="./javascript/focus.js"></script>
     <!-- バリデーション -->
     <script src="./javascript/project.js"></script>
+
     <!-- vue拡張 -->
     <script src="./javascript/doracomponent.js"></script>
+
+    <!-- マスターページ（要変更） -->
+    <script src="./javascript/masterpagecomponent.js"></script>
+
     <link rel="stylesheet" href="./css/project.css">
 </head>
 <body>
@@ -56,15 +61,9 @@
         <div class="loading"></div>
     -->
     <div id="app">
-        <!-- マスタページっぽいもの -->
-        <div class="columns">
-            <div class="column" style="margin-top:10px">
-                <span class="icon" onclick="window.top.location.href = 'index.html';">
-                    <i class="fas fa-home"></i>
-                </span>
-                サンプルシステム（固定ページ）
-            </div>
-        </div>
+        <!-- マスタページっぽいもの(再利用可能なものはコンポーネント化する) -->
+        <master-page></master-page>
+        
         <div class="columns">
             <div class="column">
                 <article class="message is-primary">

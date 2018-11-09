@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>test</title>
+    <title>フォーマットテスト</title>
     <meta charset=utf-8>
     <meta http-equiv=X-UA-Compatible content="IE=edge">
     <meta name=viewport content="width=device-width,initial-scale=1">
@@ -55,20 +55,16 @@
     <!-- vue拡張 -->
     <script src="./javascript/doracomponent.js"></script>
 
+    <!-- マスターページ（要変更） -->
+    <script src="./javascript/masterpagecomponent.js"></script>
+
     <link rel="stylesheet" href="./css/project.css">
 
 </head>
 <body>
     <div id="app">
-        <!-- マスタページっぽいもの -->
-        <div class="columns">
-            <div class="column" style="margin-top:10px">
-                <span class="icon" onclick="window.top.location.href = 'index.html';">
-                    <i class="fas fa-home"></i>
-                </span>
-                サンプルシステム（固定ページ）
-            </div>
-        </div>
+        <!-- マスタページっぽいもの(再利用可能なものはコンポーネント化する) -->
+        <master-page></master-page>
 
         <div class="columns" >
             <div class="column is-12">
