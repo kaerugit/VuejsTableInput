@@ -75,10 +75,11 @@ chromeだととてもレスポンスがよいです。
 　bulma.min.css（デザイン）  
 　project.css（各種プロジェクト用で変更）  
 └javascript  
-　doracomponent.js（効率化するための各種オブジェクト（クラス））  
+　doracomponent.js（vueコンポーネント 効率化するための各種オブジェクト（クラス））  
 　focus.js（エンターキーで項目移動（もしかしたらほかのプロジェクトで使えるかもしれません））  
 　project.js（各種プロジェクト用で追加・変更可　一部doracomponent.js から呼ばれています）  
-　vue.js(vueコンポーネント)  
+  masterpagecomponent.js(vueコンポーネント　マスターページ（ページ上部共通）で使用)
+　vue.js(vue本体)  
 (ルート)  
 ○○.html 各種サンプル  
 
@@ -126,7 +127,7 @@ var vm = new Vue({　の内容については Vue.jsのホームページを熟�
 ### オレオレクラス(doracomponent.js)
 v-dora or dora がついているものはオレオレクラス(doracomponent.js)  
 css については基本 bulma　  
-拡張部分は projecgt.css に記述（使用場所は文字列検索）  
+拡張部分は project.css に記述（使用場所は文字列検索）  
 
 ## 社員マスタ(shainmaster.html)仕様
 
