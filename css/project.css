@@ -137,6 +137,28 @@ thead {
         position: relative;
         width: 100%;
     }
+
+    .TablePanelVirtual {
+        overflow: scroll;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        height: calc(100vh - 16.0rem);
+        width: calc(100% - 18px);
+        position: relative;
+    }
+
+    .VirtualScroll{
+        overflow: scroll;
+        overflow-x: hidden;
+        overflow-y: scroll;
+        top:0px;
+        right: 0px;
+        width:18px;
+        height: calc(100vh - 16.0rem);
+        z-index:10;
+        position:absolute;
+    }
+
 }
 
 @media only screen and (max-width: 768px) { /* 768以下 スマホ用 */

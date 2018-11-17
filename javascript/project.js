@@ -23,7 +23,7 @@ var validatefield = {};
  * @param {el} エレメント
  * @param {field} フィールド名
 */
-Project.InitValidate = function(el, field) {
+Project.InitValidate = function (el, field) {
     //formatをセットすることも可能
     //el.setAttribute("dora_format","#,###");
 
@@ -49,9 +49,9 @@ Project.InitValidate = function(el, field) {
         if (obj.format != null) {
             obj.isime = false;  //formatが入っているものは強制OFF
         }
-        else{
+        else {
             if (el.getAttribute("isime") != null) {
-                obj.isime = isBoolean(el.getAttribute("isime"));
+                obj.isime = Project.IsBoolean(el.getAttribute("isime"));
             }
         }
         //テキストの位置
@@ -80,27 +80,27 @@ Project.InitValidate = function(el, field) {
 
         //半角
         if (el.getAttribute("ishankaku") != null) {
-            obj.isHankaku = isBoolean(el.getAttribute("ishankaku"));
+            obj.isHankaku = Project.IsBoolean(el.getAttribute("ishankaku"));
         }
 
         //数値(0-9)
         if (el.getAttribute("isnumeric") != null) {
-            obj.isNumeric = isBoolean(el.getAttribute("isnumeric"));
+            obj.isNumeric = Project.IsBoolean(el.getAttribute("isnumeric"));
         }
 
         //全角
         if (el.getAttribute("iszenkaku") != null) {
-            obj.isZenkaku = isBoolean(el.getAttribute("iszenkaku"));
+            obj.isZenkaku = Project.IsBoolean(el.getAttribute("iszenkaku"));
         }
 
         //文字数チェックMin
         if (el.getAttribute("minlengthvalue") != null) {
-            obj.minlength = +el.getAttribute("minlengthvalue");
+            obj.minlengthvalue = +el.getAttribute("minlengthvalue");
         }
 
         //文字数チェックMax(maxlengthはhtmlとかぶるので注意)
         if (el.getAttribute("maxlengthvalue") != null) {
-            obj.maxlength = +el.getAttribute("maxlengthvalue");
+            obj.maxlengthvalue = +el.getAttribute("maxlengthvalue");
         }
 
         /*
@@ -134,7 +134,7 @@ Project.InitValidate = function(el, field) {
     //imeの処理
     if (validatefield[field] != null) {
         let obj = validatefield[field];
-        if (obj.isime != null ) {
+        if (obj.isime != null) {
             if (obj.isime == true) {
                 //含まれていなければ追加
                 el.classList.toggle("ime-on");
@@ -193,16 +193,16 @@ Project.CheckValidate = function (field, value) {
         }
 
         //文字数チェックMin
-        if (obj.minlength != null) {
-            if (value.length < +obj.minlength) {
-                return +obj.minlength - 1 + "文字以下の入力はできません。";
+        if (obj.minlengthvalue != null) {
+            if (value.length < +obj.minlengthvalue) {
+                return +obj.minlengthvalue - 1 + "文字以下の入力はできません。";
             }
         }
 
         //文字数チェックMax
-        if (obj.maxlength != null) {
-            if (value.length > +obj.maxlength) {
-                return +obj.maxlength+1 + "文字以上の入力はできません。";
+        if (obj.maxlengthvalue != null) {
+            if (value.length > +obj.maxlengthvalue) {
+                return +obj.maxlengthvalue + 1 + "文字以上の入力はできません。";
             }
         }
 
@@ -262,7 +262,7 @@ Project.SetControlCss = function (el, binding, errorFlag) {
     let primarykey = el.getAttribute("isprimarykey");
     if (primarykey != null) {
         el.disabled = false;
-        if (String(true).toLocaleLowerCase() == primarykey.toString().toLocaleLowerCase()) {
+        if (Project.IsBoolean(primarykey.toString()) == true) {
             if (!(binding.value[DoraConst.FIELD_NEW_FLAG] == true)) {
                 el.disabled = true;
             }
@@ -281,7 +281,7 @@ Project.SetControlCss = function (el, binding, errorFlag) {
     if (errorFlag == true) {
         el.classList.add("err-control");
     }
-    else{
+    else {
         el.classList.remove("err-control");
     }
 
@@ -294,8 +294,9 @@ Project.SetControlCss = function (el, binding, errorFlag) {
  * @param {requiredfield} 必須項目
  * @param {errorCheckFunction} 個別エラーfunction (必要なければnull)
  * @param {pageMoveFunction} ページ移動のfunction (必要なければnull) ※nullの場合は単票と判定する
+ * @param {errTopFlag} trueの場合、エラー行を先頭に移動
 */
-Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorCheckFunction, pageMoveFunction) {
+Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield, errorCheckFunction, pageMoveFunction, errTopFlag) {
 
     let error = {
         ErrorIdentity: null,     //エラーフラグを付けるエラー行(サーバからのエラーで使用)
@@ -303,27 +304,59 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
         Message: '',
     };
 
-    
+    for (let i = 0; i < items.length; i++) {
+        let item = items[i];
+
+        item[DoraConst.FIELD_IDENTITY_ID] = i;           //サーバ処理でのエラー時にでも使用してください。※indexと連動させること！
+    }
+
     for (let i = 0; i < items.length; i++) {
         let item = items[i];
 
         //ERROR_FLAGをクリア
         item[DoraConst.FIELD_ERROR_FLAG] = false;
-        item[DoraConst.FIELD_IDENTITY_ID] = i;           //サーバ処理でのエラー時にでも使用してください。
 
+        //単体エラーが発生しているオブジェクトを検索
+        let keys = Object.keys(item);
+        let findString = '_IS_ERROR_VALUE';
+        for (let j = keys.length - 1; 0 <= j; --j) {
+            //if (keys[j].endsWith('_IS_ERROR_VALUE')) IEでは使えないので・・
+            let keystring = keys[j];
+            
+            if ((keystring.lastIndexOf(findString) + findString.length === keystring.length) && (findString.length <= keystring.length)) {              
+                item[DoraConst.FIELD_ERROR_FLAG] = true;
+
+                if (error.Message.length == 0) {
+                    error = {
+                        Field: keystring.replace(findString, ""),
+                        Message: '入力項目がエラーです。',
+                    };
+                    break;
+                }
+            }
+        }
+    }
+
+    if (error.Message.length > 0) {
+        //エラーメッセージの表示
+        Project.MoveErrorFocus(paravue,items, error, pageMoveFunction, errTopFlag);
+        return true;
+    }
+
+    for (let i = 0; i < items.length; i++) {
+        let item = items[i];
 
         //コントロールのエラーを一旦削除
         let keys = Object.keys(item);
-        let findString = '_ISERROR';
+        let findString = '_IS_ERROR';
         for (let j = keys.length - 1; 0 <= j; --j) {
-            //if (keys[j].endsWith('_ISERROR')) IEでは使えないので・・
+            //if (keys[j].endsWith('_IS_ERROR')) IEでは使えないので・・
             let keystring = keys[j];
 
             if ((keystring.lastIndexOf(findString) + findString.length === keystring.length) && (findString.length <= keystring.length)) {
                 delete item[keys[j]];
             }
         }
-
 
         //削除行かどうか
         let deleteFlag = false;
@@ -354,7 +387,7 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
                         if (item[requiredfield[j]] == null || item[requiredfield[j]].toString().length == 0) {
                             error = {
                                 Field: requiredfield[j],
-                                Message: '必須入力が入力されていません',
+                                Message: '必須入力が入力されていません。',
                             };
                         }
                     }
@@ -368,13 +401,15 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
         if (item[DoraConst.FIELD_UPDATE_FLAG] == true || pageMoveFunction == null) {
 
             if (deleteFlag == false && error.Message.length == 0) {
-                for (let j = 0; j < requiredfield.length; j++) {
-                    if (item[requiredfield[j]] == null || item[requiredfield[j]].toString().length == 0) {
-                        error = {
-                            Field: requiredfield[j],
-                            Message: '必須入力が入力されていません',
-                        };
-                        break;
+                if (requiredfield != null) {
+                    for (let j = 0; j < requiredfield.length; j++) {
+                        if (item[requiredfield[j]] == null || item[requiredfield[j]].toString().length == 0) {
+                            error = {
+                                Field: requiredfield[j],
+                                Message: '必須入力が入力されていません。',
+                            };
+                            break;
+                        }
                     }
                 }
             }
@@ -383,7 +418,7 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
             if (deleteFlag == false && error.Message.length == 0) {
                 //新規データが対象（既存行の重複チェックはしない）
                 if (item[DoraConst.FIELD_NEW_FLAG] == true) {
-                    if (keyFiled.length > 0) {
+                    if (keyFiled != null && keyFiled.length > 0) {
                         let dupeitems = items.filter(
                             function (dupeitem) {
 
@@ -406,7 +441,7 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
                         if (dupeitems.length > 0) {
                             error = {
                                 Field: keyFiled[0],
-                                Message: 'データが重複しています',
+                                Message: 'データが重複しています。',
                             };
                         }
 
@@ -440,7 +475,7 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
             item[DoraConst.FIELD_ERROR_FLAG] = true;
 
             //エラーメッセージの表示
-            Project.MoveErrorFocus(items, error, pageMoveFunction);
+            Project.MoveErrorFocus(paravue,items, error, pageMoveFunction, errTopFlag);
 
             return true;
         }
@@ -455,8 +490,9 @@ Project.IsSubmitValidateError = function (items, keyFiled, requiredfield, errorC
  * @param {items} バインド値
  * @param {error} エラーオブジェクト
  * @param {pageMoveFunction} ページ移動のfunction  ※nullの場合は単票と判定する
+ * @param {errTopFlag} trueの場合、エラー行を先頭に移動
 */
-Project.MoveErrorFocus = function (items, error, pageMoveFunction) {
+Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, errTopFlag) {
 
     if (error.Message != null && error.Message.length > 0) {
 
@@ -478,48 +514,48 @@ Project.MoveErrorFocus = function (items, error, pageMoveFunction) {
 
         }
 
-        alert(error.Message);
-
         //エラー行を先頭にする
-        items.sort(
-            function (a, b) {
+        if (errTopFlag) {
+            items.sort(
+                function (a, b) {
+                    //true 1 false 0 なので注意
+                    if (Project.IsBoolean(a[DoraConst.FIELD_ERROR_FLAG]) > Project.IsBoolean(b[DoraConst.FIELD_ERROR_FLAG])) { return -1; }
+                    else if (Project.IsBoolean(a[DoraConst.FIELD_ERROR_FLAG]) < Project.IsBoolean(b[DoraConst.FIELD_ERROR_FLAG])) { return 1; }
 
-                //true 1 false 0 なので注意
-                if (isBoolean(a[DoraConst.FIELD_ERROR_FLAG]) > isBoolean(b[DoraConst.FIELD_ERROR_FLAG])) { return -1; }
-                else if (isBoolean(a[DoraConst.FIELD_ERROR_FLAG]) < isBoolean(b[DoraConst.FIELD_ERROR_FLAG])) { return 1; }
+                    if (a[DoraConst.FIELD_IDENTITY_ID] < b[DoraConst.FIELD_IDENTITY_ID]) { return -1; }
+                    else if (a[DoraConst.FIELD_IDENTITY_ID] > b[DoraConst.FIELD_IDENTITY_ID]) { return 1; }
 
-                if (a[DoraConst.FIELD_IDENTITY_ID] < b[DoraConst.FIELD_IDENTITY_ID]) { return -1; }
-                else if (a[DoraConst.FIELD_IDENTITY_ID] > b[DoraConst.FIELD_IDENTITY_ID]) { return 1; }
-
-                return 0;
-            }
-        );
+                    return 0;
+                }
+            );
+        }
 
         //ページを１ページにする
-        //this.$refs.page.pageSelect(1);
+        //this.$refs.page.gotopage(1);
         if (typeof pageMoveFunction == 'function') {
             pageMoveFunction();
         }
-
+        else{
+            //強制アップデート
+            paravue.$forceUpdate();
+        }
 
         if (error.Field.length > 0) {
             let errorItems = items.filter(
                 function (item) {
-                    return item[DoraConst.FIELD_ERROR_FLAG] == true;
+                    return Project.IsBoolean(item[DoraConst.FIELD_ERROR_FLAG]) == true;
                 }
             );
             if (errorItems.length > 0) {
                 //こちらの記述でエラーフィールドに色をセット
-                errorItems[0][error.Field + '_ISERROR'] = true;
+                errorItems[0][error.Field + '_IS_ERROR'] = true;
             }
 
             Vue.nextTick(
                 function () {
-                    let el;
-                    if (pageMoveFunction != null) {
-                        el = document.querySelector(".err-common");
-                    }
-                    else {
+                    let el = document.querySelector(".err-common");
+
+                    if (el == null) {
                         //単票用
                         el = document;
                     }
@@ -528,14 +564,16 @@ Project.MoveErrorFocus = function (items, error, pageMoveFunction) {
                     if (el != null) {
 
                         el.focus();
-                        if (typeof el.select == 'function') {
-                            el.select();
-                        }
+                        //if (typeof el.select == 'function') {
+                        //    el.select();
+                        //}
                     }
 
                 }
             );
         }
+
+        alert(error.Message);
 
         return true;
     }
@@ -708,6 +746,17 @@ Project.MargeInputData = function (items, updateData, keyFiled, pageMoveFunction
     return items;
 };
 
+Project.IsBoolean = function (value) {
+    if (value != null &&
+        String(true).toLocaleLowerCase() == value.toString().toLocaleLowerCase()) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
 //https://zukucode.com/2017/04/javascript-string-length.html 参考
 function GetbyteLength(value) {
     let length = 0;
@@ -722,14 +771,3 @@ function GetbyteLength(value) {
     return length;
 }
 
-function isBoolean(value) {
-    if (value != null && 
-        String(true).toLocaleLowerCase() == value.toString().toLocaleLowerCase()) 
-    {
-        return  true;
-    }
-    else {
-        return false;
-    }
-
-}

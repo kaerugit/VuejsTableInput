@@ -111,13 +111,13 @@
 
                                             <input type="hidden" name="h_name" value="隠しデータ">
                                             <!--
-            <input type="password" name="p_name1">
-            <textarea name="t_name" rows="10"></textarea>
-            -->
-                                            <!--
-            <input type="checkbox" v-model="elem['FIELD_DELETE_FLAG']" v-ex_updateflag="elem" class="form-control" />
-            <dora-input v-model="elem.id" dora_format="" v-ex_updateflag="elem" class="form-control"></dora-input>
-            -->
+                                            <input type="password" name="p_name1">
+                                            <textarea name="t_name" rows="10"></textarea>
+                                            -->
+                                                                            <!--
+                                            <input type="checkbox" v-model="elem['FIELD_DELETE_FLAG']" v-ex_updateflag="elem" class="form-control" />
+                                            <dora-input v-model="elem.id" dora_format="" v-ex_updateflag="elem" class="form-control"></dora-input>
+                                            -->
                                         </td>
                                         <td>
 
@@ -125,37 +125,37 @@
                                             <input v-model.lazy="elem.name" dora_format="#,##0" v-dora_updateflag="elem" class="input" />
 
                                             <!-- 入力(formatサンプル)
-            <dora-input v-model="elem.name" dora_format="," v-ex_updateflag="elem" class="input"></dora-input>
-            -->
+                                            <dora-input v-model="elem.name" dora_format="," v-ex_updateflag="elem" class="input"></dora-input>
+                                            -->
                                         </td>
                                         <td>
                                             <!-- 表示のみ -->
-                                            {{ elem.name | dora_formatDelimiter('#,##0')}}
+                                            {{ elem.name | formatdelimiter('#,##0')}}
                                         </td>
                                         <td>
 
                                             <input v-model.lazy="elem.selectvalue" v-dora_updateflag="elem" class="input" />
 
                                             <!--
-            <dora-input v-model="elem.selectvalue" v-ex_updateflag="elem" class="input" readonly="true"></dora-input>
-            -->
+                                            <dora-input v-model="elem.selectvalue" v-ex_updateflag="elem" class="input" readonly="true"></dora-input>
+                                            -->
                                         </td>
                                         <td>
                                             <select v-model.lazy="elem.selectvalue" v-dora_updateflag="elem" v-dora_selectitems="selectItems" dora_blanktext="--選択してください--" class="select"></select>
 
                                             <!--
-                v-bind:dora_selectitems 連動する値
-                dora_blanktext       空欄のテキストをセット（dora_blanktextを指定しない場合　空の選択なし）
+                                                v-bind:dora_selectitems 連動する値
+                                                dora_blanktext       空欄のテキストをセット（dora_blanktextを指定しない場合　空の選択なし）
 
-                size="3"  を追加するとList
+                                                size="3"  を追加するとList
 
-            <select v-model.lazy="elem.selectvalue" v-dora_updateflag="elem" class="select">
-                <option value="">××選択してください××</option>
-                <option v-for="option in selectItems" v-bind:value="option.value">
-                    {{ option.text }}
-                </option>
-            </select>
-            -->
+                                            <select v-model.lazy="elem.selectvalue" v-dora_updateflag="elem" class="select">
+                                                <option value="">××選択してください××</option>
+                                                <option v-for="option in selectItems" v-bind:value="option.value">
+                                                    {{ option.text }}
+                                                </option>
+                                            </select>
+                                            -->
                                         </td>
                                         <td>
                                                 <!-- radio単一選択(複数存在する場合は 'opt'を変更する) -->
@@ -175,13 +175,13 @@
 
                                             <!-- コンポーネント前の書き方-->
                                             <!--
-            <select v-model.lazy="elem.multipleselectvalue" v-dora_updateflag="elem" size="3" class="select is-multiple" multiple>
-                <option value="">××選択してください××</option>
-                <option v-for="option in selectItems" v-bind:value="option.value">
-                    {{ option.text }}
-                </option>
-            </select>
-            -->
+                                            <select v-model.lazy="elem.multipleselectvalue" v-dora_updateflag="elem" size="3" class="select is-multiple" multiple>
+                                                <option value="">××選択してください××</option>
+                                                <option v-for="option in selectItems" v-bind:value="option.value">
+                                                    {{ option.text }}
+                                                </option>
+                                            </select>
+                                            -->
 
                                         </td>
                                         <td>
@@ -199,9 +199,15 @@
                     </div>
                 </article>
                 <!--
-    ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
-    v-bind:ex_size（1ページに表示するデータ件数） v-bind:ex_page_range（ページングに表示するページ数） こちらで変更可
-    -->
+                ページングオブジェクト
+                ref="page" は、親から子の関数を呼ぶために使用 this.$refs.page.gotopage(i);
+                ⇒ページングオブジェクトが複数あるような画面は ref="page2" と名前を変更する
+                dora_bind_divはclass="TablePanel"のidを指定
+                ⇒ページングオブジェクトが複数ある場合は変更が必要です。
+                v-bind:dora_size：（1ページに表示するデータ件数） 
+                v-bind:dora_page_range：（ページングに表示するページ数） 
+                v-bind:dora_display_panel.sync：は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
+                -->
                 <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayitems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" ref="page"></dora-paging>
 
             </div>
@@ -250,7 +256,7 @@
                     this.bindItems.unshift({});
 
                     //ページを１ページにする
-                    this.$refs.page.pageSelect(1);
+                    this.$refs.page.gotopage(1);
 
                     //先頭に追加(デフォルト値あり)
                     //this.bindItems.unshift({

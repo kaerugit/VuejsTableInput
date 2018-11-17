@@ -7,7 +7,6 @@
     FIELD_ERROR_FLAG: "ERROR_FLAG",
     /*自動的に連番付与するフィールド*/
     FIELD_IDENTITY_ID: "IDENTITY_ID"
-
 };
 
 Vue.directive('dora_table', {
@@ -17,21 +16,22 @@ Vue.directive('dora_table', {
         let widthArray = [];
 
         if (theadArray.length > 0) {
-            let thArray = theadArray[0].querySelectorAll('th');
+            let trArray = theadArray[0].querySelectorAll('tr');
+            if (trArray.length > 0) {
+                let thArray = trArray[0].querySelectorAll('th');
 
-            let width = 0;
-            for (let i = 0; i < thArray.length; i++) {
-                let currentWidth = parseInt(thArray[i].style.width);
+                let width = 0;
+                for (let i = 0; i < thArray.length; i++) {
+                    let currentWidth = parseInt(thArray[i].style.width);
 
-                widthArray.push(currentWidth);
-                width += currentWidth;  //obj.st.clientWidth;
+                    widthArray.push(currentWidth);
+                    width += currentWidth;  //obj.st.clientWidth;
 
+                }
+                //alert(width);
+                el.style.width = width + 'px'; //clientWidth = width;
 
             }
-            //alert(width);
-            el.style.width = width + 'px'; //clientWidth = width;
-
-
         }
 
         let tbodyArray = el.querySelectorAll('tbody');
@@ -65,10 +65,18 @@ Vue.directive('dora_table', {
         }
     }
 }
-)
+);
 
 // v-dora_updateflag.bindingvaluedisp 指定でフォーカス取得時 バインディングの値をそのままセット
 // v-dora_updateflag.bindingvaluedispをセットし、dora_format="#,###" とした場合、入力は 1000(modelの値) 表示は1,000 となる
+
+//外部から参照用
+//(エレメント).isinputerror()      エラーの場合：true
+//(エレメント).checkvalidate()     エラーチェックを個別に実行
+//(エレメント).isinputdata()         入力されたかどうか
+
+//外部から呼ばれる関数(v-on:change イベントと併用した場合 v-on:changeが実行されるので、先にcheckvalidateを実行する必要がある)
+
 Vue.directive('dora_updateflag', {
     //データ更新時にフラグを追加
     bind: function (el, binding, vnode) {
@@ -98,7 +106,7 @@ Vue.directive('dora_updateflag', {
 
         if (typeof Project.SetControlCss == 'function') {
             let errorFlag = false;
-            if (el.bindingvalue.value[el.modelvalue + '_ISERROR'] != null) {
+            if (el.bindingvalue.value[el.modelvalue + '_IS_ERROR'] != null) {
                 errorFlag = true;
             }
 
@@ -111,104 +119,152 @@ Vue.directive('dora_updateflag', {
         }
 
 
-        el.addEventListener("change",
-            function (evt) {
-                //フラグの更新
-                let defultField = DoraConst.FIELD_UPDATE_FLAG;
+        //コントロールがエラーかどうか確認
 
-                el.bindingvalue.value[defultField] = true;
+        el.isinputdata = function () {
+            try {
+                return el.inputflag;
+            }
+            catch (e) {
+            };
+            return false;
+        };
 
-                let message = '';
-                //バインドデータの更新（日付などを正しい値にする）
-                let format = el.getAttribute("dora_format");
 
-                if (!(format == null || format.length == 0)) {
-                    if (el.value.length == 0) {
-                        el.bindingvalue.value[el.modelvalue] = null;
-                    }
-                    else {
-                        let retvalue = transformFormat(el.value, format);
-                        //変換に失敗した場合
-                        if (retvalue == null) {
-                            message = '値が違います。';
-                        }
-                        //変換できないものはとりあえずnullをセットしておく
-                        el.bindingvalue.value[el.modelvalue] = retvalue;
-                    }
-
+        //エラーかどうか（外部より参照用）
+        el.isinputerror = function () {
+            try {
+                if (el.bindingvalue.value[el.modelvalue + '_IS_ERROR'] == true) {
+                    return true;
                 }
+            }
+            catch (e) {
+            };
+            return false;
+        };
 
-                if (message.length == 0) {
-                    //project.js の関数を呼んでいます(※必ずメインでincludeしておいてください <script src="./javascript/doracomponent.js"></script>)
-                    if (typeof Project.CheckValidate == 'function') {
-                        message = Project.CheckValidate(el.modelvalue, el.bindingvalue.value[el.modelvalue]);
-                    }
+
+        //外部から呼ばれる関数(v-on:change イベントと併用した場合 v-on:changeが実行されるので、先にcheckvalidateを実行する必要がある)
+        el.checkvalidate = function (evt) {
+            return el.event_change(evt);
+        };
+
+        //変更時のイベント
+        el.event_input = function (evt) {
+            el.inputflag = true;
+        };
+        el.addEventListener("input", el.event_input, false);
+
+        //change イベント
+        el.event_change = function (evt) {
+
+            //二度実行防止(updateでfalseになります)
+            if (el.onceflag == true) {
+                return false;
+            }
+
+            el.onceflag = true;
+            //el.removeEventListener("change", el.event_change, false);
+
+            //フラグの更新
+            let defultField = DoraConst.FIELD_UPDATE_FLAG;
+
+            el.bindingvalue.value[defultField] = true;
+
+            let message = '';
+            //バインドデータの更新（日付などを正しい値にする）
+            let format = el.getAttribute("dora_format");
+
+            if (!(format == null || format.length == 0)) {
+                if (el.value.length == 0) {
+                    el.bindingvalue.value[el.modelvalue] = null;
                 }
-
-                delete el.bindingvalue.value[el.modelvalue + '_ISERROR'];
-                if (message.length > 0) {
-                    //フォーカスを戻す処理だけど、入れるとおかしくなるのでcssで対応
-                    el.bindingvalue.value[el.modelvalue + '_ISERROR'] = true;
-
-                    alert(message);
-                    evt.preventDefault();
-                    evt.stopPropagation();
-                    let nowValue = el.value;
-                    //el.bindingvalue.value[el.modelvalue] = null;
-
-                    setTimeout(
-                            function () {
-                                el.value = nowValue;
-                                el.focus();
-                            }
-                        , 100)
-
-                    return false;
+                else {
+                    let retvalue = transformFormat(el.value, format);
+                    //変換に失敗した場合
+                    if (retvalue == null) {
+                        message = '値が違います。';
+                    }
+                    //変換できないものはとりあえずnullをセットしておく
+                    el.bindingvalue.value[el.modelvalue] = retvalue;
                 }
 
             }
-            , false);
+
+            if (message.length == 0) {
+                //project.js の関数を呼んでいます(※必ずメインでincludeしておいてください <script src="./javascript/doracomponent.js"></script>)
+                if (typeof Project.CheckValidate == 'function') {
+                    message = Project.CheckValidate(el.modelvalue, el.bindingvalue.value[el.modelvalue]);
+                }
+            }
+
+            delete el.bindingvalue.value[el.modelvalue + '_IS_ERROR'];
+            delete el.bindingvalue.value[el.modelvalue + '_IS_ERROR_VALUE'];
+            if (message.length > 0) {
+                //フォーカスを戻す処理だけど、入れるとおかしくなるのでcssで対応
+                el.bindingvalue.value[el.modelvalue + '_IS_ERROR'] = true;
+
+                alert(message);
+                evt.preventDefault();
+                evt.stopPropagation();
+                el.bindingvalue.value[el.modelvalue + '_IS_ERROR_VALUE'] = el.value;
+
+                Vue.nextTick(
+                    function () {
+                        el.focus();
+                    }
+                );
+
+                return false;
+            }
+
+            return true;
+        };
+        el.addEventListener("change", el.event_change, false);
 
         //フォーカス取得時イベント
-        el.addEventListener("focus",
-            function (e) {
-                let ae = e.target;
+        el.event_focus = function (evt) {
+            let ae = evt.target;
+
+            //こちらを入れないと選択状態にならない
+            Vue.nextTick(
+                function () {
+                    if (ae != document.activeElement) {
+                        return;
+                    }
+
+                    //v-dora_updateflag.bindingvaluedisp と定義している場合 バインディングの値をそのままセット
+                    if (binding.modifiers.bindingvaluedisp == true && ae.bindingvalue.value[ae.modelvalue] != null) {
+                        ae.value = ae.bindingvalue.value[ae.modelvalue]; //parseFormat(el.bindingvalue.value[el.modelvalue], format);
+                    }
+                    
+                    if (typeof ae.select == 'function') {
+                        //課題　ieはこちらでOK　chromeはsetTimeoutが必要 edgeはsetTimeoutを入れると処理によって無限ループになる
+                        ae.select();
+
+                        //chrome跡
+                        //setTimeout(function () {
+                        //    //if (ae == document.activeElement) { 
+                        //    //}
+                        //    ae.select();    
+                        //}, 0);                        
+                        
+                                                
+                    }
+                }
+            );
 
 
-                //こちらを入れないと選択状態にならない
-                Vue.nextTick(
-                        function () {
-                            if (ae != document.activeElement) {
-                                return;
-                            }
+        };
+        el.addEventListener("focus", el.event_focus, false);
 
-                            if (typeof ae.select == 'function') {
-                                //v-dora_updateflag.bindingvaluedisp と定義している場合 バインディングの値をそのままセット
-                                if (binding.modifiers.bindingvaluedisp == true && el.bindingvalue.value[el.modelvalue] != null) {
-                                    ae.value = ae.bindingvalue.value[ae.modelvalue]; //parseFormat(el.bindingvalue.value[el.modelvalue], format);
-                                }
-                                el.select();
-
-                                /*
-                                try {
-                                    el.selectionStart = 0;
-                                    el.selectionEnd = el.value.length;
-                                }
-                                catch (e) { }
-                                */
-                            }
-                        }
-                );
-            }
-            , false);
-
+        el.event_blur = null;
         //modelをそのまま表示している場合はフォーカス喪失時に再度フォーマット
         if (binding.modifiers.bindingvaluedisp == true) {
 
-            el.addEventListener("blur",
-            function (e) {
-
-                let ae = e.target;
+            //フォーカス喪失時のイベント
+            el.event_blur = function (evt) {
+                let ae = evt.target;
                 //if (typeof ae.select == 'function') {
                 //    //選択解除
                 //    try {
@@ -223,44 +279,68 @@ Vue.directive('dora_updateflag', {
                     return;
                 }
 
-
                 if (ae.bindingvalue.value[ae.modelvalue] != null) {
                     if (binding.modifiers.bindingvaluedisp == true) {
                         ae.value = parseFormat(ae.bindingvalue.value[ae.modelvalue], format);
                     }
                 }
 
-            }
-            , false);
+            };
+            el.addEventListener("blur", el.event_blur, false);
         }
 
     },
 
     update: function (el, binding, vnode) { //, oldValue) {
+
+        el.onceflag = false;
+        el.inputflag = false;
+
         //あまりよろしくないがbinding データを保存
         el.bindingvalue = binding;
+        
+        //if (el.modelvalue != null) {
+        //    if (binding.value[el.modelvalue] == binding.oldValue[el.modelvalue]) {
+        //        return;
+        //    }
+        //}
 
+        let inputerrorflag = el.isinputerror();
         if (typeof Project.SetControlCss == 'function') {
-            let errorFlag = false;
-            if (el.bindingvalue.value[el.modelvalue + '_ISERROR'] != null) {
-                errorFlag = true;
+            Project.SetControlCss(el, el.bindingvalue, inputerrorflag);
+        }
+
+        //エラーの場合エラー値をセット
+        let errorValue = '';
+
+        if (inputerrorflag) {
+            errorValue = '' + el.bindingvalue.value[el.modelvalue + '_IS_ERROR_VALUE'];
+            el.value = errorValue;
+        }
+
+        if (errorValue.length == 0) {
+            //フォーマットの処理
+            let format = el.getAttribute("dora_format");
+
+            if (format == null || format.length == 0) {
+                return;
             }
 
-            Project.SetControlCss(el, el.bindingvalue, errorFlag);
+            if (binding.value[el.modelvalue] != null) {
+                el.value = parseFormat(binding.value[el.modelvalue], format);
+            }
         }
-
-        //フォーマットの処理
-        let format = el.getAttribute("dora_format");
-
-        if (format == null || format.length == 0) {
-            return;
-        }
-
-        if (binding.value[el.modelvalue] != null) {
-            el.value = parseFormat(binding.value[el.modelvalue], format);
-        }
-
     },
+
+    unbind: function (el) {
+        el.removeEventListener("input", el.event_input, false);
+        el.removeEventListener("change", el.event_change, false);
+        el.removeEventListener("focus", el.event_focus, false);
+        if (el.event_blur != null) {
+            el.removeEventListener("blur", el.event_blur, false);
+        }
+    }
+    ,
 
 });
 
@@ -347,45 +427,563 @@ Vue.directive('dora_selectitems', {
 });
 
 //フォーマット
-Vue.filter('dora_formatDelimiter', function (value, formatvalue) {
+Vue.filter('formatdelimiter', function (value, formatvalue) {
     return parseFormat(value, formatvalue);
+});
+
+Vue.component('dora-vscroll', {
+    props:
+    {
+        //連結するオブジェクト
+        dora_bind_items: {
+            type: Array,
+            default: []
+        },
+        //連結するdivタグ
+        dora_bind_div: {
+            type: String,
+        }
+        ,
+        //行の高さ（1つでも高さが変わるデータが存在したら正しく表示されない）
+        dora_height: {
+            type: Number,
+            default: 20
+        },
+
+    }
+    ,
+    data: function () {
+        return {
+            //ダミーのdivの高さ
+            heightcalc: 0,
+            //タイトルの高さ
+            heighttitle: 0,
+            //データの位置
+            currentindex: 0,
+            //tableのElement
+            tableelement: null,
+            //現状のElement
+            vscrollelement: null,
+
+            //現在表示されている行数（自動計算）
+            datasize: 0,
+
+            //スクロールイベントが連続で実行されない制御で使用
+            timerflag: false,
+            scrolltimer: null,
+
+        }
+    }
+    ,
+    mounted: function () {
+        this.tableelement = document.getElementById(this.dora_bind_div);
+        this.vscrollelement = this.tableelement.parentElement.querySelector("[vscroll='']");
+
+        if (this.vscrollelement == null) {
+            //e100に意味はありません(ソース検索用)
+            alert('開発エラー[e100]');
+        }
+
+        let self = this;
+
+        //上下キー（エンターキー（最終項目））イベント
+        this.tableelement.addEventListener("keydown",
+            function (evt) {
+                //改行は最終行のみ対応
+                if (evt.keyCode == 13 || evt.keyCode == 38 || evt.keyCode == 40 ) {
+
+                    let objActive = document.activeElement;
+                    if (objActive == null || objActive.type == null) {
+                        return;
+                    }
+                    let objActiveType = objActive.type.toLowerCase();
+
+                    //判定微妙かも
+                    if (objActiveType == "textarea") {
+                        return;
+                    }
+                    else if (evt.keyCode != 13 && objActiveType.indexOf("select") == 0) {
+                        return;
+                    }
+
+                    let parentTD = objActive;
+                    let findFlag = false;
+
+                    //td（親）を求める3は少し適当
+                    for (let i = 1; i < 3; i++) {
+                        parentTD = parentTD.parentNode;
+                        if (parentTD != null && parentTD.tagName.toLowerCase() == "td") {
+                            findFlag = true;
+                            break;
+                        }
+                    }
+
+                    let findIndexTR = -1;
+                    let listArrayTRlength = -1;
+
+                    //最後の項目で改行
+                    let lastEnterFlag = false;
+                    //親にtdが存在した場合
+                    if (findFlag == true) {
+
+                        //tdのindexを求める
+                        let parentTR = parentTD.parentNode;
+                        
+
+                        //trのindexを求める
+                        let listArrayTR = parentTR.parentNode.querySelectorAll('tr');
+                        listArrayTRlength = listArrayTR.length;
+                        for (let i = 0; i < listArrayTR.length; i++) {
+                            let obj = listArrayTR[i];
+                            if (parentTR == obj) {
+                                findIndexTR = i;
+                                break;
+                            }
+                        }
+
+                        if (evt.keyCode == 13) {
+                            let listArrayTD = parentTR.querySelectorAll('td');
+
+                            if (parentTD == listArrayTD[listArrayTD.length - 1]) {
+                                lastEnterFlag = true;
+                            }
+                        }
+
+
+                    }
+
+                    //見つかった場合
+                    let moveIndex = 0;
+                    if (findIndexTR != -1) {
+
+                        if ((evt.keyCode == 38) && (findIndexTR == 0)) {      //上
+                            moveIndex = -1;
+                        }
+                        else if ((evt.keyCode == 40) && ((listArrayTRlength - 1) == findIndexTR)) {       //下
+                            moveIndex = 1;
+                        }
+                        else if ((lastEnterFlag) && ((listArrayTRlength - 1) == findIndexTR)) {       //エンターキーで一番最後の項目
+                            moveIndex = 1;
+                        }
+
+                        if (moveIndex != 0) {
+                            movefunction(moveIndex, lastEnterFlag);
+                        }
+                    }
+
+                }
+            }
+        );
+
+        //ホイールマウスのイベント
+        let mouseWheelEvent =
+            function (evt) {
+                let objActive = document.activeElement;
+                if (objActive == null || objActive.type == null) {
+                    return;
+                }
+
+                let objActiveType = objActive.type.toLowerCase();
+
+                if (objActiveType == "textarea") {
+                    return;
+                }
+                else if (objActiveType.indexOf("select") == 0) {
+                    return;
+                }
+
+                let moveIndex = 0;
+                
+                if ((evt.wheelDelta || evt.detail) > 0) {
+                    //上方向
+                    moveIndex = -1;
+                }
+                else {
+                    //下方向
+                    moveIndex = 1;
+                }
+
+                movefunction(moveIndex, false);
+            }
+
+        //マルチブラウザ対応（どちらかにヒットするはず・・）
+        this.tableelement.addEventListener('DOMMouseScroll', mouseWheelEvent);
+        this.tableelement.addEventListener('mousewheel', mouseWheelEvent);
+
+        //上下キー、ホイール共通処理
+        let movefunction =
+            function (moveIndex, enterFlag) {
+
+            if (moveIndex < 0) {
+                //上に移動
+                if (self.currentindex == 0) {
+                    moveIndex = 0;
+                }
+            }
+            else if (moveIndex > 0) {
+                //下に移動
+                if (self.getLastDataIndex() <= self.currentindex) {
+                    moveIndex = 0;
+                }
+            }
+
+            if (moveIndex != 0) {
+                self.scrollobject =
+                    {
+                        moveIndex: moveIndex,
+                        enterFlag: enterFlag,
+                    };
+
+                self.execscroll(moveIndex, enterFlag);
+            }
+
+        };
+
+        //画面をリサイズした場合に表示数を変更
+        window.addEventListener("resize",
+            function () {
+                self.getData(true);
+                //強制アップデート
+                self.$forceUpdate();
+            }
+        );
+
+    }
+    ,
+    template: '\
+        <div class="" @scroll="scroll" vscroll="">\
+            <div v-bind:style="{ height: heightcalc + \'px\'}">\
+            </div>\
+        </div>\
+    '
+    ,
+    methods: {
+        /**
+         * 指定したページに移動する
+         * @param {number} index 移動するデータのindex
+         *        外から this.$refs.page.gotoindex する場合は mounted以降で呼び出し
+         */
+        gotoindex: function (index) {
+
+            this.tableelement.scrollLeft = 0;
+
+            let updownvalue = -1;
+            if (index <= this.datasize) {
+                index = 0;
+            }
+            else if (this.dora_bind_items != null && this.getLastDataIndex() < index) {
+                //課題
+                //最後のデータにエラーが発生した場合に、上キーで移動した場合、空欄になる（原因不明の不具合があったので）最後のデータは計算して出力するように変更
+                index = this.getLastDataIndex();
+                updownvalue = 1;
+            }
+            this.currentindex = index;
+            this.getData(false, updownvalue);      
+      
+        }
+        ,
+        //スクロールイベント
+        scroll: function () {
+            this.execscroll(0,false);
+        }
+        ,
+        //スクロール実処理
+        execscroll: function (moveIndex, enterFlag) {
+
+            let objActive = document.activeElement;
+
+            let inputFlag = false;
+
+            if (objActive.isinputdata) {
+
+                if (typeof objActive.isinputdata == 'function') {
+                    inputFlag = objActive.isinputdata();
+                }
+
+                if (inputFlag == false) {
+                    if (moveIndex == 0) {
+                        this.getData(true);
+                        return;
+                    }
+                }
+
+                //とりあえず、フォーカスを移動させてonchangeを実行させる
+                objActive.blur();   //2018/11/17 時点ではedgeでは動作せず
+
+                let self = this;
+                let currentscrollTop = this.vscrollelement.scrollTop;
+                setTimeout(function () {
+
+                    //入力した場合のみ（一度エラーを表示した後は素通し）
+                    if (inputFlag) {
+                        if (typeof objActive.isinputerror == 'function') {
+                            //エラーの場合
+                            if (objActive.isinputerror()) {
+                                self.getData(false);
+                                //evt.preventDefault();
+                                //evt.stopPropagation();
+                                return;
+                            }
+                        }
+                    }
+
+                    let currentindexcalc = self.currentindex;
+                    currentindexcalc += moveIndex;
+                    if (currentindexcalc < 0) {
+                        currentindexcalc = 0;
+                    }
+                    else if ((self.dora_bind_items.length - 1) < currentindexcalc) {
+                        currentindexcalc = self.dora_bind_items.length - 1;
+                    }
+
+                    if (moveIndex == 0) {
+                        self.getData(true);
+                    }
+                    else {
+                        self.currentindex = currentindexcalc;
+                        self.getData(false);
+                    }
+                    
+                    Vue.nextTick(
+                        function () {
+
+                            if (enterFlag) {
+                                let parentTD = objActive;
+                                let findFlag = false;
+
+
+                                //かなりfocus.jsと被るのでもったいない・・
+
+                                //td（親）を求める3は少し適当
+                                for (let i = 1; i < 3; i++) {
+                                    parentTD = parentTD.parentNode;
+                                    if (parentTD != null && parentTD.tagName.toLowerCase() == "td") {
+                                        findFlag = true;
+                                        break;
+                                    }
+                                }
+                                if (findFlag == true) {
+                                    let parentTR = parentTD.parentNode;
+
+                                    let listArray = parentTR.querySelectorAll('input,textarea');
+
+                                    //最初にフォーカスが移動できるコントロールに移動
+                                    for (let i = 0; i < listArray.length; i++) {
+                                        let obj = listArray[i];
+                                        //let objType = obj.type.toLowerCase();
+
+                                        //focusがセットできない場合は次
+                                        if (obj.readOnly == true || obj.disabled == true) {
+                                            continue;
+                                        }
+                                        objActive = obj;
+
+                                        break;
+
+                                    }
+                                }
+                            }
+
+                            objActive.focus();
+                            //if (typeof objActive.select == 'function') {
+                            //    objActive.select();
+                            //}
+
+                        }
+                    );
+
+                }, 0);
+            }
+            else {
+                this.getData(true);
+            }
+
+        }
+        ,
+        //テーブルの高さ
+        getTableheight: function () {
+            //return (this.vscrollelement.scrollHeight - this.heighttitle);
+            return (this.heightcalc - this.heighttitle);
+        }
+        ,
+        //最終表示用INDEX（一番下までデータを表示させない） ※10件データがあって、3件画面表示できる場合は　7を戻す(7件目から3つのデータを表示)
+        getLastDataIndex: function () {
+            return (this.dora_bind_items.length - this.datasize);
+        }
+        ,
+        getData: function (scrollflag,argsupdownvalue) {
+            this.heightcalc = this.heighttitle + (this.dora_bind_items.length * this.dora_height);
+
+            let updownvalue = 0;
+            let currentvalue = 0;
+
+            if (scrollflag) {
+                if (this.timerflag == false) {
+                    //現在のデータ位置を計算
+                    currentvalue = this.currentindex;
+                    this.currentindex = Math.round((this.vscrollelement.scrollTop / this.getTableheight()) * (this.dora_bind_items.length));
+
+                    updownvalue = this.currentindex - currentvalue;
+                }
+            }
+            else {
+                //キーボード系の移動はスクロールを修正
+                currentvalue = this.vscrollelement.scrollTop;
+                let scrollvalue = 0;
+
+                if (this.currentindex == 0) {
+                    scrollvalue = 0;
+                }
+                else if (this.currentindex > this.dora_bind_items.length-1) {
+                    scrollvalue = this.heightcalc; //this.vscrollelement.scrollHeight;
+                }
+                else {
+                    scrollvalue = Math.round(((this.currentindex + 1) / (this.dora_bind_items.length)) * this.getTableheight());
+                }
+
+                
+                this.vscrollelement.scrollTop = scrollvalue;
+
+                //こちらのイベント発生後 連続で発生させないようにする
+                this.timerflag = true;
+
+                if (this.scrolltimer != null) {
+                    clearTimeout(this.scrolltimer);
+                }
+
+                let self = this;
+                this.scrolltimer = setTimeout(function () {
+                    self.timerflag = false;
+                }, 500);
+
+                updownvalue = scrollvalue - currentvalue;
+
+            }
+
+            this.datasize = Math.round((this.tableelement.clientHeight - this.heighttitle ) / this.dora_height);
+
+            if (this.datasize < 1) {
+                this.datasize = 1;
+            }
+
+            //親に通知
+            this.$emit('input', this.dora_bind_items.slice(this.currentindex, this.currentindex + this.datasize));
+
+            //置き換える
+            if (argsupdownvalue!=null){
+                updownvalue = argsupdownvalue;
+            }
+
+            //if (updownvalue != 0) {
+            //上に移動
+            if (updownvalue < 0 || this.currentindex == 0) {
+                let self = this;
+                if (self.tableelement.scrollTop != 0) {
+                    Vue.nextTick(
+                        function () {
+                            self.tableelement.scrollTop = 0;
+                        }
+                    );
+                }
+            }
+            else if (updownvalue > 0 || (this.getLastDataIndex() <= this.currentindex)) {
+                //下に移動
+                let self = this;
+                if (self.tableelement.scrollTop != self.tableelement.clientHeight) {
+                    Vue.nextTick(
+                        function () {
+                            self.tableelement.scrollTop = self.tableelement.clientHeight;
+                        }
+                    );
+                }
+            }
+            //}
+        }
+    }
+    ,
+    watch: {
+        dora_bind_items: function (value) {
+            if (this.dora_bind_items == null || this.dora_bind_items.length == 0) {
+                this.heightcalc = 0;
+
+                //let elInput = document.getElementById(this.dora_bind_div);
+                this.tableelement.scrollTop = 0;
+                this.tableelement.scrollLeft = 0;
+                this.vscrollelement.scrollTop = 0;
+
+
+            }
+            else {
+                //タイトル部分の取得
+                if (this.heighttitle == 0) {
+
+                    try {
+                        let trArray = this.tableelement.querySelector('thead').querySelectorAll('tr');
+
+                        if (trArray != null) {
+                            for (let i = 0; i < trArray.length; i++) {
+                                this.heighttitle += +(trArray[i].clientHeight);
+                            }
+                        }
+                    }
+                    catch (e) { }
+                }
+
+                /* 行の高さ確認用
+                try {
+                    let trArray = this.tableelement.querySelector('tbody').querySelector('tr');
+    
+                    if (trArray != null) {
+                        console.log(trArray.clientHeight);
+                    }
+                }
+                catch (e) { }
+                */
+            }
+
+            this.getData(true);
+        }
+    }
 });
 
 //https://kuroeveryday.blogspot.com/2017/10/pagination-with-vue2.html 参考
 Vue.component('dora-paging', {
     props:
-        {
-            // 現在のページ番号
-            /*
-            currentPage: {
-                type: Number,
-                default: -1
-            },
-            */
-            // 1ページに表示するアイテムの上限（0にすると全件表示） ※ページング表示もなし
-            dora_size: {
-                type: Number,
-                default: 20
-            },
-            // ページネーションに表示するページ数の上限
-            dora_page_range: {
-                type: Number,
-                default: 10
-            },
-            dora_bind_items: {
-                type: Array,
-                default: []
-            },
-            dora_bind_div: {
-                type: String,
-            }
-            ,
-            dora_display_panel: {
-                type: Boolean,
-                default: false
-            }
-            ,
+    {
+        // 現在のページ番号
+        /*
+        currentPage: {
+            type: Number,
+            default: -1
+        },
+        */
+        // 1ページに表示するアイテムの上限（0にすると全件表示） ※ページング表示もなし
+        dora_size: {
+            type: Number,
+            default: 20
+        },
+        // ページネーションに表示するページ数の上限
+        dora_page_range: {
+            type: Number,
+            default: 10
+        },
+        //連結するオブジェクト
+        dora_bind_items: {
+            type: Array,
+            default: []
+        },
+        //連結するdivタグ
+        dora_bind_div: {
+            type: String,
         }
+        ,
+        //pc版の場合、検索後条件パネルを非表示にする場合使用
+        dora_display_panel: {
+            type: Boolean,
+            default: false
+        }
+        ,
+    }
     ,
     //componentの変数は関数化する必要あり
     //https://jp.vuejs.org/v2/guide/components.html
@@ -405,14 +1003,14 @@ Vue.component('dora-paging', {
       \
       <ul class="pagination-list">\
           <li v-for="i in displayPageRange" class="page-item" >\
-            <a @click="pageSelect(i)" :class="{\'pagination-link\':true,\'is-current\':(i-1) === currentPage}" href="#">{{ i }}</a>\
+            <a @click="gotopage(i)" :class="{\'pagination-link\':true,\'is-current\':(i-1) === currentPage}" href="#">{{ i }}</a>\
           </li>\
       </ul>\
       \
   </nav>\
 </div>\
         '
-        ,
+    ,
     computed: {
         /**
          * ページ数を取得する
@@ -507,9 +1105,9 @@ Vue.component('dora-paging', {
          * 指定したページに移動する
          * @param {number} index ページ番号
          * 戻り値 データが存在する場合:true
-         *        外から this.$refs.page.pageSelect する場合は mounted以降で呼び出し
+         *        外から this.$refs.page.gotopage する場合は mounted以降で呼び出し
          */
-        pageSelect: function (index) {
+        gotopage: function (index) {
             this.currentPage = index - 1;
             this.selectHandler(true);
         },
@@ -543,7 +1141,7 @@ Vue.component('dora-paging', {
         }
 
     }
-        ,
+    ,
     watch: {
         dora_bind_items: function (value) {
             if (this.dora_bind_items == null || this.dora_bind_items.length == 0) {
@@ -564,12 +1162,12 @@ Vue.component('dora-paging', {
                 this.$emit('update:dora_display_panel', false);
             }
             else {
-                //条件パネルを非表
+                //条件パネルを表示
                 this.$emit('update:dora_display_panel', true);
             }
         }
     }
-        ,
+    ,
 });
 
 var FORMATTYPES = {
@@ -580,7 +1178,9 @@ var FORMATTYPES = {
     parcent: 4
 }
 
+//小数点
 var DECIMAL_SEPARATOR = ".";
+//通貨区切り
 var THOUSANDS_SEPARATOR = ",";
 
 function getFormatType(formatString) {
@@ -836,6 +1436,10 @@ function transformFormat(value, formatString) {
                 shosu = "";
             }
 
+            //00 が0にならないため
+            if (+seisu ==0 ){
+                seisu =0;
+            }
             value = seisu + shosu;
 
             if (isNaN(value) == true) {
@@ -848,7 +1452,7 @@ function transformFormat(value, formatString) {
                     shosu = shosu.replace(DECIMAL_SEPARATOR, "");
 
                     let zerostr = "";
-                    for (let i = 0; i < (3 - seisu.length) ; i++) {
+                    for (let i = 0; i < (3 - seisu.length); i++) {
                         zerostr += "0";
                     }
 

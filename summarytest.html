@@ -1,0 +1,344 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>合計テスト</title>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <!--
+    bulma
+    https://bulma.io/
+
+    form基本
+    https://bulma.io/documentation/form/general/
+
+    columns (grid)システム(is-0 ～ is-12)
+    https://bulma.io/documentation/columns/sizes/
+    https://bulma.io/documentation/columns/gap/
+
+    メッセージ
+    https://bulma.io/documentation/components/message/
+    ボタン(色)
+    https://bulma.io/documentation/modifiers/syntax/
+    https://bulma.io/documentation/elements/button/
+
+    元
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
+    -->
+
+    <link rel="stylesheet" href="./css/bulma.min.css">
+    <!--
+        fa-××のアイコン
+        https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
+
+        ※こちらのコンポーネント直リンクしないとアイコンでない
+    -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+
+    <!-- Vue.js
+        https://npmcdn.com/vue/dist/vue.js
+        https://unpkg.com/vue@2.4.0/dist/vue.js
+
+        元
+        <script src="https://npmcdn.com/vue/dist/vue.js"></script>
+    -->
+    <script src="./javascript/vue.js"></script>
+
+
+    <!-- プロジェクト用 -->
+    <!-- enterキー移動 -->
+    <script src="./javascript/focus.js"></script>
+    <!-- バリデーション -->
+    <script src="./javascript/project.js"></script>
+
+    <!-- vue拡張 -->
+    <script src="./javascript/doracomponent.js"></script>
+
+    <!-- マスターページ（要変更） -->
+    <script src="./javascript/masterpagecomponent.js"></script>
+
+    <link rel="stylesheet" href="./css/project.css">
+
+</head>
+<body>
+    <div id="app">
+        <!-- マスタページっぽいもの(再利用可能なものはコンポーネント化する) -->
+        <master-page></master-page>
+
+        <div class="columns" >
+            <div class="column is-12">
+                <article class="message is-primary">
+                    <div class="message-header">
+                        <p>合計表示テスト</p>
+                        <span class="icon">
+                            <i class="fas fa-edit"></i>
+                        </span>
+                    </div>
+                    <div class="message-body MessageBodyPanel">
+
+                        <div class="column is-12">
+                            <button class="button is-primary" v-on:click="submit()">更新</button>
+                            <button class="button is-danger" v-on:click="clear()">クリア</button>
+                            &nbsp;
+                            <!-- 200件を超えるとページングを検討したほうがよいかもしれません（だんだん遅くなります） -->
+                            <button class="button is-warning" v-on:click="append(100)">(test)100件データ追加</button>
+                            <button class="button is-warning" v-on:click="append(1)">(test)1件データ追加</button>
+
+                            <div id="divPaging" class="TablePanel">
+                                <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 200px;position: sticky;left: 0px;z-index: 10;" class="is-link">項目</th>
+                                            <th style="width: 100px;position: sticky;left: 200px;z-index: 10;" class="is-link">合計</th>
+                                            <th style="width: 100px;" class="is-link">4月</th>
+                                            <th style="width: 100px;" class="is-link">5月</th>
+                                            <th style="width: 100px;" class="is-link">6月</th>
+                                            <th style="width: 100px;" class="is-link">7月</th>
+                                            <th style="width: 100px;" class="is-link">8月</th>
+                                            <th style="width: 100px;" class="is-link">9月</th>
+                                            <th style="width: 100px;" class="is-link">10月</th>
+                                            <th style="width: 100px;" class="is-link">11月</th>
+                                            <th style="width: 100px;" class="is-link">12月</th>
+                                            <th style="width: 100px;" class="is-link">1月</th>
+                                            <th style="width: 100px;" class="is-link">2月</th>
+                                            <th style="width: 100px;" class="is-link">3月</th>
+                                        </tr>
+                                        <tr v-for="(elem, elemIndex) in sumbindItems" style="background-color:azure">
+                                            <th style="width: 200px;position: sticky;left: 0px;z-index: 10;" >総合計</th>
+                                            <th style="width: 100px;position: sticky;left: 200px;z-index: 10;" >
+                                                <input v-model.lazy="elem.入力合計" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計1" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計2" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計3" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計4" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計5" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計6" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計7" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計8" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計9" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計10" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計11" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                            <th style="width: 100px;" >
+                                                <input v-model.lazy="elem.入力合計12" v-dora_updateflag="elem" dora_format="#,##0" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </th>
+                                        </tr>
+
+                                    </thead>
+                                    <tbody>
+                                        <!-- 各要素を表示 -->
+                                        <tr v-for="(elem, elemIndex) in bindItems" v-bind:class="{'err-common' : elem['ERROR_FLAG']==true}">
+                                            <td style=" background-color:azure;position: sticky;left:0px;z-index:10;">
+                                            <input v-model.lazy="elem.項目" v-dora_updateflag="elem" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </td>
+                                            <td style="background-color:azure;position: sticky;left: 200px;z-index: 10;">
+                                                <!-- v-bind:dora_format することにより 行毎に別のformatすることが可  -->
+                                                <input v-model.lazy="elem.合計" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" readonly="readonly" style="background-color:transparent" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力1" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力2" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力3" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力4" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力5" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力6" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力7" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力8" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力9" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力10" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力11" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                            <td>
+                                                <input v-model.lazy="elem.入力12" v-dora_updateflag="elem" v-bind:dora_format="elem.フォーマット" class="input" minvalue="0" v-on:change="inputvalue($event,elem)" />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        'use strict';
+
+        var vm = new Vue({
+            el: '#app',
+            mounted: function () {
+                this.clear(true);
+            }
+            ,
+            data: {
+                bindItems: [],      //バインド用
+
+                sumbindItems: [],      //バインド用(合計)
+            },
+            methods: {
+
+                submit: function () {
+                    if (
+                        Project.IsSubmitValidateError(this,this.bindItems) == true) {    
+                        return;     //エラーの場合は終了
+                    }
+
+                    alert(JSON.stringify(this.bindItems));
+                }
+                ,
+                clear: function (testflag) {
+
+                    let inputCopy = {};
+
+                    //総合計
+                    let summary = {};
+                    for (let i = 1; i <= 12; i++) {
+                        summary["入力合計" + i.toString()] = 0;
+                    }
+                    summary["入力合計"] = 0;
+                    this.sumbindItems = [];
+                    this.sumbindItems.push(summary);
+
+                    let input = {};
+                    for (let i = 1; i <= 12; i++) {
+                        input["入力" + i.toString()] = 0;
+                    }
+                    input["合計"] = 0;
+
+                    this.bindItems = [];
+
+                    //テストデータ作成
+                    if (testflag) {
+                        //1行目
+                        inputCopy = JSON.parse(JSON.stringify(input));
+
+                        inputCopy["項目"] = "フォーマット(#,##0)";
+                        inputCopy["フォーマット"] = "#,##0";
+                        this.bindItems.push(
+                                inputCopy
+                            );
+
+                        //2行目
+                        inputCopy = JSON.parse(JSON.stringify(input));
+
+                        inputCopy["項目"] = "フォーマット(0.00)";
+                        inputCopy["フォーマット"] = "0.00"
+                        this.bindItems.push(
+                                inputCopy
+                            );
+                    }
+                }
+                ,
+                //テストデータ追加
+                append: function (appendCount) {
+                    let input = {};
+                    for (let i = 1; i <= 12; i++) {
+                        input["入力" + i.toString()] = 0;
+                    }
+                    input["合計"] = 0;
+
+                    for (let i = 1; i <= appendCount ; i++) {
+                        let inputCopy = {};
+
+                        inputCopy = JSON.parse(JSON.stringify(input));
+
+                        inputCopy["項目"] = "大量データ" + (this.bindItems.length + 1).toString();
+                        inputCopy["フォーマット"] = "#,##0";
+
+                        this.bindItems.push(inputCopy);
+                    }
+
+                }
+                ,
+                inputvalue: function (e, elem) {
+
+                    //チェック
+                    //背景(備忘録)
+                    //本来は必要ないが
+                    //v-on:change での登録と addEventListener で登録したイベントが前後するため
+                    //e.target.checkvalidateの処理を実行しなければ、先に計算ロジックが実行され、値がおかしいとき(例：a を入力)に計算結果がおかしくなる
+                    //e.target.checkvalidateの中身 が先に動作すれば問題ないので、とても理不尽な処理
+                    if (e.target.checkvalidate(e) == false) {
+                        //return;   //エラーの場合でも0として計算させたいので続けて実行させる。処理によっては終了してもよいと思う。
+                    }
+
+                    //内部データを更新する
+                    //横計（行の計）
+                    elem["合計"] = 0;
+                    for (let i = 1; i <= 12; i++) {
+                        elem["合計"] += +(elem["入力" + i.toString()]);
+                    }
+
+                    //総合計（縦）の計算
+                    let summaryValue = {};
+
+                    for (let i = 1; i <= 12; i++) {
+                        summaryValue["入力合計" + i.toString()] = 0;
+                    }
+
+                    for (let datacount = 0; datacount < this.bindItems.length; datacount++) {
+                        let item = this.bindItems[datacount];
+
+                        for (let i = 1; i <= 12; i++) {
+                            summaryValue["入力合計" + i.toString()] += +(item["入力" + i.toString()]);
+                        }
+                    }
+
+                    //総合計のセット、および総合計（横）の計算
+                    let yokosummaryValue = 0;
+                    for (let i = 1; i <= 12; i++) {
+                        this.sumbindItems[0]["入力合計" + i.toString()] = summaryValue["入力合計" + i.toString()]
+                        yokosummaryValue += +(summaryValue["入力合計" + i.toString()]);
+                    }
+                    this.sumbindItems[0]["入力合計"] = yokosummaryValue;
+                }
+                ,
+            },
+        });
+    </script>
+</body>
+</html>

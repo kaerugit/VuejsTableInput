@@ -5,7 +5,6 @@
     <meta charset=utf-8>
     <meta http-equiv=X-UA-Compatible content="IE=edge">
     <meta name=viewport content="width=device-width,initial-scale=1">
-
     <!--
     bulma
     https://bulma.io/
@@ -26,7 +25,6 @@
     元
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
     -->
-
     <link rel="stylesheet" href="./css/bulma.min.css">
     <!--
         fa-××のアイコン
@@ -35,7 +33,6 @@
         ※こちらのコンポーネント直リンクしないとアイコンでない
     -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
-
     <!-- Vue.js
         https://npmcdn.com/vue/dist/vue.js
         https://unpkg.com/vue@2.4.0/dist/vue.js
@@ -45,30 +42,24 @@
     -->
     <script src="./javascript/vue.js"></script>
 
-
     <!-- プロジェクト用 -->
     <!-- enterキー移動 -->
     <script src="./javascript/focus.js"></script>
     <!-- バリデーション -->
     <script src="./javascript/project.js"></script>
-
     <!-- vue拡張 -->
     <script src="./javascript/doracomponent.js"></script>
-
     <!-- マスターページ（要変更） -->
     <script src="./javascript/masterpagecomponent.js"></script>
-
     <link rel="stylesheet" href="./css/project.css">
-
 </head>
 <body>
     <!--
-    <div class="loading"></div>
--->
+        <div class="loading"></div>
+    -->
     <div id="app">
         <!-- マスタページっぽいもの(再利用可能なものはコンポーネント化する) -->
         <master-page></master-page>
-
         <div class="columns">
             <div class="column">
                 <article class="message is-primary">
@@ -78,17 +69,14 @@
                             <i class="fas fa-edit"></i>
                         </span>
                     </div>
-                    <div class="message-body MessageBodyPanel">  
+                    <div class="message-body MessageBodyPanel">
                         <button class="button is-primary" v-on:click="submit(false)">登録</button>
                         <button class="button is-primary" v-on:click="submit(true)">【テスト】更新(サーバチェックエラー)</button>
-
                         <button class="button is-danger" v-on:click="clear()">クリア</button>
                         <button class="button is-warning" v-on:click="remove()" v-show="!NewFlag">削除</button>
                         &nbsp;
                         <button class="button is-success" v-on:click="returnpage()">戻る</button>
-
                         <div class="column is-offset-2 is-8" v-for="(elem, elemIndex) in bindItems">
-
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
                                     <label class="label">社員コード</label>
@@ -100,12 +88,11 @@
                                             <!--
                                             バリデーション 半角入力 5桁(minlengthvalue="5"  maxlengthvalue="5")  textalignはproject.jsで処理(本来はclass に直接記述する事推奨)
                                             -->
-                                            <input v-model.lazy="elem.社員コード" v-dora_updateflag="elem" class="input" isime="false" isprimarykey="true" ishankaku="true" minlengthvalue="5"  maxlengthvalue="5" textalign="center" />
+                                            <input v-model.lazy="elem.社員コード" v-dora_updateflag="elem" class="input" isime="false" isprimarykey="true" ishankaku="true" minlengthvalue="5" maxlengthvalue="5" textalign="center" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
 
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
@@ -116,12 +103,10 @@
                                         <div class="control">
                                             <!-- バリデーション ～10桁  isime(project.jsで処理) -->
                                             <input v-model.lazy="elem.社員名" v-dora_updateflag="elem" isime="true" maxlengthvalue="10" class="input" />
-
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
                                     <label class="label">入社年月日</label>
@@ -135,7 +120,6 @@
                                     </div>
                                 </div>
                             </div>
-
 
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
@@ -152,7 +136,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
                                     <label class="label">扶養家族</label>
@@ -170,7 +153,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
                                     <label class="label">都道府県</label>
@@ -185,7 +167,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
                                     <label class="label">市区町村</label>
@@ -201,7 +182,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
                                     <label class="label">町域</label>
@@ -217,7 +197,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
                                     <label class="label">住所</label>
@@ -237,7 +216,6 @@
             </div>
         </div>
     </div>
-
     <script type="text/javascript">
         'use strict';
 
@@ -252,7 +230,7 @@
             }
             ,
             data: {
-                NewFlag : false,
+                NewFlag: false,
 
                 bindItems: [],      //バインド用
 
@@ -294,29 +272,30 @@
                 ,
 
                 submit: function (testFlag) {       //本来は引数testFlagは必要なし引数testFlagは必要なし
-                    
+
                     Project.SetLoading(true);   //２度押し防止用くるくる（開始）
 
-                    try{
+                    try {
                         let self = this;        //ieを考慮する場合、アロー関数(()=>)が使えないのでこちらの書き方推奨
 
                         if (
                             //こちらの関数内でIDENTITYをセット
                             Project.IsSubmitValidateError(
+                                this,
                                 this.bindItems,
                                 ['社員コード'],
                                 ['社員コード', '社員名'],
-                            //個別チェック
+                                //個別チェック
                                 function (paraError, paraItem) {
-                            //都道府県を入力した場合に市区町村CDが入力されていない場合
-                                        if (paraItem.都道府県CD != null && paraItem.都道府県CD.length > 0) {
-                                            if (paraItem.市区町村CD == null || paraItem.市区町村CD.length == 0) {
-                                                paraError.Field = "都道府県CD";     //フォーカスを移動したいフィールド
-                                                paraError.Message = "都道府県CDを入力した場合は、市区町村CDを入力してください。";
-                                                return;
-                        }
-                        }
-                        }
+                                    //都道府県を入力した場合に市区町村CDが入力されていない場合
+                                    if (paraItem.都道府県CD != null && paraItem.都道府県CD.length > 0) {
+                                        if (paraItem.市区町村CD == null || paraItem.市区町村CD.length == 0) {
+                                            paraError.Field = "都道府県CD";     //フォーカスを移動したいフィールド
+                                            paraError.Message = "都道府県CDを入力した場合は、市区町村CDを入力してください。";
+                                            return;
+                                        }
+                                    }
+                                }
                             ) == true) {
 
                             return;     //エラーの場合は終了
@@ -328,10 +307,10 @@
                             let error = {
                                 ErrorIdentity: this.bindItems[0]["IDENTITY_ID"],     //エラーフラグを付けるエラー行(本来はサーバ側でセット)
                                 Field: '社員コード',
-                                Message: '社員コードが重複しています。',
+                                Message: '社員コードが重複しています。(★テスト)',
                             };
 
-                            //エラー行を先頭に移動し、エラーメッセージを表示
+                            //エラーメッセージを表示
                             Project.MoveErrorFocus(this.bindItems, error);
 
                             return;
@@ -357,7 +336,7 @@
 
                     //引数の取得（Project.OpenDialogでセット）
                     let args = Project.GetDialogArgs();
-                    
+
                     //前画面でセット
                     //都道府県コンボ用
                     this.todofukenItems = args["todofukenItems"];
@@ -370,7 +349,7 @@
                     //扶養家族区分
                     this.fuyokazokuType = args["fuyokazokuType"];
 
-                    this.NewFlag= false;
+                    this.NewFlag = false;
 
                     let elem = args["data"];
                     //新規データ

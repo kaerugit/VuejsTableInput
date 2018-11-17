@@ -92,7 +92,7 @@
                                     </thead>
                                     <tbody>
                                         <!-- 各要素を表示 -->
-                                        <tr v-for="(elem, elemIndex) in bindItems">
+                                        <tr v-for="(elem, elemIndex) in bindItems" v-bind:class="{'err-common' : elem['ERROR_FLAG']==true}">
                                             <td>
                                                 <input v-model.lazy="elem.ファイル名" v-dora_updateflag="elem" class="input" maxlengthvalue="30" />
                                             </td>
@@ -162,6 +162,11 @@
                 }
                 ,
                 submit: function () {
+                    if (
+                        Project.IsSubmitValidateError(this,this.bindItems) == true) {    
+                        return;     //エラーの場合は終了
+                    }
+
                     alert(JSON.stringify(this.bindItems));
                 }
                 ,

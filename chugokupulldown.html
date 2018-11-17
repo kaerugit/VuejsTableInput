@@ -281,10 +281,14 @@
                             </table>
                         </div>
                         <!--
-                        ページング (dataの中身を連結) ref="page" は　親から子の関数を呼ぶために使用 this.$refs.page.pageSelect(i);
-                        ページングが複数あるような画面は ref="page2" と名前を変更する
-                        v-bind:dora_size（1ページに表示するデータ件数） v-bind:dora_page_range（ページングに表示するページ数） こちらで変更可
-                        dora_display_panel は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
+                        ページングオブジェクト
+                        ref="page" は、親から子の関数を呼ぶために使用 this.$refs.page.gotopage(i);
+                        ⇒ページングオブジェクトが複数あるような画面は ref="page2" と名前を変更する
+                        dora_bind_divはclass="TablePanel"のidを指定
+                        ⇒ページングオブジェクトが複数ある場合は変更が必要です。
+                        v-bind:dora_size：（1ページに表示するデータ件数） 
+                        v-bind:dora_page_range：（ページングに表示するページ数） 
+                        v-bind:dora_display_panel.sync：は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
                         -->
                         <div class="PageingPanel">
                             <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayItems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" v-bind:dora_display_panel.sync="isDisplayWherePanel" ref="page"></dora-paging>
@@ -444,7 +448,7 @@
                     });
 
                     //ページを１ページにする
-                    this.$refs.page.pageSelect(1);
+                    this.$refs.page.gotopage(1);
                 },
 
                 submit: function () {
@@ -492,7 +496,7 @@
                     );
 
                     //ページを１ページにする
-                    this.$refs.page.pageSelect(1);
+                    this.$refs.page.gotopage(1);
                 }
                 ,
                 clear: function () {

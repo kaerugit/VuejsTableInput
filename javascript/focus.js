@@ -3,6 +3,10 @@
 window.addEventListener("keydown", keydownHandler);
 
 function keydownHandler(e) {
+    setfocus(e);
+}
+
+function setfocus(e) {
 
     if (!(e.keyCode == 13 || e.keyCode == 38 || e.keyCode == 40)) {
         return
@@ -64,13 +68,11 @@ function keydownHandler(e) {
                     catch (e) { }
 
                     obj.focus();
+
+                    //お好みで
                     //if (typeof obj.select == 'function') {
                     //    obj.select();
                     //}
-
-                    //イベントのキャンセル
-                    //e.preventDefault();
-                    //e.stopPropagation();
 
                     break;
                 }
@@ -93,7 +95,7 @@ function keydownHandler(e) {
         
 
         let objActive = document.activeElement;
-        if (objActive.type == null) {
+        if (objActive == null || objActive.type == null) {
             return;
         }
         let objActiveType = objActive.type.toLowerCase();
@@ -154,7 +156,7 @@ function keydownHandler(e) {
                         }
                     }
 
-                    if (findIndexTR != -1 && listArrayTR.length >= findIndexTR) {
+                    if (findIndexTR != -1 && listArrayTR.length > findIndexTR) {
                         let nextFlag = true;
                         do {
                             try {
@@ -170,15 +172,12 @@ function keydownHandler(e) {
                                         if (obj.readOnly == true || obj.disabled == true) {
                                             continue;
                                         }
-                                        
-                                        obj.focus();
-                                        if (typeof obj.select == 'function') {
-                                            obj.select();
-                                        }
 
-                                        //イベントのキャンセル
-                                        //e.preventDefault();
-                                        //e.stopPropagation();
+                                        obj.focus();
+                                        ////お好みで
+                                        //if (typeof obj.select == 'function') {
+                                        //    obj.select();
+                                        //}                                                        
 
                                         nextFlag = false;
                                         break;
@@ -193,7 +192,7 @@ function keydownHandler(e) {
                             //次（前）の行
                             findIndexTR = findIndexTR + plusValue;
 
-                        } while (nextFlag)
+                        } while (nextFlag);
 
                     }
                 }

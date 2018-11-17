@@ -104,15 +104,17 @@ https://bulma.io/documentation/elements/icon を使用
 
 ***
 ### **Vue.filter**
-#### dora_formatDelimiter
+#### formatdelimiter
 フォーマット用  
 
 ***
 ### **Vue.component**
 #### dora-paging
 ページング用コンポーネント  
-（無限スクロールでもよかったのですが、（私の技術では）上下キー移動でスクロールさせる事ができなかったので断念）  
-
+#### dora-vscroll
+仮想スクロール（table virtual scroll）コンポーネント  
+⇒オレオレ度が高いのでお勧めできません。  
+⇒行の高さが可変になるものはずれます。  
 ***
 ## サンプルソースについて
 
@@ -252,6 +254,12 @@ tableの中にselect(プルダウン)を置くと
 table内の値が更新される都度  
 select(プルダウン)の中身が再作成される  
 （都道府県コンボボックスでデータがセットされると、とても遅くなります）  
+
+### 入力時の課題(是非解消したい)))
+input タグのonchange使用時（v-on:change="～"）、先に共通の値チェック(文字数チェック)などを行いたい場合  
+changeのハンドラに以下を追加しないと  
+if (e.target.checkvalidate(e) == false) {  
+v-on:change後に共通チェックが実行されるので、注意が必要  
 
 ## 開発環境
 
