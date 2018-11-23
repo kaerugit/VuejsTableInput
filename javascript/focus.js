@@ -67,6 +67,12 @@ function setfocus(e) {
                     }
                     catch (e) { }
 
+                    if (obj.tabIndex != null && (+obj.tabIndex) < 0) {
+                        continue;
+                    }
+
+                    //イベントのキャンセル
+                    e.preventDefault();
                     obj.focus();
 
                     //お好みで
@@ -172,8 +178,13 @@ function setfocus(e) {
                                         if (obj.readOnly == true || obj.disabled == true) {
                                             continue;
                                         }
-
+                                        else if (obj.tabIndex != null && (+obj.tabIndex) < 0) {
+                                            continue;
+                                        }
+                                        //イベントのキャンセル
+                                        e.preventDefault();
                                         obj.focus();
+                                        
                                         ////お好みで
                                         //if (typeof obj.select == 'function') {
                                         //    obj.select();

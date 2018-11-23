@@ -241,7 +241,7 @@ Vue.directive('dora_updateflag', {
                     if (typeof ae.select == 'function') {
                         //課題　ieはこちらでOK　chromeはsetTimeoutが必要 edgeはsetTimeoutを入れると処理によって無限ループになる
                         ae.select();
-
+                        
                         //chrome跡
                         //setTimeout(function () {
                         //    //if (ae == document.activeElement) { 

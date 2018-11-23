@@ -55,7 +55,7 @@ typescript(java支援)→一つ学習コストが増える（一人で作るの�
 
 ## サンプル（とりあえず）
 
-オンラインサンプル  
+オンラインサンプル（online sample）  
 https://kaerugit.github.io/VuejsTableInput  
 
 メニューが下になるほど、ソースの記述が簡易的になるのですが  
@@ -78,7 +78,7 @@ chromeだととてもレスポンスがよいです。
 　doracomponent.js（vueコンポーネント 効率化するための各種オブジェクト（クラス））  
 　focus.js（エンターキーで項目移動（もしかしたらほかのプロジェクトで使えるかもしれません））  
 　project.js（各種プロジェクト用で追加・変更可　一部doracomponent.js から呼ばれています）  
-  masterpagecomponent.js(vueコンポーネント　マスターページ（ページ上部共通）で使用)
+　masterpagecomponent.js(vueコンポーネント　マスターページ（ページ上部共通）で使用)
 　vue.js(vue本体)  
 (ルート)  
 ○○.html 各種サンプル  
@@ -114,7 +114,7 @@ https://bulma.io/documentation/elements/icon を使用
 #### dora-vscroll
 仮想スクロール（table virtual scroll）コンポーネント  
 ⇒オレオレ度が高いのでお勧めできません。  
-⇒行の高さが可変になるものはずれます。  
+⇒rowの高さが可変になるものはずれます。  
 ***
 ## サンプルソースについて
 
