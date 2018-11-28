@@ -95,7 +95,7 @@ https://bulma.io/documentation/elements/icon を使用
 テーブルタグの全幅をセット  
 （こちらを使用せず、素の記述でも良いと思います）  
 
-#### dora_updateflag
+#### dora_update
 テキストボックスのフォーマット（dora_format プロパティと連動）、バリデーションなどを処理  
 
 #### dora_selectitems
@@ -144,7 +144,7 @@ css については基本 bulma　
 
 IDENTITY_ID：連番を付与（サーバエラーの場合に使用）  
 NEW_FLAG：新規データ=true  
-UPDATE_FLAG：更新データ=true（dora_updateflag内で処理）  
+UPDATE_FLAG：更新データ=true（dora_update内で処理）  
 DELETE_FLAG：画面に表示  
 ERROR_FLAG：エラー行=true(先頭に表示するために使用)  
 ※DoraConst.～で定義
@@ -176,7 +176,7 @@ minvalueタグ 最大値チェックMin(金額などで使用)
 maxvalueタグ 最大値チェックMax(金額などで使用)  
 
 自動的に formatが日付型の場合、日付チェックしています。（金額なども同様）  
-（dora_updateflag directive）  
+（dora_update directive）  
 
 ### その他（おまけ？）
 textalignタグ ('center' or 'right')  
@@ -196,6 +196,13 @@ jsonはclassと連動して使うのがよいのですが
 全てのオブジェクトを  
 v-for でセットし配列(json)で処理しています。  
 （こうすることで一覧入力、単票入力の記述が統一化されます）  
+
+※NG例 v-modelを以下のように設定すると正しく動作できないので注意(vueは問題ないがdoraコンポーネントの問題)  
+```
+<td v-for="(i) in [1,2,3]">  
+    <input v-model.lazy="elem['入力' + i.toString()]" ～  
+</td>  
+```
 
 ### サーバ処理について
 （本サンプルにはありませんが）  

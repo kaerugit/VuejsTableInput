@@ -25,7 +25,7 @@
     元
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
     -->
-    <link rel="stylesheet" href="./css/bulma.min.css">
+    <link rel="stylesheet" href="./../css/bulma.min.css">
     <!--
         fa-××のアイコン
         https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
@@ -40,26 +40,30 @@
         元
         <script src="https://npmcdn.com/vue/dist/vue.js"></script>
     -->
-    <script src="./javascript/vue.js"></script>
+    <script src="./../javascript/vue.js"></script>
 
     <!-- プロジェクト用 -->
     <!-- enterキー移動 -->
-    <script src="./javascript/focus.js"></script>
+    <script src="./../javascript/focus.js"></script>
     <!-- バリデーション -->
-    <script src="./javascript/project.js"></script>
+    <script src="./../javascript/project.js"></script>
     <!-- vue拡張 -->
-    <script src="./javascript/doracomponent.js"></script>
+    <script src="./../javascript/doracomponent.js"></script>
     <!-- マスターページ（要変更） -->
-    <script src="./javascript/masterpagecomponent.js"></script>
-    <link rel="stylesheet" href="./css/project.css">
+    <script src="./../javascript/masterpagecomponent.js"></script>
+    <link rel="stylesheet" href="./../css/project.css">
 </head>
 <body>
     <!--
         <div class="loading"></div>
     -->
-    <div id="app">
-        <!-- マスタページっぽいもの(再利用可能なものはコンポーネント化する) -->
+    <div id="app" style="visibility:hidden;">
+        <!--
+            マスタページっぽいもの(再利用可能なものはコンポーネント化する)
+            <div id="app" style="visibility:hidden;"> visibilityを削除する処理も入っています。
+        -->
         <master-page></master-page>
+
         <div class="columns">
             <div class="column">
                 <article class="message is-primary">
@@ -88,12 +92,11 @@
                                             <!--
                                             バリデーション 半角入力 5桁(minlengthvalue="5"  maxlengthvalue="5")  textalignはproject.jsで処理(本来はclass に直接記述する事推奨)
                                             -->
-                                            <input v-model.lazy="elem.社員コード" v-dora_updateflag="elem" class="input" isime="false" isprimarykey="true" ishankaku="true" minlengthvalue="5" maxlengthvalue="5" textalign="center" />
+                                            <input v-model.lazy="elem.社員コード" v-dora_update="elem" class="input" isime="false" isprimarykey="true" ishankaku="true" minlengthvalue="5" maxlengthvalue="5" textalign="center" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
                                     <label class="label">社員名</label>
@@ -102,7 +105,7 @@
                                     <div class="field">
                                         <div class="control">
                                             <!-- バリデーション ～10桁  isime(project.jsで処理) -->
-                                            <input v-model.lazy="elem.社員名" v-dora_updateflag="elem" isime="true" maxlengthvalue="10" class="input" />
+                                            <input v-model.lazy="elem.社員名" v-dora_update="elem" isime="true" maxlengthvalue="10" class="input" />
                                         </div>
                                     </div>
                                 </div>
@@ -115,12 +118,11 @@
                                     <div class="field">
                                         <div class="control">
                                             <!-- フォーマットが入っているものは自動的に imeoff -->
-                                            <input v-model.lazy="elem.入社年月日" v-dora_updateflag="elem" dora_format="yyyy/MM/dd" class="input" />
+                                            <input v-model.lazy="elem.入社年月日" v-dora_update="elem" dora_format="yyyy/MM/dd" class="input" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
                                     <label class="label">性別</label>
@@ -129,7 +131,7 @@
                                     <div class="field">
                                         <div class="control">
                                             <span v-for="option in seibetuType">
-                                                <input type="radio" v-bind:id="['optSeibetu' + elemIndex + '_' + option.value]" v-bind:value="option.value" v-dora_updateflag="elem" v-model="elem.性別区分" class="radio">
+                                                <input type="radio" v-bind:id="['optSeibetu' + elemIndex + '_' + option.value]" v-bind:value="option.value" v-dora_update="elem" v-model="elem.性別区分" class="radio">
                                                 <label v-bind:for="['optSeibetu' + elemIndex + '_' + option.value]">{{option.text}}</label>
                                             </span>
                                         </div>
@@ -145,7 +147,7 @@
                                         <div class="control">
                                             <!-- checkbox複数(ラベルチェック時にONにする処理不要であれば v-bind:id v-bind:for の処理は削除可) -->
                                             <span v-for="option in fuyokazokuType">
-                                                <input type="checkbox" v-model.lazy="elem.扶養家族区分" v-dora_updateflag="elem" v-bind:id="['chkFuyo' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
+                                                <input type="checkbox" v-model.lazy="elem.扶養家族区分" v-dora_update="elem" v-bind:id="['chkFuyo' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
                                                 <label v-bind:for="['chkFuyo' + elemIndex + '_' + option.value]">{{option.text}}</label>
                                             </span>
                                             <button class="button is-primary" v-on:click="selectfuyokazokuType(elem)">サブのサブ画面テスト</button>
@@ -161,7 +163,7 @@
                                     <div class="field">
                                         <div class="control">
                                             <div class="select">
-                                                <select v-model.lazy="elem.都道府県CD" v-dora_updateflag="elem" v-dora_selectitems.once="todofukenItems" dora_blanktext="(選択なし)" v-on:change="changeTodofuken(elem)"></select>
+                                                <select v-model.lazy="elem.都道府県CD" v-dora_update="elem" v-dora_selectitems.once="todofukenItems" dora_blanktext="(選択なし)" v-on:change="changeTodofuken(elem)"></select>
                                             </div>
                                         </div>
                                     </div>
@@ -176,7 +178,7 @@
                                         <div class="control">
                                             <!--都道府県により変更-->
                                             <div class="select">
-                                                <select v-model.lazy="elem.市区町村CD" v-dora_updateflag="elem" v-dora_selectitems="getShikuchoson(elem.都道府県CD)" dora_blanktext="(選択なし)" v-on:change="changeShikuchoson(elem)"></select>
+                                                <select v-model.lazy="elem.市区町村CD" v-dora_update="elem" v-dora_selectitems="getShikuchoson(elem.都道府県CD)" dora_blanktext="(選択なし)" v-on:change="changeShikuchoson(elem)"></select>
                                             </div>
                                         </div>
                                     </div>
@@ -191,7 +193,7 @@
                                         <div class="control">
                                             <!--都道府県、市区町村により変更-->
                                             <div class="select">
-                                                <select v-model.lazy="elem.町域CD" v-dora_updateflag="elem" v-dora_selectitems="getChoiki(elem.都道府県CD,elem.市区町村CD)" dora_blanktext="(選択なし)"></select>
+                                                <select v-model.lazy="elem.町域CD" v-dora_update="elem" v-dora_selectitems="getChoiki(elem.都道府県CD,elem.市区町村CD)" dora_blanktext="(選択なし)"></select>
                                             </div>
                                         </div>
                                     </div>
@@ -205,7 +207,7 @@
                                     <div class="field">
                                         <div class="control">
                                             <!-- バリデーション ～20桁  imeON(project.jsで処理) -->
-                                            <input v-model.lazy="elem.住所" v-dora_updateflag="elem" isime="true" maxlengthvalue="20" class="input" />
+                                            <input v-model.lazy="elem.住所" v-dora_update="elem" isime="true" maxlengthvalue="20" class="input" />
                                         </div>
                                     </div>
                                 </div>
@@ -276,8 +278,6 @@
                     Project.SetLoading(true);   //２度押し防止用くるくる（開始）
 
                     try {
-                        let self = this;        //ieを考慮する場合、アロー関数(()=>)が使えないのでこちらの書き方推奨
-
                         if (
                             //こちらの関数内でIDENTITYをセット
                             Project.IsSubmitValidateError(

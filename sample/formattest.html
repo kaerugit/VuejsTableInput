@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
     -->
 
-    <link rel="stylesheet" href="./css/bulma.min.css">
+    <link rel="stylesheet" href="./../css/bulma.min.css">
     <!--
         fa-××のアイコン
         https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
@@ -43,30 +43,33 @@
         元
         <script src="https://npmcdn.com/vue/dist/vue.js"></script>
     -->
-    <script src="./javascript/vue.js"></script>
+    <script src="./../javascript/vue.js"></script>
 
 
     <!-- プロジェクト用 -->
     <!-- enterキー移動 -->
-    <script src="./javascript/focus.js"></script>
+    <script src="./../javascript/focus.js"></script>
     <!-- バリデーション -->
-    <script src="./javascript/project.js"></script>
+    <script src="./../javascript/project.js"></script>
 
     <!-- vue拡張 -->
-    <script src="./javascript/doracomponent.js"></script>
+    <script src="./../javascript/doracomponent.js"></script>
 
     <!-- マスターページ（要変更） -->
-    <script src="./javascript/masterpagecomponent.js"></script>
+    <script src="./../javascript/masterpagecomponent.js"></script>
 
-    <link rel="stylesheet" href="./css/project.css">
+    <link rel="stylesheet" href="./../css/project.css">
 
 </head>
 <body>
-    <div id="app">
-        <!-- マスタページっぽいもの(再利用可能なものはコンポーネント化する) -->
+    <div id="app" style="visibility:hidden;">
+        <!--
+            マスタページっぽいもの(再利用可能なものはコンポーネント化する)
+            <div id="app" style="visibility:hidden;"> visibilityを削除する処理も入っています。
+        -->
         <master-page></master-page>
 
-        <div class="columns" >
+        <div class="columns">
             <div class="column is-12">
                 <article class="message is-primary">
                     <div class="message-header">
@@ -76,15 +79,13 @@
                         </span>
                     </div>
                     <div class="message-body MessageBodyPanel">
-
                         <button class="button is-primary" v-on:click="submit()">更新</button>
                         <button class="button is-danger" v-on:click="clear()">クリア</button>
                         <button class="button is-warning" v-on:click="append()">1件追加</button>
-
                         <!-- dora-pagingのex_bind_divと連動 -->
                         <div id="divPaging" class="TablePanel">
                             <!-- スタイルをbind v-bind:style="{ width: tablewidth + 'px' }" -->
-                            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="" >
+                            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="">
                                 <thead>
                                     <tr>
                                         <!-- 先頭の記号が同じものは連動-->
@@ -94,7 +95,7 @@
                                         <th style="width: 200px;" class="is-link">★パーセント（0.0%）</th>
                                         <th style="width: 200px;" class="is-link">★小数点(0.000)</th>
                                         <th style="width: 200px;" class="is-link">☆金額(#,##0)</th>
-                                        <th style="width: 200px;" class="is-link">☆金額(0非表示 #,###)<br/>入力時カンマ削除</th>
+                                        <th style="width: 200px;" class="is-link">☆金額(0非表示 #,###)<br />入力時カンマ削除</th>
                                         <th style="width: 200px;" class="is-link">☆数値(0)</th>
                                         <th style="width: 200px;" class="is-link">金額と小数点</th>
                                         <th style="width: 250px;" class="is-link">■日付（フル）</th>
@@ -106,59 +107,54 @@
                                 <tbody>
                                     <!-- 各要素を表示 -->
                                     <tr v-for="(elem, elemIndex) in displayitems">
-
                                         <td style="text-align:center">
-                                            <!-- v-dora_updateflag="elem"(directive) で format, UPDATE_FLAGの処理を実行  -->
-                                            <input type="checkbox" v-model.lazy="elem['FIELD_DELETE_FLAG']" v-dora_updateflag="elem" class="checkbox" />
+                                            <!-- v-dora_update="elem"(directive) で format, UPDATE_FLAGの処理を実行  -->
+                                            <input type="checkbox" v-model.lazy="elem['DELETE_FLAG']" v-dora_update="elem" class="checkbox" />
                                         </td>
                                         <td>
                                             <!-- バリデーション 5桁～10桁(minlengthvalue="2" maxlengthvalue="5")  imeON(project.jsで処理) -->
-                                            <input v-model.lazy="elem.text" v-dora_updateflag="elem" class="input" isime="true" minlengthvalue="5" maxlengthvalue="10" />
+                                            <input v-model.lazy="elem.text" v-dora_update="elem" class="input" isime="true" minlengthvalue="5" maxlengthvalue="10" />
                                         </td>
-
                                         <td>
                                             <!-- バリデーション 半角のみ(ishankaku)  textalignはテキストの位置(project.jsで処理 ★基本 dora_format から自動設定) -->
-                                            <input v-model.lazy="elem.zero" dora_format="00000" v-dora_updateflag="elem" class="input" ishankaku="true" textalign="left" />
+                                            <input v-model.lazy="elem.zero" dora_format="00000" v-dora_update="elem" class="input" ishankaku="true" textalign="left" />
                                         </td>
                                         <td>
                                             <!-- バリデーション 範囲 -100%～100%(minvalue="-1" maxvalue="1")-->
-                                            <input v-model.lazy="elem.percent" dora_format="0.0%" v-dora_updateflag="elem" class="input" minvalue="-1" maxvalue="1" />
-
+                                            <input v-model.lazy="elem.percent" dora_format="0.0%" v-dora_update="elem" class="input" minvalue="-1" maxvalue="1" />
                                         </td>
                                         <td>
-                                            <input v-model.lazy="elem.percent" dora_format="0.000" v-dora_updateflag="elem" class="input" />
+                                            <input v-model.lazy="elem.percent" dora_format="0.000" v-dora_update="elem" class="input" />
                                         </td>
                                         <td>
-                                            <input v-model.lazy="elem.currency" dora_format="#,##0" v-dora_updateflag="elem" class="input" />
+                                            <input v-model.lazy="elem.currency" dora_format="#,##0" v-dora_update="elem" class="input" />
                                         </td>
                                         <td>
-                                            <!-- v-dora_updateflag.bindingvaluedisp でフォーカス取得時modelのvalueを表示 ⇒通常の編集はカンマ付だが、bindingvaluedispをつけるとフォーカス取得時カンマがなくなる -->
-                                            <input v-model.lazy="elem.currency" dora_format="#,###" v-dora_updateflag.bindingvaluedisp="elem" class="input" />
+                                            <!-- v-dora_update.bindingvaluedisp でフォーカス取得時modelのvalueを表示 ⇒通常の編集はカンマ付だが、bindingvaluedispをつけるとフォーカス取得時カンマがなくなる -->
+                                            <input v-model.lazy="elem.currency" dora_format="#,###" v-dora_update.bindingvaluedisp="elem" class="input" />
                                         </td>
                                         <td>
-                                            <input v-model.lazy="elem.currency" dora_format="0" v-dora_updateflag="elem" class="input" />
+                                            <input v-model.lazy="elem.currency" dora_format="0" v-dora_update="elem" class="input" />
                                         </td>
                                         <td>
-                                            <input v-model.lazy="elem.currencyAndShosu" dora_format="#,###.000" v-dora_updateflag="elem" class="input" />
+                                            <input v-model.lazy="elem.currencyAndShosu" dora_format="#,###.000" v-dora_update="elem" class="input" />
                                         </td>
                                         <td>
-                                            <input v-model.lazy="elem.datetime" dora_format="yyyy/MM/dd HH:mm:ss" v-dora_updateflag="elem" class="input" />
+                                            <input v-model.lazy="elem.datetime" dora_format="yyyy/MM/dd HH:mm:ss" v-dora_update="elem" class="input" />
                                         </td>
                                         <td>
-                                            <input v-model.lazy="elem.datetime" dora_format="yyyy/MM/dd" v-dora_updateflag="elem" class="input" />
+                                            <input v-model.lazy="elem.datetime" dora_format="yyyy/MM/dd" v-dora_update="elem" class="input" />
                                         </td>
                                         <td>
-                                            <input v-model.lazy="elem.time" dora_format="HH:mm:ss" v-dora_updateflag="elem" class="input" />
+                                            <input v-model.lazy="elem.time" dora_format="HH:mm:ss" v-dora_update="elem" class="input" />
                                         </td>
                                         <td style="vertical-align:middle;">
                                             <!-- 表示のみ -->
                                             {{ elem.datetime | formatdelimiter('yyyy/MM/dd')}} {{ elem.time | formatdelimiter('HH:mm:ss')}}
                                         </td>
-
                                     </tr>
                                 </tbody>
                             </table>
-
                         </div>
                         <!--
                         ページングオブジェクト
@@ -166,14 +162,13 @@
                         ⇒ページングオブジェクトが複数あるような画面は ref="page2" と名前を変更する
                         dora_bind_divはclass="TablePanel"のidを指定
                         ⇒ページングオブジェクトが複数ある場合は変更が必要です。
-                        v-bind:dora_size：（1ページに表示するデータ件数） 
-                        v-bind:dora_page_range：（ページングに表示するページ数） 
+                        v-bind:dora_size：（1ページに表示するデータ件数）
+                        v-bind:dora_page_range：（ページングに表示するページ数）
                         v-bind:dora_display_panel.sync：は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
                         -->
                         <div class="PageingPanel">
                             <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayitems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" ref="page"></dora-paging>
                         </div>
-
                     </div>
                 </article>
             </div>

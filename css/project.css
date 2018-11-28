@@ -88,6 +88,21 @@ tbody > .err-common{
 
 /* 以下project.jsと連動(終) */
 
+/*ソート*/
+th.sort{
+    text-decoration: underline;
+}
+
+th.asc::after{
+    display: inline-block;
+    content: '▲';
+}
+
+th.desc::after{
+    display: inline-block;
+    content: '▼';
+}
+/*ソート（終）*/
 
 /*タイトル固定(IE(position: sticky)は未対応)*/
 thead, tbody {
@@ -113,6 +128,27 @@ thead {
     color: #fff !important;
 }
 
+.TablePanelVirtual {
+    overflow: scroll;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: calc(100vh - 16.0rem);
+    width: calc(100% - 18px);
+    position: relative;
+}
+
+.VirtualScroll{
+    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    top:0px;
+    right: 0px;
+    width:18px;
+    height: calc(100vh - 16.0rem);
+    z-index:10;
+    position:absolute;
+}
+
 @media only screen and (min-width: 769px) { /* 769以上　PC用 */
     .WherePanelMinWidth {
         width: 80px !important;
@@ -136,27 +172,6 @@ thead {
         height: calc(100vh - 18.0rem);
         position: relative;
         width: 100%;
-    }
-
-    .TablePanelVirtual {
-        overflow: scroll;
-        overflow-x: scroll;
-        overflow-y: hidden;
-        height: calc(100vh - 16.0rem);
-        width: calc(100% - 18px);
-        position: relative;
-    }
-
-    .VirtualScroll{
-        overflow: scroll;
-        overflow-x: hidden;
-        overflow-y: scroll;
-        top:0px;
-        right: 0px;
-        width:18px;
-        height: calc(100vh - 16.0rem);
-        z-index:10;
-        position:absolute;
     }
 
 }

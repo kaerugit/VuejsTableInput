@@ -61,8 +61,11 @@
 
 </head>
 <body>
-    <div id="app">
-        <!-- マスタページっぽいもの(再利用可能なものはコンポーネント化する) -->
+    <div id="app" style="visibility:hidden;">
+        <!--
+            マスタページっぽいもの(再利用可能なものはコンポーネント化する)
+            <div id="app" style="visibility:hidden;"> visibilityを削除する処理も入っています。
+        -->
         <master-page></master-page>
 
         <div class="columns">
@@ -75,15 +78,13 @@
                         </span>
                     </div>
                     <div class="message-body MessageBodyPanel">
-
                         <button class="button is-primary" v-on:click="submit()">更新</button>
                         <button class="button is-danger" v-on:click="clear()">クリア</button>
                         <button class="button is-warning" v-on:click="append()">1件追加</button>
-
                         <!-- dora-pagingのex_bind_divと連動 -->
                         <div id="divPaging" class="TablePanel">
                             <!-- スタイルをbind v-bind:style="{ width: tablewidth + 'px' }" -->
-                            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="" >
+                            <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="">
                                 <thead>
                                     <tr>
                                         <!-- 先頭の記号が同じものは連動-->
@@ -103,27 +104,24 @@
                                     <!-- 各要素を表示 -->
                                     <tr v-for="(elem, elemIndex) in displayitems">
                                         <td style="text-align:center">
-                                            <!-- v-dora_updateflag="elem"(directive) で format, UPDATE_FLAGの処理を実行  -->
-                                            <input type="checkbox" v-model.lazy="elem['FIELD_DELETE_FLAG']" v-dora_updateflag="elem" class="checkbox" />
+                                            <!-- v-dora_update="elem"(directive) で format, UPDATE_FLAGの処理を実行  -->
+                                            <input type="checkbox" v-model.lazy="elem['DELETE_FLAG']" v-dora_update="elem" class="checkbox" />
                                         </td>
                                         <td>
-                                            <input v-model.lazy="elem.id" dora_format="" v-dora_updateflag="elem" class="input" />
-
+                                            <input v-model.lazy="elem.id" dora_format="" v-dora_update="elem" class="input" />
                                             <input type="hidden" name="h_name" value="隠しデータ">
                                             <!--
                                             <input type="password" name="p_name1">
                                             <textarea name="t_name" rows="10"></textarea>
                                             -->
-                                                                            <!--
+                                            <!--
                                             <input type="checkbox" v-model="elem['FIELD_DELETE_FLAG']" v-ex_updateflag="elem" class="form-control" />
                                             <dora-input v-model="elem.id" dora_format="" v-ex_updateflag="elem" class="form-control"></dora-input>
                                             -->
                                         </td>
                                         <td>
-
                                             <!-- .number つけると変な動き（フォーカスが勝手に移動してしまう）するのでつけないほうがよい -->
-                                            <input v-model.lazy="elem.name" dora_format="#,##0" v-dora_updateflag="elem" class="input" />
-
+                                            <input v-model.lazy="elem.name" dora_format="#,##0" v-dora_update="elem" class="input" />
                                             <!-- 入力(formatサンプル)
                                             <dora-input v-model="elem.name" dora_format="," v-ex_updateflag="elem" class="input"></dora-input>
                                             -->
@@ -133,23 +131,20 @@
                                             {{ elem.name | formatdelimiter('#,##0')}}
                                         </td>
                                         <td>
-
-                                            <input v-model.lazy="elem.selectvalue" v-dora_updateflag="elem" class="input" />
-
+                                            <input v-model.lazy="elem.selectvalue" v-dora_update="elem" class="input" />
                                             <!--
                                             <dora-input v-model="elem.selectvalue" v-ex_updateflag="elem" class="input" readonly="true"></dora-input>
                                             -->
                                         </td>
                                         <td>
-                                            <select v-model.lazy="elem.selectvalue" v-dora_updateflag="elem" v-dora_selectitems="selectItems" dora_blanktext="--選択してください--" class="select"></select>
-
+                                            <select v-model.lazy="elem.selectvalue" v-dora_update="elem" v-dora_selectitems="selectItems" dora_blanktext="--選択してください--" class="select"></select>
                                             <!--
                                                 v-bind:dora_selectitems 連動する値
                                                 dora_blanktext       空欄のテキストをセット（dora_blanktextを指定しない場合　空の選択なし）
 
                                                 size="3"  を追加するとList
 
-                                            <select v-model.lazy="elem.selectvalue" v-dora_updateflag="elem" class="select">
+                                            <select v-model.lazy="elem.selectvalue" v-dora_update="elem" class="select">
                                                 <option value="">××選択してください××</option>
                                                 <option v-for="option in selectItems" v-bind:value="option.value">
                                                     {{ option.text }}
@@ -158,43 +153,38 @@
                                             -->
                                         </td>
                                         <td>
-                                                <!-- radio単一選択(複数存在する場合は 'opt'を変更する) -->
-                                                <span v-for="option in selectItems">
-                                                    <input type="radio" v-bind:id="['opt' + elemIndex + '_' + option.value]" v-bind:value="option.value" v-dora_updateflag="elem" v-model="elem.selectvalue" class="radio">
-                                                    <label v-bind:for="['opt' + elemIndex + '_' + option.value]">{{option.text}}</label>
-                                                </span>
-
+                                            <!-- radio単一選択(複数存在する場合は 'opt'を変更する) -->
+                                            <span v-for="option in selectItems">
+                                                <input type="radio" v-bind:id="['opt' + elemIndex + '_' + option.value]" v-bind:value="option.value" v-dora_update="elem" v-model="elem.selectvalue" class="radio">
+                                                <label v-bind:for="['opt' + elemIndex + '_' + option.value]">{{option.text}}</label>
+                                            </span>
                                         </td>
                                         <td>
-                                            <input v-model.lazy="elem.multipleselectvalue" v-dora_updateflag="elem" class="input" />
+                                            <input v-model.lazy="elem.multipleselectvalue" v-dora_update="elem" class="input" />
                                         </td>
                                         <td>
-
-                                            <select v-model.lazy="elem.multipleselectvalue" v-dora_updateflag="elem" v-dora_selectitems="selectItems" dora_blanktext="選択してください" class="select is-multiple" size="3" multiple></select>
-
+                                            <select v-model.lazy="elem.multipleselectvalue" v-dora_update="elem" v-dora_selectitems="selectItems" dora_blanktext="選択してください" class="select is-multiple" size="3" multiple></select>
 
                                             <!-- コンポーネント前の書き方-->
                                             <!--
-                                            <select v-model.lazy="elem.multipleselectvalue" v-dora_updateflag="elem" size="3" class="select is-multiple" multiple>
+                                            <select v-model.lazy="elem.multipleselectvalue" v-dora_update="elem" size="3" class="select is-multiple" multiple>
                                                 <option value="">××選択してください××</option>
                                                 <option v-for="option in selectItems" v-bind:value="option.value">
                                                     {{ option.text }}
                                                 </option>
                                             </select>
                                             -->
-
                                         </td>
                                         <td>
                                             <!-- checkbox複数-->
                                             <span v-for="option in selectItems">
-                                                <input type="checkbox" v-model.lazy="elem.multipleselectvalue" v-dora_updateflag="elem" v-bind:id="['chk' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
+                                                <input type="checkbox" v-model.lazy="elem.multipleselectvalue" v-dora_update="elem" v-bind:id="['chk' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
                                                 <label v-bind:for="['chk' + elemIndex + '_' + option.value]">{{option.text}}</label>
                                             </span>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </article>
@@ -204,12 +194,11 @@
                 ⇒ページングオブジェクトが複数あるような画面は ref="page2" と名前を変更する
                 dora_bind_divはclass="TablePanel"のidを指定
                 ⇒ページングオブジェクトが複数ある場合は変更が必要です。
-                v-bind:dora_size：（1ページに表示するデータ件数） 
-                v-bind:dora_page_range：（ページングに表示するページ数） 
+                v-bind:dora_size：（1ページに表示するデータ件数）
+                v-bind:dora_page_range：（ページングに表示するページ数）
                 v-bind:dora_display_panel.sync：は データが0件の場合：true それ以外の場合:falseが設定されます（連動不要なら削除可）
                 -->
                 <dora-paging v-bind:dora_bind_items="bindItems" v-model="displayitems" v-bind:dora_size="20" v-bind:dora_page_range="10" dora_bind_div="divPaging" ref="page"></dora-paging>
-
             </div>
         </div>
     </div>

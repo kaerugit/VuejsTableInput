@@ -25,7 +25,7 @@
     元
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
     -->
-    <link rel="stylesheet" href="./css/bulma.min.css">
+    <link rel="stylesheet" href="./../css/bulma.min.css">
     <!--
         fa-××のアイコン
         https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
@@ -40,30 +40,33 @@
         元
         <script src="https://npmcdn.com/vue/dist/vue.js"></script>
     -->
-    <script src="./javascript/vue.js"></script>
+    <script src="./../javascript/vue.js"></script>
 
     <!-- プロジェクト用 -->
     <!-- enterキー移動 -->
-    <script src="./javascript/focus.js"></script>
+    <script src="./../javascript/focus.js"></script>
     <!-- バリデーション -->
-    <script src="./javascript/project.js"></script>
+    <script src="./../javascript/project.js"></script>
 
     <!-- vue拡張 -->
-    <script src="./javascript/doracomponent.js"></script>
+    <script src="./../javascript/doracomponent.js"></script>
 
     <!-- マスターページ（要変更） -->
-    <script src="./javascript/masterpagecomponent.js"></script>
+    <script src="./../javascript/masterpagecomponent.js"></script>
 
-    <link rel="stylesheet" href="./css/project.css">
+    <link rel="stylesheet" href="./../css/project.css">
 </head>
 <body>
     <!--
         <div class="loading"></div>
     -->
-    <div id="app">
-        <!-- マスタページっぽいもの(再利用可能なものはコンポーネント化する) -->
+    <div id="app" style="visibility:hidden;">
+        <!--
+            マスタページっぽいもの(再利用可能なものはコンポーネント化する)
+            <div id="app" style="visibility:hidden;"> visibilityを削除する処理も入っています。
+        -->
         <master-page></master-page>
-        
+
         <div class="columns">
             <div class="column">
                 <article class="message is-primary">
@@ -78,7 +81,6 @@
                         &nbsp;
                         <button class="button is-success" v-on:click="returnpage()">戻る</button>
                         <div class="column is-offset-2 is-8" v-for="(elem, elemIndex) in bindItems">
-
                             <div class="field is-horizontal">
                                 <div class="field-label is-normal">
                                     <label class="label">扶養家族</label>
@@ -88,7 +90,7 @@
                                         <div class="control">
                                             <!-- checkbox複数(ラベルチェック時にONにする処理不要であれば v-bind:id v-bind:for の処理は削除可) -->
                                             <span v-for="option in fuyokazokuType">
-                                                <input type="checkbox" v-model.lazy="elem.扶養家族区分" v-dora_updateflag="elem" v-bind:id="['chkFuyo' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
+                                                <input type="checkbox" v-model.lazy="elem.扶養家族区分" v-dora_update="elem" v-bind:id="['chkFuyo' + elemIndex + '_' + option.value]" v-bind:value="option.value" class="checkbox">
                                                 <label v-bind:for="['chkFuyo' + elemIndex + '_' + option.value]">{{option.text}}</label>
                                             </span>
                                         </div>

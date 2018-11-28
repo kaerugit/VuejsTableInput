@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
     -->
 
-    <link rel="stylesheet" href="./css/bulma.min.css">
+    <link rel="stylesheet" href="./../css/bulma.min.css">
     <!--
         fa-××のアイコン
         https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
@@ -43,30 +43,33 @@
         元
         <script src="https://npmcdn.com/vue/dist/vue.js"></script>
     -->
-    <script src="./javascript/vue.js"></script>
+    <script src="./../javascript/vue.js"></script>
 
 
     <!-- プロジェクト用 -->
     <!-- enterキー移動 -->
-    <script src="./javascript/focus.js"></script>
+    <script src="./../javascript/focus.js"></script>
     <!-- バリデーション -->
-    <script src="./javascript/project.js"></script>
+    <script src="./../javascript/project.js"></script>
 
     <!-- vue拡張 -->
-    <script src="./javascript/doracomponent.js"></script>
+    <script src="./../javascript/doracomponent.js"></script>
 
     <!-- マスターページ（要変更） -->
-    <script src="./javascript/masterpagecomponent.js"></script>
+    <script src="./../javascript/masterpagecomponent.js"></script>
 
-    <link rel="stylesheet" href="./css/project.css">
+    <link rel="stylesheet" href="./../css/project.css">
 
 </head>
 <body>
-    <div id="app">
-        <!-- マスタページっぽいもの(再利用可能なものはコンポーネント化する) -->
+    <div id="app" style="visibility:hidden;">
+        <!--
+            マスタページっぽいもの(再利用可能なものはコンポーネント化する)
+            <div id="app" style="visibility:hidden;"> visibilityを削除する処理も入っています。
+        -->
         <master-page></master-page>
 
-        <div class="columns" >
+        <div class="columns">
             <div class="column is-12">
                 <article class="message is-primary">
                     <div class="message-header">
@@ -76,11 +79,9 @@
                         </span>
                     </div>
                     <div class="message-body MessageBodyPanel">
-
                         <div class="column is-offset-2 is-8">
                             <button class="button is-primary" v-on:click="submit()">更新</button>
                             <button class="button is-danger" v-on:click="clear()">クリア</button>
-
                             <div id="divPaging" class="">
                                 <!-- スタイルをbind v-bind:style="{ width: tablewidth + 'px' }" -->
                                 <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" v-dora_table="">
@@ -94,15 +95,14 @@
                                         <!-- 各要素を表示 -->
                                         <tr v-for="(elem, elemIndex) in bindItems" v-bind:class="{'err-common' : elem['ERROR_FLAG']==true}">
                                             <td>
-                                                <input v-model.lazy="elem.ファイル名" v-dora_updateflag="elem" class="input" maxlengthvalue="30" />
+                                                <input v-model.lazy="elem.ファイル名" v-dora_update="elem" class="input" maxlengthvalue="30" />
                                             </td>
                                             <td>
-                                                <input type="file" v-dora_updateflag="elem" class="input" v-on:change="uploadfile($event,elem)" />
+                                                <input type="file" v-dora_update="elem" class="input" v-on:change="uploadfile($event,elem)" />
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
-
                             </div>
                         </div>
                     </div>

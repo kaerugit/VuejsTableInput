@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css">
     -->
 
-    <link rel="stylesheet" href="./css/bulma.min.css">
+    <link rel="stylesheet" href="./../css/bulma.min.css">
     <!--
         fa-××のアイコン
         https://bulma.io/documentation/elements/icon/ ⇒ https://fontawesome.com/ ⇒ https://fontawesome.com/icons?d=gallery&q=search&m=free
@@ -43,14 +43,14 @@
         元
         <script src="https://npmcdn.com/vue/dist/vue.js"></script>
     -->
-    <script src="./javascript/vue.js"></script>
+    <script src="./../javascript/vue.js"></script>
 
 
     <!-- プロジェクト用 -->
     <!-- enterキー移動 -->
-    <script src="./javascript/focus.js"></script>
+    <script src="./../javascript/focus.js"></script>
 
-    <link rel="stylesheet" href="./css/project.css">
+    <link rel="stylesheet" href="./../css/project.css">
 
 </head>
 <body>
@@ -58,7 +58,7 @@
         <!-- マスタページっぽいもの -->
         <div class="columns">
             <div class="column" style="margin-top:10px">
-                <span class="icon" onclick="window.top.location.href = 'index.html';">
+                <span class="icon" onclick="window.top.location.href = './../index.html';">
                     <i class="fas fa-home"></i>
                 </span>
                 サンプルシステム（固定ページ）
@@ -267,41 +267,40 @@
             }
             ,
             mounted: function () {
-                let self = this;        //ieを考慮する場合、アロー関数(()=>)が使えないのでこちらの書き方推奨
                 //json get data
-                let xmlHttpRequest = new XMLHttpRequest();
-                xmlHttpRequest.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) {
-                        if (this.response) {
+                let req = new XMLHttpRequest();
+                req.onreadystatechange = function () {
+                    if (req.readyState == 4 && req.status == 200) {
+                        if (req.response) {
                             //データのセット
-                            if (typeof this.response == 'object') {
-                                self.mainItems = this.response;
+                            if (typeof req.response == 'object') {
+                                this.mainItems = req.response;
                             }
                             else {
-                                self.mainItems = JSON.parse(this.response);
+                                this.mainItems = JSON.parse(req.response);
                             }
 
 
                             //都道府県
                             let appendList = new Set();
 
-                            for (let item in self.mainItems) {
+                            for (let item in this.mainItems) {
 
-                                if (appendList.has(self.mainItems[item].都道府県CD) == false) {
+                                if (appendList.has(this.mainItems[item].都道府県CD) == false) {
 
                                     //追加
-                                    appendList.add(self.mainItems[item].都道府県CD);
+                                    appendList.add(this.mainItems[item].都道府県CD);
 
-                                    self.todofukenItems.push({
-                                        value: self.mainItems[item].都道府県CD,
-                                        text: self.mainItems[item].都道府県,
+                                    this.todofukenItems.push({
+                                        value: this.mainItems[item].都道府県CD,
+                                        text: this.mainItems[item].都道府県,
                                     });
 
                                 }
                             }
 
                             //sort
-                            self.todofukenItems.sort(
+                            this.todofukenItems.sort(
                                 function (a, b) {
                                     if (a.value < b.value) { return -1; }
                                     else if (a.value > b.value) { return 1; }
@@ -309,14 +308,14 @@
                                 }
                                 );
 
-                            alert('中国地方の全' + self.mainItems.length + 'のデータ\n(ページングなし、全件の表示はとても重いです)');
+                            alert('中国地方の全' + this.mainItems.length + 'のデータ\n(ページングなし、全件の表示はとても重いです)');
                         }
                     }
-                }
+                }.bind(this);       //ieを考慮する場合、アロー関数(()=>)が使えないのでこちらの書き方推奨
 
-                xmlHttpRequest.open('GET', './chugoku.json', true);
-                xmlHttpRequest.responseType = 'json';
-                xmlHttpRequest.send(null);
+                req.open('GET', './chugoku.json', true);
+                req.responseType = 'json';
+                req.send(null);
 
                 this.clear();
             }
@@ -329,9 +328,6 @@
                 bindItems: [],      //バインド用
 
                 todofukenItems: [],     //都道府県コンボ用
-                //shikuchosonItems: [],   //市区町村コンボ用
-                //choikiItems: [],        //町域コンボ用
-
 
                 //検索用のパネルの制御(本来は部品化したい) ※こちらのサンプルでは半部品化
                 isDisplayWherePanel: true,

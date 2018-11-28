@@ -12,8 +12,8 @@ var validatefield = {};
 ★こちらのバリデーションの課題
 同じ画面で同じv-model（v-model.lazy="elem.社員コード"）で複数存在する場合、先に読み込まれたものが優先となる
 ⇒同じv-model（v-model.lazy="elem.社員コード"）には同じチェックを入れること
-<input v-model.lazy="elem.社員コード" v-dora_updateflag="elem" class="input" />
-<input v-model.lazy="elem.社員コード" v-dora_updateflag="elem" class="input" isime="false" ishankaku="true" maxlengthvalue="5" textalign="center" />
+<input v-model.lazy="elem.社員コード" v-dora_update="elem" class="input" />
+<input v-model.lazy="elem.社員コード" v-dora_update="elem" class="input" isime="false" ishankaku="true" maxlengthvalue="5" textalign="center" />
 
 */
 
@@ -37,8 +37,8 @@ Project.InitValidate = function (el, field) {
     //{field:入社日,format:'yyyy/MM/dd'},
     //]
 
+    let obj = {};
     if (validatefield[field] == null) {
-        let obj = {};
 
         //formatを取得
         if (el.getAttribute("dora_format") != null) {
@@ -125,17 +125,27 @@ Project.InitValidate = function (el, field) {
             obj.maxvalue = +el.getAttribute("maxvalue");
         }
 
-        validatefield[field] = obj;
+        if (field != null){
+            validatefield[field] = obj;
+        }
     }
 
 
     //■■以下直接 cssに記述する事おすすめ■■ をコメントにした場合以下必要なし
 
     //imeの処理
-    if (validatefield[field] != null) {
-        let obj = validatefield[field];
-        if (obj.isime != null) {
-            if (obj.isime == true) {
+    //if (validatefield[field] != null) {
+    let objClass = null ;
+    if (field != null && validatefield[field] != null){
+        objClass = validatefield[field];
+    }
+    else if (field == null){
+        objClass = obj;
+    }
+
+    if (objClass !=null){
+        if (objClass.isime != null) {
+            if (objClass.isime == true) {
                 //含まれていなければ追加
                 el.classList.toggle("ime-on");
             }
@@ -145,15 +155,16 @@ Project.InitValidate = function (el, field) {
             }
         }
 
-        if (obj.textalign != null) {
-            if (obj.textalign.toLocaleLowerCase() == "center") {
+        if (objClass.textalign != null) {
+            if (objClass.textalign.toLocaleLowerCase() == "center") {
                 el.classList.toggle("text-center");
             }
-            else if (obj.textalign.toLocaleLowerCase() == "right") {
+            else if (objClass.textalign.toLocaleLowerCase() == "right") {
                 el.classList.toggle("text-right");
             }
         }
     }
+    //}
 
 }
 
@@ -298,12 +309,17 @@ Project.SetControlCss = function (el, binding, errorFlag) {
 */
 Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield, errorCheckFunction, pageMoveFunction, errTopFlag) {
 
-    let error = {
+    let error = {};
+
+    let errorClear = function(){
+        error = {
         ErrorIdentity: null,     //エラーフラグを付けるエラー行(サーバからのエラーで使用)
         Field: '',
         Message: '',
+        }
     };
-
+    errorClear();
+    
     for (let i = 0; i < items.length; i++) {
         let item = items[i];
 
@@ -318,9 +334,9 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
 
         //単体エラーが発生しているオブジェクトを検索
         let keys = Object.keys(item);
-        let findString = '_IS_ERROR_VALUE';
+        let findString = DoraConst.APPEND_ERROR_VALUE;
         for (let j = keys.length - 1; 0 <= j; --j) {
-            //if (keys[j].endsWith('_IS_ERROR_VALUE')) IEでは使えないので・・
+            //if (keys[j].endsWith('～)) IEでは使えないので・・
             let keystring = keys[j];
             
             if ((keystring.lastIndexOf(findString) + findString.length === keystring.length) && (findString.length <= keystring.length)) {              
@@ -348,20 +364,21 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
 
         //コントロールのエラーを一旦削除
         let keys = Object.keys(item);
-        let findString = '_IS_ERROR';
+        let findString = DoraConst.APPEND_IS_ERROR;
         for (let j = keys.length - 1; 0 <= j; --j) {
-            //if (keys[j].endsWith('_IS_ERROR')) IEでは使えないので・・
+            //if (keys[j].endsWith('～')) IEでは使えないので・・
             let keystring = keys[j];
 
             if ((keystring.lastIndexOf(findString) + findString.length === keystring.length) && (findString.length <= keystring.length)) {
                 delete item[keys[j]];
+                break;
             }
         }
 
         //削除行かどうか
         let deleteFlag = false;
 
-        //Deleteの場合は無視
+        //item["DELETE_FLAG"]=trueの場合は無視
         if (item[DoraConst.FIELD_DELETE_FLAG] == true) {
             deleteFlag = true;
         }
@@ -400,7 +417,7 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
         //更新している行のみ (pageMoveFunction == null は単票画面)
         if (item[DoraConst.FIELD_UPDATE_FLAG] == true || pageMoveFunction == null) {
 
-            if (deleteFlag == false && error.Message.length == 0) {
+            if (error.Message.length == 0) {
                 if (requiredfield != null) {
                     for (let j = 0; j < requiredfield.length; j++) {
                         if (item[requiredfield[j]] == null || item[requiredfield[j]].toString().length == 0) {
@@ -409,6 +426,17 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
                                 Message: '必須入力が入力されていません。',
                             };
                             break;
+                        }
+                    }
+
+                    //削除で必須が入っていない場合は削除・更新を取り下げ（こちらの処理を削除すると削除フラグ=noのみのデータが作成される為）
+                    if (deleteFlag == true){
+                        if (error.Message.length != 0){
+                            errorClear();
+                            if (item[DoraConst.FIELD_DELETE_FLAG] != null ) {
+                                item[DoraConst.FIELD_DELETE_FLAG] = false;
+                                item[DoraConst.FIELD_UPDATE_FLAG] = false;
+                            }
                         }
                     }
                 }
@@ -463,7 +491,7 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
                 }
             }
 
-            //個別チェック
+            //個別チェック（複数の項目などをチェックする場合などに使用）
             if (deleteFlag == false && error.Message.length == 0) {
                 if (typeof errorCheckFunction == 'function') {
                     errorCheckFunction(error, item);
@@ -487,10 +515,11 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
 
 /**
  * エラー時のフォーカス移動
+ * @param {paravue} vueオブジェクト
  * @param {items} バインド値
  * @param {error} エラーオブジェクト
  * @param {pageMoveFunction} ページ移動のfunction  ※nullの場合は単票と判定する
- * @param {errTopFlag} trueの場合、エラー行を先頭に移動
+ * @param {errTopFlag} trueの場合、エラー行のデータを先頭に移動
 */
 Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, errTopFlag) {
 
@@ -516,18 +545,8 @@ Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, err
 
         //エラー行を先頭にする
         if (errTopFlag) {
-            items.sort(
-                function (a, b) {
-                    //true 1 false 0 なので注意
-                    if (Project.IsBoolean(a[DoraConst.FIELD_ERROR_FLAG]) > Project.IsBoolean(b[DoraConst.FIELD_ERROR_FLAG])) { return -1; }
-                    else if (Project.IsBoolean(a[DoraConst.FIELD_ERROR_FLAG]) < Project.IsBoolean(b[DoraConst.FIELD_ERROR_FLAG])) { return 1; }
-
-                    if (a[DoraConst.FIELD_IDENTITY_ID] < b[DoraConst.FIELD_IDENTITY_ID]) { return -1; }
-                    else if (a[DoraConst.FIELD_IDENTITY_ID] > b[DoraConst.FIELD_IDENTITY_ID]) { return 1; }
-
-                    return 0;
-                }
-            );
+            //エラーフラグの降順、IDENTITY_IDの昇順
+            Project.SortJson(items, [DoraConst.FIELD_ERROR_FLAG + ".desc", DoraConst.FIELD_IDENTITY_ID]);
         }
 
         //ページを１ページにする
@@ -548,7 +567,7 @@ Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, err
             );
             if (errorItems.length > 0) {
                 //こちらの記述でエラーフィールドに色をセット
-                errorItems[0][error.Field + '_IS_ERROR'] = true;
+                errorItems[0][error.Field + DoraConst.APPEND_IS_ERROR] = true;
             }
 
             Vue.nextTick(
@@ -560,7 +579,7 @@ Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, err
                         el = document;
                     }
 
-                    el = el.querySelector("[modelvalue='" + error.Field + "']");
+                    el = el.querySelector("[dora_modelvalue='" + error.Field + "']");
                     if (el != null) {
 
                         el.focus();
@@ -580,7 +599,7 @@ Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, err
 };
 
 /**
- * くるくるの開始/終了
+ * 処理中（くるくる）の開始/終了
  * @param {loadingFlag} true：開始 false:終了
 */
 Project.SetLoading = function (loadingFlag) {
@@ -705,7 +724,7 @@ Project.GetDialogArgs = function () {
  * @param {items} バインド値
  * @param {updateData} 更新する値
  * @param {keyFiled} 主キーの項目（配列）
- * @param {pageMoveFunction} ページ移動のfunction (必要なければnull) ※nullの場合は単票と判定する
+ * @param {pageMoveFunction} ページ移動のfunction (必要なければnull)
 */
 Project.MargeInputData = function (items, updateData, keyFiled, pageMoveFunction) {
 
@@ -754,6 +773,76 @@ Project.IsBoolean = function (value) {
     else {
         return false;
     }
+}
+
+/**
+ * jsonのソート
+ * @param {items} jsonオブジェクト
+ * @param {fieldArray} 【配列バージョン】ソートのフィールド名の配列  ["並び1","並び1"]  個別にorder を変えたい場合["並び1.asc","並び1.desc"] を付与
+                       【オブジェクトバージョン】 キーと値(昇順:-1 降順:1)をセット
+ * @param {ascflag} 並び順 true：昇順 false:降順   個別設定は↑でも可
+
+*/
+Project.SortJson = function (items, fieldArray, ascflag) {
+    
+    let defultascvalue = -1;
+    if (ascflag==false) {
+        defultascvalue = 1;
+    }
+
+    let orderobj = [];
+
+    //配列の場合 ["",""]
+    if (Array.isArray(fieldArray)==true) {
+        for (let i = 0; i < fieldArray.length; i++) {
+            let field = fieldArray[i];
+            let asc = defultascvalue;
+
+            if (field.indexOf(".asc") > -1) {
+                field = field.replace(".asc", "");
+                asc = -1;
+            }
+            else if (field.indexOf(".desc") > -1) {
+                field = field.replace(".desc", "");
+                asc = 1;
+            }
+
+            orderobj.push({
+                field: field,
+                asc: asc
+            });
+        }
+    }
+    else {
+        //オブジェクトの場合 {}
+        for (let key in fieldArray) {
+            orderobj.push({
+                field: key,
+                asc: fieldArray[key]
+            });
+
+        }
+    }
+    items.sort(
+        function (a, b) {
+            for (let i = 0; i < orderobj.length; i++) {
+                let field = orderobj[i].field;
+                let asc = orderobj[i].asc;
+
+                if ((a[field] < b[field]) || (a[field]==null))
+                {
+                    return asc;
+                }
+                else if ((a[field] > b[field]) || (b[field] == null))
+                {
+                    return asc * -1;
+                }
+            }
+
+            return 0;
+        }
+        );
+
 }
 
 
