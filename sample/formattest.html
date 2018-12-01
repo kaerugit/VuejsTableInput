@@ -100,7 +100,8 @@
                                         <th style="width: 200px;" class="is-link">金額と小数点</th>
                                         <th style="width: 250px;" class="is-link">■日付（フル）</th>
                                         <th style="width: 200px;" class="is-link">■日付</th>
-                                        <th style="width: 250px;" class="is-link">時刻</th>
+                                        <th style="width: 250px;" class="is-link">◇時刻</th>
+                                        <th style="width: 250px;" class="is-link">◇時刻ミリ秒</th>
                                         <th style="width: 250px;" class="is-link">日付+時刻（表示のみ）</th>
                                     </tr>
                                 </thead>
@@ -148,9 +149,12 @@
                                         <td>
                                             <input v-model.lazy="elem.time" dora_format="HH:mm:ss" v-dora_update="elem" class="input" />
                                         </td>
+                                        <td>
+                                            <input v-model.lazy="elem.time" dora_format="HH:mm:ss.fff" v-dora_update="elem" class="input" />
+                                        </td>
                                         <td style="vertical-align:middle;">
                                             <!-- 表示のみ -->
-                                            {{ elem.datetime | formatdelimiter('yyyy/MM/dd')}} {{ elem.time | formatdelimiter('HH:mm:ss')}}
+                                            {{ elem.datetime | formatdelimiter('yyyy/MM/dd')}} {{ elem.time | formatdelimiter('HH:mm:ss.fff')}}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -206,8 +210,9 @@
                 // 要素を追加
                 append: function () {
 
+                    let datacount = this.bindItems.length || 0;
                     //先頭に追加
-                    this.bindItems.unshift({zero:2});
+                    this.bindItems.unshift({ zero: datacount +1 });
 
                     //ページを１ページにする
                     this.$refs.page.gotopage(1);
@@ -248,7 +253,7 @@
                 clear: function () {
 
                     this.bindItems = [];
-                    this.search();
+                    this.append()
                 }
                 ,
 

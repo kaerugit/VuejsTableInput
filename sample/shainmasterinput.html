@@ -117,8 +117,8 @@
                                 <div class="field-body">
                                     <div class="field">
                                         <div class="control">
-                                            <!-- フォーマットが入っているものは自動的に imeoff -->
-                                            <input v-model.lazy="elem.入社年月日" v-dora_update="elem" dora_format="yyyy/MM/dd" class="input" />
+                                            <!-- フォーマットが入っているものは自動的に imeoff 入力範囲は　"1990/4/1"～"2999/3/31"　の間-->
+                                            <input v-model.lazy="elem.入社年月日" v-dora_update="elem" dora_format="yyyy/MM/dd" class="input" minvalue="1990/4/1"  maxvalue="2999/3/31"/>
                                         </div>
                                     </div>
                                 </div>

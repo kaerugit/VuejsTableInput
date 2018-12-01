@@ -61,11 +61,11 @@ Project.InitValidate = function (el, field) {
         else {
             //formatで勝手に判断
             if (obj.format != null) {
-                let formattype = getFormatType(obj.format);
-                if (formattype == FORMATTYPES.parcent || formattype == FORMATTYPES.currency) {
+                let formattype = DoraFormat.GetFormatType(obj.format);
+                if (formattype == DoraFormat.FORMATTYPES.parcent || formattype == DoraFormat.FORMATTYPES.currency) {
                     obj.textalign = "right";
                 }
-                else if (formattype == FORMATTYPES.zero || formattype == FORMATTYPES.date) {
+                else if (formattype == DoraFormat.FORMATTYPES.zero || formattype == DoraFormat.FORMATTYPES.date) {
                     obj.textalign = "center";
                 }
             }
@@ -117,12 +117,12 @@ Project.InitValidate = function (el, field) {
 
         //最大値チェックMin
         if (el.getAttribute("minvalue") != null) {
-            obj.minvalue = +el.getAttribute("minvalue");
+            obj.minvalue = el.getAttribute("minvalue"); //日付もあるので注意
         }
 
         //最大値チェックMax
         if (el.getAttribute("maxvalue") != null) {
-            obj.maxvalue = +el.getAttribute("maxvalue");
+            obj.maxvalue = el.getAttribute("maxvalue"); //日付もあるので注意
         }
 
         if (field != null){
@@ -233,27 +233,47 @@ Project.CheckValidate = function (field, value) {
         }
         */
 
+        const formattype = DoraFormat.GetFormatType(obj.format);
+        let valueInput = value;
+        let valueMin = obj.minvalue || "";
+        let valueMax = obj.maxvalue || "";
+
+        if (obj.format) {
+            if (valueMin.length > 0) {
+                valueMin = DoraFormat.ParseFormat(valueMin, obj.format);
+            }
+            if (valueMax.length > 0) {
+                valueMax = DoraFormat.ParseFormat(valueMax, obj.format);
+            }
+        }
+        let appendErrorString = "\n(" + valueMin + "～" + valueMax + "の値で入力してください)";
+
+
+        //日付の場合は数値に変換
+        if (formattype == DoraFormat.FORMATTYPES.date) {
+            valueInput = new Date(DoraFormat.ParseFormat(valueInput, obj.format)).getTime();
+        }
         //値チェックMin
         if (obj.minvalue != null) {
-            if (+value < +obj.minvalue) {
-                let formatValue = obj.minvalue;
-                if (obj.format) {
-                    formatValue = parseFormat(formatValue, obj.format);
-                }
+            let valueCheck = obj.minvalue;
+            if (formattype == DoraFormat.FORMATTYPES.date) {
+                valueCheck = new Date(DoraFormat.ParseFormat(valueCheck, obj.format)).getTime();
+            }
 
-                return formatValue + "未満の入力はできません。";
+            if (+valueInput < +valueCheck) {
+                return valueMin + "より小さな値はの入力はできません。" + appendErrorString;
             }
         }
 
         //値チェックMax
         if (obj.maxvalue != null) {
-            if (+value > +obj.maxvalue) {
+            let valueCheck = obj.maxvalue;
+            if (formattype == DoraFormat.FORMATTYPES.date) {
+                valueCheck = new Date(DoraFormat.ParseFormat(valueCheck, obj.format)).getTime();
+            }
 
-                let formatValue = obj.maxvalue;
-                if (obj.format) {
-                    formatValue = parseFormat(formatValue, obj.format);
-                }
-                return formatValue + "超過の入力はできません。";
+            if (+valueInput > +valueCheck) {
+                return valueMax + "より大きな値は入力はできません。" + appendErrorString;
             }
         }
 
@@ -579,7 +599,7 @@ Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, err
                         el = document;
                     }
 
-                    el = el.querySelector("[dora_modelvalue='" + error.Field + "']");
+                    el = el.querySelector("[dora_MV='" + error.Field + "']");
                     if (el != null) {
 
                         el.focus();

@@ -77,10 +77,10 @@ Vue.directive('dora_table', {
 
 //外部から参照用
 //(エレメント).isinputerror()      エラーの場合：true
-//(エレメント).checkvalidate()     エラーチェックを個別に実行
-//(エレメント).isinputdata()         入力されたかどうか
+//(エレメント).execchangeevent()   エラーチェックを個別に実行
+//(エレメント).isinputdata()       入力されたかどうか
 
-//外部から呼ばれる関数(v-on:change イベントと併用した場合 v-on:changeが実行されるので、先にcheckvalidateを実行する必要がある)
+//外部から呼ばれる関数(v-on:change イベントと併用した場合 v-on:changeが実行されるので、先にexecchangeeventを実行する必要がある)
 
 Vue.directive('dora_update', {
     //データ更新時にフラグを追加
@@ -111,13 +111,18 @@ Vue.directive('dora_update', {
                     break;
             }
         }
-        el.setAttribute("dora_modelvalue", el.dora_modelvalue);
+
+        if (el.dora_modelvalue != null) {
+            el.setAttribute("dora_MV", el.dora_modelvalue);
+        }
 
         //project.js の関数を呼んでいます(※必ずメインでincludeしておいてください <script src="./javascript/doracomponent.js"></script>)
+        //バリデーションを初期化
         if (typeof Project.InitValidate == 'function') {
             Project.InitValidate(el, el.dora_modelvalue);
         }
 
+        //CSSの設定
         if (typeof Project.SetControlCss == 'function') {
             let errorFlag = false;
             if (el.dora_directivesdoraupdate.value[el.dora_modelvalue + DoraConst.APPEND_IS_ERROR] != null) {
@@ -141,9 +146,10 @@ Vue.directive('dora_update', {
 
         let format = el.getAttribute("dora_format");
         if (format != null) {
-            el.value = parseFormat(el.getModelData(), format);
+            el.value = DoraFormat.ParseFormat(el.getModelData(), format);
         }
 
+        //■■■外部から呼び出し用function■■■
 
         //コントロールがエラーかどうか確認
         el.isinputdata = function () {
@@ -158,21 +164,27 @@ Vue.directive('dora_update', {
 
         //エラーかどうか（外部より参照用）
         el.isinputerror = function () {
-            try {
-                if (el.dora_directivesdoraupdate.value[el.dora_modelvalue + DoraConst.APPEND_IS_ERROR] == true) {
-                    return true;
+            if (el.dora_modelvalue != null) {
+                try {
+                    if (el.dora_directivesdoraupdate.value[el.dora_modelvalue + DoraConst.APPEND_IS_ERROR] == true) {
+                        return true;
+                    }
                 }
+                catch (e) {
+                };
             }
-            catch (e) {
-            };
             return false;
         };
 
 
-        //外部から呼ばれる関数(v-on:change イベントと併用した場合 v-on:changeが実行されるので、先にcheckvalidateを実行する必要がある)
-        el.checkvalidate = function (evt) {
+        //外部から呼ばれる関数(v-on:change イベントと併用した場合 v-on:changeが実行されるので、先にexecchangeeventを実行する必要がある)
+        el.execchangeevent = function (evt) {
             return el.event_change(evt);
         };
+
+        //■■■外部から呼び出し用function（終）■■■
+
+        //■■■イベント追加■■■
 
         //変更時のイベント
         el.event_input = function (evt) {
@@ -183,13 +195,16 @@ Vue.directive('dora_update', {
         //change イベント
         el.event_change = function (evt) {
 
+            if (el.dora_modelvalue == null) {
+                return true;
+            }
+
             //二度実行防止(updateでfalseになります)
             if (el.onceflag == true) {
-                return false;
+                return true;
             }
 
             el.onceflag = true;
-            //el.removeEventListener("change", el.event_change, false);
 
             //フラグの更新
             let defultField = DoraConst.FIELD_UPDATE_FLAG;
@@ -207,7 +222,7 @@ Vue.directive('dora_update', {
                     
                 }
                 else {
-                    let retvalue = transformFormat(el.value, format);
+                    let retvalue = DoraFormat.TransformFormat(el.value, format);
                     //変換に失敗した場合
                     if (retvalue == null) {
                         message = '値が違います。';
@@ -300,7 +315,7 @@ Vue.directive('dora_update', {
 
                 if (binding.modifiers.bindingvaluedisp == true) {
                     if (el.getModelData() != null) {
-                        ae.value = parseFormat(el.getModelData(), format);
+                        ae.value = DoraFormat.ParseFormat(el.getModelData(), format);
                     }
                 }
 
@@ -353,7 +368,7 @@ Vue.directive('dora_update', {
             }
             
             if (el.getModelData() != null) {
-                el.value = parseFormat(el.getModelData(), format);
+                el.value = DoraFormat.ParseFormat(el.getModelData(), format);
             }
         }
     },
@@ -429,10 +444,6 @@ Vue.directive('dora_selectitems', {
         let options = el.options;
         options.length = 0;
 
-        //for (let i = options.length - 1; 0 <= i; --i) {
-        //    el.remove(i);
-        //}
-
         //存在しない場合は無視(修正した場合updateにコピー)
         if (blanktext != null) {
             let op = document.createElement("option");
@@ -454,7 +465,7 @@ Vue.directive('dora_selectitems', {
 
 //フォーマット
 Vue.filter('formatdelimiter', function (value, formatvalue) {
-    return parseFormat(value, formatvalue);
+    return DoraFormat.ParseFormat(value, formatvalue);
 });
 
 //仮想スクロール
@@ -522,7 +533,7 @@ Vue.component('dora-vscroll', {
         this.tableelement.addEventListener("keydown",
             function (evt) {
                 //改行は最終行のみ対応
-                if (evt.keyCode == 13 || evt.keyCode == 38 || evt.keyCode == 40 ) {
+                if (evt.keyCode == 13 || evt.keyCode == 38 || evt.keyCode == 40) {
 
                     let objActive = document.activeElement;
                     if (objActive == null || objActive.type == null) {
@@ -560,7 +571,6 @@ Vue.component('dora-vscroll', {
 
                         //tdのindexを求める
                         let parentTR = parentTD.parentNode;
-                        
 
                         //trのindexを求める
                         let listArrayTR = parentTR.parentNode.querySelectorAll('tr');
@@ -602,7 +612,7 @@ Vue.component('dora-vscroll', {
                     }
 
                 }
-            }//.bind(this)
+            }
         );
 
         //ホイールマウスのイベント
@@ -623,7 +633,7 @@ Vue.component('dora-vscroll', {
                 }
 
                 let moveIndex = 0;
-                
+
                 if ((evt.wheelDelta || evt.detail) > 0) {
                     //上方向
                     moveIndex = -1;
@@ -672,7 +682,7 @@ Vue.component('dora-vscroll', {
         //画面をリサイズした場合に表示数を変更
         window.addEventListener("resize",
             function () {
-                this.getData(true);
+                this.getVirtualScrollData(true);
                 //強制アップデート
                 this.$forceUpdate();
             }.bind(this)
@@ -717,13 +727,13 @@ Vue.component('dora-vscroll', {
                         updownvalue = 1;
                     }
                     this.currentindex = index;
-                    this.getData(false, updownvalue);          
-            }.bind(this));
+                    this.getVirtualScrollData(false, updownvalue);
+                }.bind(this));
         }
         ,
         //スクロールイベント
         scroll: function () {
-            this.execscroll(0,false);
+            this.execscroll(0, false);
         }
         ,
         //スクロール実処理
@@ -741,7 +751,7 @@ Vue.component('dora-vscroll', {
 
                 if (inputFlag == false) {
                     if (moveIndex == 0) {
-                        this.getData(true);
+                        this.getVirtualScrollData(true);
                         return;
                     }
                 }
@@ -757,7 +767,7 @@ Vue.component('dora-vscroll', {
                         if (typeof objActive.isinputerror == 'function') {
                             //エラーの場合
                             if (objActive.isinputerror()) {
-                                this.getData(false);
+                                this.getVirtualScrollData(false);
                                 //evt.preventDefault();
                                 //evt.stopPropagation();
                                 return;
@@ -775,13 +785,13 @@ Vue.component('dora-vscroll', {
                     }
 
                     if (moveIndex == 0) {
-                        this.getData(true);
+                        this.getVirtualScrollData(true);
                     }
                     else {
                         this.currentindex = currentindexcalc;
-                        this.getData(false);
+                        this.getVirtualScrollData(false);
                     }
-                    
+
                     Vue.nextTick(
                         function () {
 
@@ -833,7 +843,7 @@ Vue.component('dora-vscroll', {
                 }.bind(this), 0);
             }
             else {
-                this.getData(true);
+                this.getVirtualScrollData(true);
             }
 
         }
@@ -849,27 +859,27 @@ Vue.component('dora-vscroll', {
             return (this.dora_bind_items.length - this.datasize);
         }
         ,
-        getData: function (scrollflag,argsupdownvalue) {
-                //タイトル部分の取得
-                if (this.heighttitle == 0) {
-                    
-                    try {
-                        let trArray = this.tableelement.querySelector('table').querySelector('thead').querySelectorAll('tr');    
-                        //alert(this.tableelement.querySelector('table').querySelector('thead').clientHeight);                    
-                        if (trArray != null) {
-                            for (let i = 0; i < trArray.length; i++) {
-                                let height = trArray[i].clientHeight;
-                                //if (height == 0){
-                                //    height = trArray[i].style.height;
-                                //}
-                                this.heighttitle += +(height);
-                            }
+        getVirtualScrollData: function (scrollflag, argsupdownvalue) {
+            //タイトル部分の取得
+            if (this.heighttitle == 0) {
+
+                try {
+                    let trArray = this.tableelement.querySelector('table').querySelector('thead').querySelectorAll('tr');
+                    //alert(this.tableelement.querySelector('table').querySelector('thead').clientHeight);                    
+                    if (trArray != null) {
+                        for (let i = 0; i < trArray.length; i++) {
+                            let height = trArray[i].clientHeight;
+                            //if (height == 0){
+                            //    height = trArray[i].style.height;
+                            //}
+                            this.heighttitle += +(height);
                         }
                     }
-                    catch (e) { }
                 }
+                catch (e) { }
+            }
 
-                
+
             this.heightcalc = this.heighttitle + (this.dora_bind_items.length * this.dora_height);
 
             let updownvalue = 0;
@@ -892,7 +902,7 @@ Vue.component('dora-vscroll', {
                 if (this.currentindex == 0) {
                     scrollvalue = 0;
                 }
-                else if (this.currentindex > this.dora_bind_items.length-1) {
+                else if (this.currentindex > this.dora_bind_items.length - 1) {
                     scrollvalue = this.heightcalc; //this.vscrollelement.scrollHeight;
                 }
                 else {
@@ -915,7 +925,7 @@ Vue.component('dora-vscroll', {
                 updownvalue = scrollvalue - currentvalue;
             }
 
-            this.datasize = Math.round((this.tableelement.clientHeight - this.heighttitle ) / this.dora_height);
+            this.datasize = Math.round((this.tableelement.clientHeight - this.heighttitle) / this.dora_height);
 
             if (this.datasize < 1) {
                 this.datasize = 1;
@@ -925,7 +935,7 @@ Vue.component('dora-vscroll', {
             this.$emit('input', this.dora_bind_items.slice(this.currentindex, this.currentindex + this.datasize));
 
             //置き換える
-            if (argsupdownvalue!=null){
+            if (argsupdownvalue != null) {
                 updownvalue = argsupdownvalue;
             }
 
@@ -969,7 +979,7 @@ Vue.component('dora-vscroll', {
                 //条件パネルを非表示
                 this.$emit('update:dora_display_panel', true);
             }
-            else {                     
+            else {
 
                 //条件パネルを表示
                 this.$emit('update:dora_display_panel', false);
@@ -986,12 +996,12 @@ Vue.component('dora-vscroll', {
                 */
             }
 
-            this.getData(true);            
+            this.getVirtualScrollData(true);
 
             // if (this.heighttitle == 0) {
             //     Vue.nextTick(
             //         function () {
-            //             this.getData(true);
+            //             this.getVirtualScrollData(true);
             //         }.bind(this)
             //     );
             // }
@@ -1223,34 +1233,49 @@ Vue.component('dora-paging', {
     ,
 });
 
-var FORMATTYPES = {
-    none: 0,
-    zero: 1,
-    currency: 2,
-    date: 3,
-    parcent: 4
+var DoraFormat = {
+    FORMATTYPES: {
+        //未設定（文字列）
+        none: 0,
+        //頭0埋め
+        zero: 1,
+        //金額
+        currency: 2,
+        //日付
+        date: 3,
+        //パーセント
+        parcent: 4
+    }
+    ,
+    //小数点
+    DECIMAL_SEPARATOR : "."
+    ,
+    //通貨区切り
+    THOUSANDS_SEPARATOR: ","
+    ,
 }
 
-//小数点
-var DECIMAL_SEPARATOR = ".";
-//通貨区切り
-var THOUSANDS_SEPARATOR = ",";
 
-function getFormatType(formatString) {
-    let formattype = FORMATTYPES.none;
-
+DoraFormat.GetFormatType = function (formatString) {
+    let formattype = DoraFormat.FORMATTYPES.none;
+    
     if (formatString.length > 0) {
-        if (formatString.substr(0, 2) == "00") { //if (formatString.startsWith("00")) {                              //特別処理 zeroformat  1 → 0000001   ※parseのほうで同じ処理をしているので注意！
-            formattype = FORMATTYPES.zero;
+        if (formatString.substr(0, 2) == "00") { //if (formatString.startsWith("00")) {                              
+            formattype = DoraFormat.FORMATTYPES.zero;
         }
         else if (formatString.substr(-1, 1) == "%") { //if (formatString.endsWith("%")) {      /* パーセント系*/
-            formattype = FORMATTYPES.parcent;
+            formattype = DoraFormat.FORMATTYPES.parcent;
         }
-        else if (formatString.indexOf(",") != -1 || formatString.indexOf(".") != -1 || formatString.indexOf("#") != -1) { //if (formatString.includes(",") || formatString.includes(".") || formatString.includes("#")) {      /*数値系*/
-            formattype = FORMATTYPES.currency;
+        else if (formatString.indexOf("/") != -1 || formatString.indexOf(":") != -1 || formatString.indexOf(".f") != -1) {  /*日付系*/
+            formattype = DoraFormat.FORMATTYPES.date;
         }
-        else if (formatString.indexOf("/") != -1 || formatString.indexOf(":") != -1) {  //if (formatString.includes("/") || formatString.includes(":")) {      /*日付系*/
-            formattype = FORMATTYPES.date;
+        else if (
+                formatString.indexOf(DoraFormat.THOUSANDS_SEPARATOR) != -1 ||
+                formatString.indexOf(DoraFormat.DECIMAL_SEPARATOR) != -1 ||
+                formatString.indexOf("#") != -1 ||
+                formatString == "0"
+            ) {   /*数値系*/
+            formattype = DoraFormat.FORMATTYPES.currency;
         }
     }
     return formattype;
@@ -1261,7 +1286,7 @@ function getFormatType(formatString) {
 * @param value
 * @param formatString
 */
-function parseFormat(value, formatString) {
+DoraFormat.ParseFormat = function(value, formatString) {
 
     if (value == null) {
         return null;
@@ -1272,21 +1297,21 @@ function parseFormat(value, formatString) {
         return value;
     }
 
-    let formattype = getFormatType(formatString);
+    let formattype = DoraFormat.GetFormatType(formatString);
 
-    if (formattype == FORMATTYPES.none) {
+    if (formattype == DoraFormat.FORMATTYPES.none) {
         return value;
     }
 
     let motoValue = value;
     value = value.toString();
-    if (formattype == FORMATTYPES.parcent) {
+    if (formattype == DoraFormat.FORMATTYPES.parcent) {
         formatString = formatString.replace("%", "");
         value = value.replace("%", "");
     }
 
     switch (formattype) {
-        case FORMATTYPES.zero:
+        case DoraFormat.FORMATTYPES.zero:
             if (value.length > 0 && value.length != formatString.length) {
 
                 value = (formatString + value).toString();
@@ -1295,22 +1320,22 @@ function parseFormat(value, formatString) {
             }
 
             break;
-        case FORMATTYPES.currency:
-        case FORMATTYPES.parcent:
-            //value = value.replace(new RegExp(THOUSANDS_SEPARATOR, 'g'), "");
+        case DoraFormat.FORMATTYPES.currency:
+        case DoraFormat.FORMATTYPES.parcent:
+            //value = value.replace(new RegExp(DoraFormat.THOUSANDS_SEPARATOR, 'g'), "");
             let errorFlag = false;
 
             //整数と小数にわける
-            //let [seisu, shosu = ""] = value.split(DECIMAL_SEPARATOR);
-            let sep = value.split(DECIMAL_SEPARATOR);
+            //let [seisu, shosu = ""] = value.split(DoraFormat.DECIMAL_SEPARATOR);
+            let sep = value.split(DoraFormat.DECIMAL_SEPARATOR);
             let seisu = sep[0];
             let shosu = "";
             if (sep.length > 1) {
                 shosu = sep[1];
             }
 
-            //let [seisuformat, shosuformat = ""] = formatString.split(DECIMAL_SEPARATOR);
-            sep = formatString.split(DECIMAL_SEPARATOR);
+            //let [seisuformat, shosuformat = ""] = formatString.split(DoraFormat.DECIMAL_SEPARATOR);
+            sep = formatString.split(DoraFormat.DECIMAL_SEPARATOR);
             let seisuformat = sep[0];
             let shosuformat = "";
             if (sep.length > 1) {
@@ -1318,15 +1343,15 @@ function parseFormat(value, formatString) {
             }
 
             //1 → 100 にする
-            if (formattype == FORMATTYPES.parcent && seisu.length > 0) {
+            if (formattype == DoraFormat.FORMATTYPES.parcent && seisu.length > 0) {
 
                 shosu += "000";
-                shosu = shosu.substr(0, 2) + DECIMAL_SEPARATOR + shosu.substr(2);
+                shosu = shosu.substr(0, 2) + DoraFormat.DECIMAL_SEPARATOR + shosu.substr(2);
                 value = seisu + shosu;
 
 
-                //[seisu, shosu = ""] = value.split(DECIMAL_SEPARATOR);
-                sep = value.split(DECIMAL_SEPARATOR);
+                //[seisu, shosu = ""] = value.split(DoraFormat.DECIMAL_SEPARATOR);
+                sep = value.split(DoraFormat.DECIMAL_SEPARATOR);
                 seisu = sep[0];
                 shosu = "";
                 if (sep.length > 1) {
@@ -1343,8 +1368,8 @@ function parseFormat(value, formatString) {
             }
 
 
-            if (seisuformat.indexOf(THOUSANDS_SEPARATOR) != -1) {
-                seisu = seisu.replace(/\B(?=(\d{3})+(?!\d))/g, THOUSANDS_SEPARATOR);       //カンマ区切り
+            if (seisuformat.indexOf(DoraFormat.THOUSANDS_SEPARATOR) != -1) {
+                seisu = seisu.replace(/\B(?=(\d{3})+(?!\d))/g, DoraFormat.THOUSANDS_SEPARATOR);       //カンマ区切り
 
                 if (value == "0" && seisuformat.substr(-1, 1) == "#") {
                     seisu = "";
@@ -1353,7 +1378,7 @@ function parseFormat(value, formatString) {
 
             if (shosuformat.length > 0) {
                 shosu = shosu + shosuformat;
-                shosu = DECIMAL_SEPARATOR + shosu.substring(0, shosuformat.length);
+                shosu = DoraFormat.DECIMAL_SEPARATOR + shosu.substring(0, shosuformat.length);
             }
             else {
                 shosu = "";
@@ -1367,21 +1392,23 @@ function parseFormat(value, formatString) {
             else {
                 value = seisu + shosu;
 
-                if (formattype == FORMATTYPES.parcent) {
+                if (formattype == DoraFormat.FORMATTYPES.parcent) {
                     if (value.length > 0 && value.substr(-1, 1) != "%") {
                         value += "%";
                     }
                 }
             }
             break;
-        case FORMATTYPES.date:
+        case DoraFormat.FORMATTYPES.date:
             //console.log("transform:" + value);
             if (value.length != 0) {
-                let dateValue = new Date("" + changeDateValue(value));
-                if (dateValue == null || isNaN(+dateValue)) {
+                let dateValuetemp = changeDateValue(value);
+
+                if (dateValuetemp == null || isNaN(+dateValuetemp)) {
                     //value = "";
                 }
                 else {
+                    let dateValue = new Date(+dateValuetemp);
 
                     value = formatString;
                     let year = dateValue.getFullYear().toString();
@@ -1390,8 +1417,9 @@ function parseFormat(value, formatString) {
 
                     let hour = dateValue.getHours().toString();
                     let minute = dateValue.getMinutes().toString();
-                    let second = dateValue.getSeconds().toString()
-
+                    let second = dateValue.getSeconds().toString();
+                    let milli = dateValue.getMilliseconds().toString() + '000';
+                    milli = milli.substr(0, 3);
 
                     value = value.replace("yyyy", year);
                     value = value.replace("yy", year.substr(2));
@@ -1406,10 +1434,13 @@ function parseFormat(value, formatString) {
                     value = value.replace("H", hour);
 
                     value = value.replace("mm", minute.length == 1 ? "0" + minute : minute);
-                    value = value.replace("mm", minute);
+                    value = value.replace("m", minute);
 
                     value = value.replace("ss", second.length == 1 ? "0" + second : second);
-                    value = value.replace("ss", second);
+                    value = value.replace("s", second);
+                    
+                    value = value.replace("fff", milli);
+                    
 
                 }
             }
@@ -1425,7 +1456,7 @@ function parseFormat(value, formatString) {
 * @param value
 * @param formatString
 */
-function transformFormat(value, formatString) {
+DoraFormat.TransformFormat = function (value, formatString) {
 
     if (value == null) {
         return null;
@@ -1436,44 +1467,45 @@ function transformFormat(value, formatString) {
         return value;
     }
 
-    let formattype = getFormatType(formatString);
+    let formattype = DoraFormat.GetFormatType(formatString);
 
-    if (formattype == FORMATTYPES.none) {
+    if (formattype == DoraFormat.FORMATTYPES.none) {
         return value;
     }
 
     let motoValue = value;
     value = value.toString();
-    if (formattype == FORMATTYPES.parcent) {
+    if (formattype == DoraFormat.FORMATTYPES.parcent) {
         formatString = formatString.replace("%", "");
         value = value.replace("%", "");
     }
 
     switch (formattype) {
-        case FORMATTYPES.zero:
-            if (value.length > 0 && value.length != formatString.length) {
+        case DoraFormat.FORMATTYPES.zero:
+            //DB書き込み時にも0を付与する場合
+            //if (value.length > 0 && value.length != formatString.length) {
 
-                value = (formatString + value).toString();
-                value = value.substr(value.length - formatString.length);
+            //    value = (formatString + value).toString();
+            //    value = value.substr(value.length - formatString.length);
 
-            }
+            //}
 
             break;
-        case FORMATTYPES.currency:
-        case FORMATTYPES.parcent:
-            value = value.replace(new RegExp(THOUSANDS_SEPARATOR, 'g'), "");
+        case DoraFormat.FORMATTYPES.currency:
+        case DoraFormat.FORMATTYPES.parcent:
+            value = value.replace(new RegExp(DoraFormat.THOUSANDS_SEPARATOR, 'g'), "");
 
             //整数と小数にわける
-            //let [seisu, shosu = ""] = value.split(DECIMAL_SEPARATOR);
-            let sep = value.split(DECIMAL_SEPARATOR);
+            //let [seisu, shosu = ""] = value.split(DoraFormat.DECIMAL_SEPARATOR);
+            let sep = value.split(DoraFormat.DECIMAL_SEPARATOR);
             let seisu = sep[0];
             let shosu = "";
             if (sep.length > 1) {
                 shosu = sep[1];
             }
 
-            //let [seisuformat, shosuformat = ""] = formatString.split(DECIMAL_SEPARATOR);
-            sep = formatString.split(DECIMAL_SEPARATOR);
+            //let [seisuformat, shosuformat = ""] = formatString.split(DoraFormat.DECIMAL_SEPARATOR);
+            sep = formatString.split(DoraFormat.DECIMAL_SEPARATOR);
             let seisuformat = sep[0];
             let shosuformat = "";
             if (sep.length > 1) {
@@ -1483,7 +1515,7 @@ function transformFormat(value, formatString) {
             if (shosuformat.length > 0) {
                 shosu = shosu + shosuformat;
                 shosu = shosu.substring(0, shosuformat.length)
-                shosu = DECIMAL_SEPARATOR + shosu;
+                shosu = DoraFormat.DECIMAL_SEPARATOR + shosu;
             }
             else {
                 shosu = "";
@@ -1499,10 +1531,10 @@ function transformFormat(value, formatString) {
                 value = null;    //数値でない
             }
             else {
-                if (formattype == FORMATTYPES.parcent) {
+                if (formattype == DoraFormat.FORMATTYPES.parcent) {
                     //100% → 1にする
 
-                    shosu = shosu.replace(DECIMAL_SEPARATOR, "");
+                    shosu = shosu.replace(DoraFormat.DECIMAL_SEPARATOR, "");
 
                     let zerostr = "";
                     for (let i = 0; i < (3 - seisu.length); i++) {
@@ -1510,7 +1542,7 @@ function transformFormat(value, formatString) {
                     }
 
                     value = zerostr + seisu;
-                    value = value.substr(0, value.length - 2) + DECIMAL_SEPARATOR + value.substr(-2);
+                    value = value.substr(0, value.length - 2) + DoraFormat.DECIMAL_SEPARATOR + value.substr(-2);
 
                     value = value + shosu;
 
@@ -1526,16 +1558,22 @@ function transformFormat(value, formatString) {
             }
             break;
 
-        case FORMATTYPES.date:
+        case DoraFormat.FORMATTYPES.date:
             if (value.length != 0) {
 
-                let dateValue = new Date("" + changeDateValue(value));
+                //new Date
 
-                if (dateValue == null || isNaN(+dateValue)) {
+                let dateValuetemp = changeDateValue(value);
+
+                if (dateValuetemp == null || isNaN(+dateValuetemp)) {
                     value = null;
                 }
                 else {
-                    value = "yyyy/MM/dd HH:mm:ss";
+                    let dateValue = new Date(+dateValuetemp);
+
+                    //日付型の保存値 W3C 日付形式 http://www.profaim.jp/rel-tech/datatype/w3c_dateform.php
+                    //T と Z が重要(そのままの時間で表示)
+                    value = "yyyy-MM-ddTHH:mm:ss.fffZ";
 
                     let year = dateValue.getFullYear().toString();
                     let month = (dateValue.getMonth() + 1).toString();
@@ -1544,7 +1582,8 @@ function transformFormat(value, formatString) {
                     let hour = dateValue.getHours().toString();
                     let minute = dateValue.getMinutes().toString();
                     let second = dateValue.getSeconds().toString()
-
+                    let milli = dateValue.getMilliseconds().toString() + '000';
+                    milli = milli.substr(0,3);
 
                     value = value.replace("yyyy", year);
                     value = value.replace("yy", year.substr(2));
@@ -1559,11 +1598,12 @@ function transformFormat(value, formatString) {
                     value = value.replace("H", hour);
 
                     value = value.replace("mm", minute.length == 1 ? "0" + minute : minute);
-                    value = value.replace("mm", minute);
+                    value = value.replace("m", minute);
 
                     value = value.replace("ss", second.length == 1 ? "0" + second : second);
-                    value = value.replace("ss", second);
+                    value = value.replace("s", second);
 
+                    value = value.replace("fff", milli);
                 }
             }
 
@@ -1576,10 +1616,24 @@ function transformFormat(value, formatString) {
 
 function changeDateValue(value) {
 
-    let reg = new RegExp("[^\\:\\/\\s0-9]");
+    value = value.replace("T", " ");
+    value = value.replace("Z", "");
+    // / を - に置換
+    value = value.replace(/\//g, "-");
+
+
+    let reg = new RegExp("[^\\:\\-\\s0-9\.]");
     //変な文字を含んでいたら終了
     if (value.match(reg)) {
         return null;
+    }
+
+    //ミリ秒をとる
+    let millistring = "000";
+    let millisep = value.split(".");
+    if (millisep.length > 1) {
+        value = millisep[0];
+        millistring = millisep[1];
     }
 
     //let [datestring, timestring = ""] = value.split(" ");
@@ -1589,6 +1643,7 @@ function changeDateValue(value) {
     if (sep.length > 1) {
         timestring = sep[1];
     }
+	
 
     let nowDateTime = new Date();
 
@@ -1601,7 +1656,7 @@ function changeDateValue(value) {
     let hour = "0";//= nowDateTime.getHours().toString();
     let minute = "0";// = nowDateTime.getMinutes().toString();
     let second = "0";//= nowDateTime.getSeconds().toString();
-
+	
     //時刻のみ
     if (value.indexOf(":") != -1 && timestring.length == 0) {
         year = "1900";
@@ -1613,7 +1668,7 @@ function changeDateValue(value) {
 
 
     if (datestring.length > 0) {
-        let arr = datestring.split("/");
+        let arr = datestring.split("-");
 
         if (arr.length == 2) {
             if (arr[0].length == 4) {   //4桁の場合は　年/月とみなす
@@ -1660,7 +1715,7 @@ function changeDateValue(value) {
         }
     }
 
-    nowDateTime = new Date(year + "/" + month + "/" + day + " " + hour + ":" + minute + ":" + second);
+    nowDateTime = new Date(year, parseInt(month) - 1, day, hour, minute, second, millistring);
 
     //時刻型かどうかの確認
     if (parseInt(nowDateTime.getFullYear()) != parseInt(year)) {
@@ -1687,8 +1742,12 @@ function changeDateValue(value) {
         return null;
     }
 
+    if (parseInt(nowDateTime.getMilliseconds()) != parseInt(millistring)) {
+        return null;
+    }
 
-    return nowDateTime;
+
+    return nowDateTime.getTime();
 
 }
 

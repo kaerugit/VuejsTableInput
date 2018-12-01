@@ -106,7 +106,15 @@ https://bulma.io/documentation/elements/icon を使用
 ### **Vue.filter**
 #### formatdelimiter
 フォーマット用  
-
+(  
+現時点主な対応フォーマット(基本：.netのformatを参考)  
+yyyy/MM/dd HH:mm:ss.fff  
+#,##0  
+#,###.00  
+0.0%  
+0.00  
+0000  0埋め  
+)
 ***
 ### **Vue.component**
 #### dora-paging
@@ -177,6 +185,8 @@ maxvalueタグ 最大値チェックMax(金額などで使用)
 
 自動的に formatが日付型の場合、日付チェックしています。（金額なども同様）  
 （dora_update directive）  
+⇒エラーが発生したコントロールのbind値はnullをセットしています。  
+  ⇒表示されているものと、bind（内部の値）は違う値になります。
 
 ### その他（おまけ？）
 textalignタグ ('center' or 'right')  
@@ -265,8 +275,11 @@ select(プルダウン)の中身が再作成される
 ### 入力時の課題(是非解消したい)))
 input タグのonchange使用時（v-on:change="～"）、先に共通の値チェック(文字数チェック)などを行いたい場合  
 changeのハンドラに以下を追加しないと  
-if (e.target.checkvalidate(e) == false) {  
 v-on:change後に共通チェックが実行されるので、注意が必要  
+```
+if (e.target.execchangeevent(e) == false) {  
+```
+
 
 ## 開発環境
 
