@@ -301,9 +301,9 @@
                     //背景(備忘録)
                     //本来は必要ないが
                     //v-on:change での登録と addEventListener で登録したイベントが前後するため
-                    //e.target.checkvalidateの処理を実行しなければ、先に計算ロジックが実行され、値がおかしいとき(例：a を入力)に計算結果がおかしくなる
-                    //e.target.checkvalidateの中身 が先に動作すれば問題ないので、とても理不尽な処理
-                    if (e.target.checkvalidate(e) == false) {
+                    //e.target.execchangeeventの処理を実行しなければ、先に計算ロジックが実行され、値がおかしいとき(例：a を入力)に計算結果がおかしくなる
+                    //e.target.execchangeeventの中身 が先に動作すれば問題ないので、とても理不尽な処理
+                    if (e.target.execchangeevent(e) == false) {
                         //return;   //エラーの場合でも0として計算させたいので続けて実行させる。処理によっては終了してもよいと思う。
                     }
 
