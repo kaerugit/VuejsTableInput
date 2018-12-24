@@ -159,9 +159,9 @@ thead {
     }
 
     /*メッセージ(DIV)の高さ*/
-    .MessageBodyPanel {
+    .MessageBodyPanel{
         overflow: auto;
-        height: calc(100vh - 9.0rem);
+        height: calc(100vh - 10.0rem);
     }
 
     /*タイトルを固定しているテーブルの高さ*/

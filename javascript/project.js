@@ -449,12 +449,12 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
                         }
                     }
 
-                    //削除で必須が入っていない場合は削除・更新を取り下げ（こちらの処理を削除すると削除フラグ=noのみのデータが作成される為）
-                    if (deleteFlag == true){
-                        if (error.Message.length != 0){
+                    //削除で必須が入っていない場合は更新フラグ（とエラー）を取り下げ
+                    if (deleteFlag == true) {
+                        if (error.Message.length != 0) {
                             errorClear();
-                            if (item[DoraConst.FIELD_DELETE_FLAG] != null ) {
-                                item[DoraConst.FIELD_DELETE_FLAG] = false;
+                            if (item[DoraConst.FIELD_DELETE_FLAG] != null) {
+                                //item[DoraConst.FIELD_DELETE_FLAG] = false;
                                 item[DoraConst.FIELD_UPDATE_FLAG] = false;
                             }
                         }
@@ -590,26 +590,27 @@ Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, err
                 errorItems[0][error.Field + DoraConst.APPEND_IS_ERROR] = true;
             }
 
-            Vue.nextTick(
-                function () {
-                    let el = document.querySelector(".err-common");
+            //安定しないのでフォーカス移動やめる
+            //Vue.nextTick(
+            //    function () {
+            //        let el = document.querySelector(".err-common");
 
-                    if (el == null) {
-                        //単票用
-                        el = document;
-                    }
+            //        if (el == null) {
+            //            //単票用
+            //            el = document;
+            //        }
 
-                    el = el.querySelector("[dora_MV='" + error.Field + "']");
-                    if (el != null) {
+            //        el = el.querySelector("[dora_MV='" + error.Field + "']");
+            //        if (el != null) {
 
-                        el.focus();
-                        //if (typeof el.select == 'function') {
-                        //    el.select();
-                        //}
-                    }
+            //            el.focus();
+            //            //if (typeof el.select == 'function') {
+            //            //    el.select();
+            //            //}
+            //        }
 
-                }
-            );
+            //    }
+            //);
         }
 
         alert(error.Message);
