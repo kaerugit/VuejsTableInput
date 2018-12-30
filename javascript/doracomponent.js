@@ -80,7 +80,9 @@ Vue.directive('dora_table', {
 //(エレメント).execchangeevent()   エラーチェックを個別に実行
 //(エレメント).isinputdata()       入力されたかどうか
 
-//外部から呼ばれる関数(v-on:change イベントと併用した場合 v-on:changeが実行されるので、先にexecchangeeventを実行する必要がある)
+//備忘録
+//メインのコンポーネントで v-on:change イベント定義した場合 メインのv-on:changeが先に実行される
+//入力された値が正しいかどうか先にチェックするには execchangeeventを実行する必要がある)
 
 Vue.directive('dora_update', {
     //データ更新時にフラグを追加
@@ -609,6 +611,11 @@ Vue.component('dora-vscroll', {
                             moveIndex = 1;
                         }
 
+                        //if (lastEnterFlag == false){
+                        objActive.blur();
+                        objActive.focus();
+                        //}
+
                         if (moveIndex != 0) {
                             movefunction(moveIndex, lastEnterFlag);
                         }
@@ -629,24 +636,21 @@ Vue.component('dora-vscroll', {
                 let objActiveType = objActive.type.toLowerCase();
 
                 if (objActiveType == "textarea") {
-                    return;
+                    return false;
                 }
                 else if (objActiveType.indexOf("select") == 0) {
-                    return;
+                    return false;
                 }
 
-                let moveIndex = 0;
+                //参考 http://code.i-harness.com/ja/q/545831
+                //true=ie 各ブラウザで加速度を調整したい場合はこちらを修正
+                let delta = evt.wheelDelta ? evt.wheelDelta / 40 : evt.detail ? -evt.detail / 3 : 0;
 
-                if ((evt.wheelDelta || evt.detail) > 0) {
-                    //上方向
-                    moveIndex = -1;
+                delta = Math.floor(-delta/3);
+                if (delta !=0){
+                    movefunction(delta, false);
                 }
-                else {
-                    //下方向
-                    moveIndex = 1;
-                }
-
-                movefunction(moveIndex, false);
+                return evt.preventDefault() && false;
 
             }.bind(this);
 
@@ -693,16 +697,16 @@ Vue.component('dora-vscroll', {
         this.vscrollelement.addEventListener('DOMMouseScroll', vmouseWheelEvent );
         this.vscrollelement.addEventListener('mousewheel', vmouseWheelEvent );
 
-
         //画面をリサイズした場合に表示数を変更
         window.addEventListener("resize",
             function () {
+                this.mousedown();       //値の確定
+
                 this.getVirtualScrollData(true);
                 //強制アップデート
                 this.$forceUpdate();
             }.bind(this)
         );
-
     }
     ,
     template: '\
@@ -716,9 +720,10 @@ Vue.component('dora-vscroll', {
         /**
          * 指定したページに移動する
          * @param {number} index 移動するデータのindex
+         * @param {focusfield} focusを移動する（v-modelの値） ※ v-modelが複数ある場合は最初の方に移動
          *        外から this.$refs.page.gotoindex する場合は mounted以降で呼び出し
          */
-        gotoindex: function (index) {
+        gotoindex: function (index,focusfield) {
 
             //this.bindItems.pushでdomが再作成されるので、その後に実行
             //このvueの動作を理解出来きてないと、はまることが多々あるかも・・
@@ -731,21 +736,37 @@ Vue.component('dora-vscroll', {
                 function () {
                     this.tableelement.scrollLeft = 0;
 
+                    let moveIndex = 0;
                     let updownvalue = -1;
+                    let lastIndex = this.getLastDataIndex();
                     if (index < this.datasize) {
+                        moveIndex = index;
+
                         if (this.dora_bind_items != null && ((this.dora_bind_items.length - 1) == index)) {
                             updownvalue = 1;    //最終データはスクロール下優先
                         }
                         index = 0;
                     }
-                    else if (this.dora_bind_items != null && this.getLastDataIndex() < index) {
+                    else if (this.dora_bind_items != null && lastIndex < index) {
+                        moveIndex = index - lastIndex;
+
                         //課題
                         //最後のデータにエラーが発生した場合に、上キーで移動した場合、空欄になる（原因不明の不具合があったので）最後のデータは計算して出力するように変更
-                        index = this.getLastDataIndex();
-                        updownvalue = 1;
+                        index = lastIndex;
+                        updownvalue = 1;   
                     }
                     this.currentindex = index;
                     this.getVirtualScrollData(false, updownvalue);
+
+                    if (focus != null && moveIndex >= 0) {
+                        let trArray = this.tableelement.querySelector('tbody').querySelectorAll('tr');
+
+                        try{
+                            trArray[moveIndex].querySelector("[dora_MV='" + focusfield + "']").focus();
+                        }
+                        catch (e) { };
+                    }
+
                 }.bind(this)
             );
         }
@@ -758,9 +779,12 @@ Vue.component('dora-vscroll', {
         //右スクロールバーのmousedown
         mousedown: function () {
             //フォーカスがあるとvueが更新してくれないのでフォーカスを移動させる
-            //この処理をなくすと　フォーカスがある項目が再描画されない
+            //この処理を削除すると、フォーカスがある項目が再描画されない
+            //ホイールマウスの時も呼ばれています
             let objActive = document.activeElement;
-            objActive.blur(); 
+            if (objActive != null) {
+                objActive.blur();
+            }
         }
         ,
         //スクロール実処理
@@ -821,6 +845,8 @@ Vue.component('dora-vscroll', {
                         function () {
 
                             if (enterFlag) {
+                                //this.tableelement.scrollLeft=0;
+                                
                                 let parentTD = objActive;
                                 let findFlag = false;
 
@@ -849,6 +875,9 @@ Vue.component('dora-vscroll', {
                                         if (obj.readOnly == true || obj.disabled == true) {
                                             continue;
                                         }
+                                        else if (obj.tabIndex != null && (+obj.tabIndex) < 0) {
+                                            continue;
+                                        }                                        
                                         objActive = obj;
 
                                         break;
@@ -862,7 +891,7 @@ Vue.component('dora-vscroll', {
                             //    objActive.select();
                             //}
 
-                        }
+                        }.bind(this)
                     );
 
                 }.bind(this), 0);
@@ -882,6 +911,11 @@ Vue.component('dora-vscroll', {
         //最終表示用INDEX（一番下までデータを表示させない） ※10件データがあって、3件画面表示できる場合は　7を戻す(7件目から3つのデータを表示)
         getLastDataIndex: function () {
             return (this.dora_bind_items.length - this.datasize);
+        }
+        ,
+        //スクロールの高さ
+        getScrollHeight: function (elm) {
+            return elm.scrollHeight - elm.clientHeight;
         }
         ,
         getVirtualScrollData: function (scrollflag, argsupdownvalue) {
@@ -956,6 +990,8 @@ Vue.component('dora-vscroll', {
             //親に通知
             this.$emit('input', this.dora_bind_items.slice(this.currentindex, this.currentindex + this.datasize));
 
+            let scrollHeight = this.getScrollHeight(this.vscrollelement);
+
             //置き換える
             let scrollTop = -1;
             if (argsupdownvalue != null) {
@@ -974,8 +1010,8 @@ Vue.component('dora-vscroll', {
                 if (this.vscrollelement.scrollTop == 0) {
                     scrollTop = 0;
                 }
-                else if (this.vscrollelement.scrollTop == (this.vscrollelement.scrollHeight - this.vscrollelement.clientHeight)) {
-                    scrollTop = this.tableelement.clientHeight;
+                else if (this.vscrollelement.scrollTop == scrollHeight) {
+                    scrollTop = this.getScrollHeight(this.tableelement);
                 }
                 else if (updownvalue < 0 || this.currentindex == 0) {
                     //上に移動
@@ -983,12 +1019,11 @@ Vue.component('dora-vscroll', {
                 }
                 else if (updownvalue > 0 || (this.getLastDataIndex() <= this.currentindex)) {
                     //下に移動
-                    scrollTop = this.tableelement.clientHeight;
+                    scrollTop = this.getScrollHeight(this.tableelement);
                 }
 
             }
 
-            
             if (scrollTop != -1) {
                 if (this.tableelement.scrollTop != scrollTop) {
                     Vue.nextTick(
@@ -997,11 +1032,55 @@ Vue.component('dora-vscroll', {
                         }.bind(this)
                     );
                 }
+            }
+
+            //スクロール位置で微妙な表示位置になるので、trのclick時にスクロールを調整する
+            //Vue.nextTick(
+            //    function () {
+            let trArray = this.tableelement.querySelector('tbody').querySelectorAll('tr');
+
+            if (trArray != null && trArray.length > 0) {
+
+                let index = 0;
+                if (trArray[index].dora_isClickfunction == null) {
+
+                    trArray[index].dora_isClickfunction = true;
+
+                    trArray[index].addEventListener('click',
+                        function (event) {
+                            let scrolltop = 0;
+                            if (this.tableelement.scrollTop != scrolltop) {
+                                this.tableelement.scrollTop = scrolltop;
+                            }
+                        }.bind(this)
+                    );
+                }
+                        
+                //最終行
+                if (trArray.length != 1) {
+
+                    let index = trArray.length - 1;
+                    if (trArray[index].dora_isClickfunction == null) {
+
+                        trArray[index].dora_isClickfunction = true;
+
+                        trArray[index].addEventListener('click',
+                            function (event) {
+                                let scrolltop = this.getScrollHeight(this.tableelement);
+                                if (this.tableelement.scrollTop != scrolltop) {
+                                    this.tableelement.scrollTop = scrolltop;
+                                }
+                            }.bind(this)
+                        );
+                    }
+
+                }
 
             }
 
+            //   }.bind(this)
+            //);
 
-            //}
         }
     }
     ,

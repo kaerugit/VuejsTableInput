@@ -1,4 +1,6 @@
-﻿'use strict';
+﻿//こちらのjavascriptは業務に合わせて変更してください！
+
+'use strict';
 
 //インテリジェンスで表示させたいため使用
 var Project = {};
@@ -125,7 +127,7 @@ Project.InitValidate = function (el, field) {
             obj.maxvalue = el.getAttribute("maxvalue"); //日付もあるので注意
         }
 
-        if (field != null){
+        if (field != null) {
             validatefield[field] = obj;
         }
     }
@@ -135,15 +137,15 @@ Project.InitValidate = function (el, field) {
 
     //imeの処理
     //if (validatefield[field] != null) {
-    let objClass = null ;
-    if (field != null && validatefield[field] != null){
+    let objClass = null;
+    if (field != null && validatefield[field] != null) {
         objClass = validatefield[field];
     }
-    else if (field == null){
+    else if (field == null) {
         objClass = obj;
     }
 
-    if (objClass !=null){
+    if (objClass != null) {
         if (objClass.isime != null) {
             if (objClass.isime == true) {
                 //含まれていなければ追加
@@ -327,30 +329,30 @@ Project.SetControlCss = function (el, binding, errorFlag) {
  * @param {pageMoveFunction} ページ移動のfunction (必要なければnull) ※nullの場合は単票と判定する
  * @param {errTopFlag} trueの場合、エラー行を先頭に移動
 */
-Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield, errorCheckFunction, pageMoveFunction, errTopFlag) {
+Project.IsSubmitValidateError = function (paravue, items, keyFiled, requiredfield, errorCheckFunction, pageMoveFunction, errTopFlag) {
 
     let error = {};
 
-    let errorClear = function(){
+    let errorClear = function () {
         error = {
-        ErrorIdentity: null,     //エラーフラグを付けるエラー行(サーバからのエラーで使用)
-        Field: '',
-        Message: '',
+            ErrorIdentity: null,     //エラーフラグを付けるエラー行(サーバからのエラーで使用)
+            Field: '',
+            Message: '',
         }
     };
     errorClear();
-    
+
     for (let i = 0; i < items.length; i++) {
         let item = items[i];
 
         item[DoraConst.FIELD_IDENTITY_ID] = i;           //サーバ処理でのエラー時にでも使用してください。※indexと連動させること！
+
+        //ERROR_FLAGをクリア
+        item[DoraConst.FIELD_ERROR_FLAG] = false;
     }
 
     for (let i = 0; i < items.length; i++) {
         let item = items[i];
-
-        //ERROR_FLAGをクリア
-        item[DoraConst.FIELD_ERROR_FLAG] = false;
 
         //単体エラーが発生しているオブジェクトを検索
         let keys = Object.keys(item);
@@ -358,8 +360,8 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
         for (let j = keys.length - 1; 0 <= j; --j) {
             //if (keys[j].endsWith('～)) IEでは使えないので・・
             let keystring = keys[j];
-            
-            if ((keystring.lastIndexOf(findString) + findString.length === keystring.length) && (findString.length <= keystring.length)) {              
+
+            if ((keystring.lastIndexOf(findString) + findString.length === keystring.length) && (findString.length <= keystring.length)) {
                 item[DoraConst.FIELD_ERROR_FLAG] = true;
 
                 if (error.Message.length == 0) {
@@ -375,7 +377,7 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
 
     if (error.Message.length > 0) {
         //エラーメッセージの表示
-        Project.MoveErrorFocus(paravue,items, error, pageMoveFunction, errTopFlag);
+        Project.MoveErrorFocus(paravue, items, error, pageMoveFunction, errTopFlag);
         return true;
     }
 
@@ -396,43 +398,7 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
         }
 
         //削除行かどうか
-        let deleteFlag = false;
-
-        //item["DELETE_FLAG"]=trueの場合は無視
-        if (item[DoraConst.FIELD_DELETE_FLAG] == true) {
-            deleteFlag = true;
-        }
-
-        /*
-        if (requiredFlag == true) {
-            if (item[DoraConst.FIELD_NEW_FLAG] == true) { //append: function () { でセット
-
-                requiredFlag = false;
-                for (let j = 0; j < requiredfield.length; j++) {
-                    if (!(item[requiredfield[j]] == null || item[requiredfield[j]].toString().length == 0)) {
-                        requiredFlag = true;
-                        break;
-                    }
-                }
-
-                if (requiredFlag == false) {
-                    //更新フラグを取り下げ
-                    item[DoraConst.FIELD_UPDATE_FLAG] = false;
-                }
-                else {
-                    for (let j = 0; j < requiredfield.length; j++) {
-                        if (item[requiredfield[j]] == null || item[requiredfield[j]].toString().length == 0) {
-                            error = {
-                                Field: requiredfield[j],
-                                Message: '必須入力が入力されていません。',
-                            };
-                        }
-                    }
-                }
-            }
-
-        }
-        */
+        let deleteFlag = Project.IsBoolean(item[DoraConst.FIELD_DELETE_FLAG]);
 
         //更新している行のみ (pageMoveFunction == null は単票画面)
         if (item[DoraConst.FIELD_UPDATE_FLAG] == true || pageMoveFunction == null) {
@@ -449,7 +415,7 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
                         }
                     }
 
-                    //削除で必須が入っていない場合は更新フラグ（とエラー）を取り下げ
+                    //削除で必須が入っていない場合は更新フラグを取り下げ
                     if (deleteFlag == true) {
                         if (error.Message.length != 0) {
                             errorClear();
@@ -523,7 +489,7 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
             item[DoraConst.FIELD_ERROR_FLAG] = true;
 
             //エラーメッセージの表示
-            Project.MoveErrorFocus(paravue,items, error, pageMoveFunction, errTopFlag);
+            Project.MoveErrorFocus(paravue, items, error, pageMoveFunction, errTopFlag);
 
             return true;
         }
@@ -541,7 +507,7 @@ Project.IsSubmitValidateError = function (paravue,items, keyFiled, requiredfield
  * @param {pageMoveFunction} ページ移動のfunction  ※nullの場合は単票と判定する
  * @param {errTopFlag} trueの場合、エラー行のデータを先頭に移動
 */
-Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, errTopFlag) {
+Project.MoveErrorFocus = function (paravue, items, error, pageMoveFunction, errTopFlag) {
 
     if (error.Message != null && error.Message.length > 0) {
 
@@ -569,16 +535,6 @@ Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, err
             Project.SortJson(items, [DoraConst.FIELD_ERROR_FLAG + ".desc", DoraConst.FIELD_IDENTITY_ID]);
         }
 
-        //ページを１ページにする
-        //this.$refs.page.gotopage(1);
-        if (typeof pageMoveFunction == 'function') {
-            pageMoveFunction();
-        }
-        else{
-            //強制アップデート
-            paravue.$forceUpdate();
-        }
-
         if (error.Field.length > 0) {
             let errorItems = items.filter(
                 function (item) {
@@ -589,28 +545,36 @@ Project.MoveErrorFocus = function (paravue , items, error, pageMoveFunction, err
                 //こちらの記述でエラーフィールドに色をセット
                 errorItems[0][error.Field + DoraConst.APPEND_IS_ERROR] = true;
             }
+        }
+        //ページを１ページにする
+        //this.$refs.page.gotopage(1);
+        if (typeof pageMoveFunction == 'function') {
+            pageMoveFunction();
+        }
+        //強制アップデート(これがないと .err-common の判定がおかしくなる場合があるので・・)
+        paravue.$forceUpdate();
 
-            //安定しないのでフォーカス移動やめる
-            //Vue.nextTick(
-            //    function () {
-            //        let el = document.querySelector(".err-common");
+        if (error.Field.length > 0) {
+            Vue.nextTick(
+                function () {
+                    let el = document.querySelector(".err-common");
 
-            //        if (el == null) {
-            //            //単票用
-            //            el = document;
-            //        }
+                    if (el == null) {
+                        //単票用
+                        el = document;
+                    }
 
-            //        el = el.querySelector("[dora_MV='" + error.Field + "']");
-            //        if (el != null) {
+                    el = el.querySelector("[dora_MV='" + error.Field + "']");
+                    if (el != null) {
 
-            //            el.focus();
-            //            //if (typeof el.select == 'function') {
-            //            //    el.select();
-            //            //}
-            //        }
+                        el.focus();
+                        //if (typeof el.select == 'function') {
+                        //    el.select();
+                        //}
+                    }
 
-            //    }
-            //);
+                }
+            );
         }
 
         alert(error.Message);
@@ -633,7 +597,7 @@ Project.SetLoading = function (loadingFlag) {
             "</div>" +
             "<div class=\"loader\">" +
             "</div>"
-            ;
+        ;
         document.body.appendChild(div);
     }
     else {
@@ -805,16 +769,16 @@ Project.IsBoolean = function (value) {
 
 */
 Project.SortJson = function (items, fieldArray, ascflag) {
-    
+
     let defultascvalue = -1;
-    if (ascflag==false) {
+    if (ascflag == false) {
         defultascvalue = 1;
     }
 
     let orderobj = [];
 
     //配列の場合 ["",""]
-    if (Array.isArray(fieldArray)==true) {
+    if (Array.isArray(fieldArray) == true) {
         for (let i = 0; i < fieldArray.length; i++) {
             let field = fieldArray[i];
             let asc = defultascvalue;
@@ -850,12 +814,10 @@ Project.SortJson = function (items, fieldArray, ascflag) {
                 let field = orderobj[i].field;
                 let asc = orderobj[i].asc;
 
-                if ((a[field] < b[field]) || (a[field]==null))
-                {
+                if ((a[field] < b[field]) || (a[field] == null)) {
                     return asc;
                 }
-                else if ((a[field] > b[field]) || (b[field] == null))
-                {
+                else if ((a[field] > b[field]) || (b[field] == null)) {
                     return asc * -1;
                 }
             }

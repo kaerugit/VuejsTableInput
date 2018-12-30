@@ -576,7 +576,7 @@
                             if (selectItems.length > 0) {
                                 //サーバエラー時にはこちらのjsonをセット
                                 let error = {
-                                    ErrorIdentity: selectItems[0]["IDENTITY_ID"],     //エラーフラグを付けるエラー行(本来はサーバ側でセット)
+                                    ErrorIdentity: selectItems[0][DoraConst.FIELD_IDENTITY_ID],     //エラーフラグを付けるエラー行(本来はサーバ側でセット)
                                     Field: '社員コード',
                                     Message: '社員コードが重複しています。(★テスト)',
                                 };
