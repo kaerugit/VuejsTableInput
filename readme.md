@@ -289,8 +289,4 @@ htmlだけなので、基本なんでもよいです。（テキストエディ�
 
 ## License
 
-doracomponent  
-[LGPL3.0](LICENSE.txt)  
-
-他  
 [MIT](LICENSEMIT.txt)  
