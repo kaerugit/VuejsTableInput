@@ -698,6 +698,7 @@ Vue.component('dora-vscroll', {
         this.vscrollelement.addEventListener('mousewheel', vmouseWheelEvent );
 
         //画面をリサイズした場合に表示数を変更
+        //課題：スマホの場合　キーボードが表示される際にも実行されるので何かの判定が必要
         window.addEventListener("resize",
             function () {
                 this.mousedown();       //値の確定
