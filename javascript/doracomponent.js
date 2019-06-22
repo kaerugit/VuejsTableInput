@@ -708,6 +708,48 @@ Vue.component('dora-vscroll', {
                 this.$forceUpdate();
             }.bind(this)
         );
+
+        //★todo ①　本件　　②　エラー時に　右スクロール位置より下クリックした場合スクロールがおかしい
+
+        //検討中　resize　ではスマホでNG
+        // const target = document.getElementById(this.dora_bind_div);
+        // const observer = new MutationObserver(function()  {
+        //     console.log(target.style.width, target.style.height);
+        //     alert('aaa');
+        // });
+        // // https://qiita.com/MysticDoll/items/7b2654b7a8b58d773286 // ←以前参考にしたのに消えている。。。 一応Optionはここから見れる　https://developer.mozilla.org/ja/docs/Web/API/MutationObserver#Specifications
+        // const options = {
+        //     attriblutes: true,
+        //     attributeFilter: ["style"]
+        // };
+        // observer.observe(target, options);
+
+        // fireOnChange: function (objActive){
+        //     if (objActive != null) {
+        //         if( objActive.fireEvent != null )
+        //         {
+        //           // IEの場合
+        //           objActive.fireEvent("onchange"); 
+        //         }
+        //         else
+        //         {
+        //           // それ以外の場合
+        //           var event = document.createEvent( "MouseEvents" ); 
+        //           event.initEvent("change", false, true); 
+        //           objActive.dispatchEvent(event); 
+        //         }                
+        //         objActive.blur();
+                
+        //         if (typeof objActive.isinputerror == 'function') {
+        //             //エラーの場合
+        //             if (objActive.isinputerror()) { 
+        //                 return false;
+        //             }
+        //         }                
+        //         return true;
+        //     }
+
+        // }                
     }
     ,
     template: '\
@@ -762,8 +804,11 @@ Vue.component('dora-vscroll', {
                     if (focus != null && moveIndex >= 0) {
                         let trArray = this.tableelement.querySelector('tbody').querySelectorAll('tr');
 
-                        try{
-                            trArray[moveIndex].querySelector("[dora_MV='" + focusfield + "']").focus();
+                        try {
+                            //こちら入れないと値が変わらない場合あり
+                            setTimeout(function () {
+                                trArray[moveIndex].querySelector("[dora_MV='" + focusfield + "']").focus();
+                            }, 0);
                         }
                         catch (e) { };
                     }
