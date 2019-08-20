@@ -471,6 +471,9 @@ Vue.filter('formatdelimiter', function (value, formatvalue) {
 });
 
 //仮想スクロール
+//課題：
+//エラー後、スクロールバーを直クリックすると怪奇現象が起きる（mouseoverイベントで解決）
+//②スマホがNG window.addEventListener("resize", が　ソフトウェアキーボードが表示されるために実行される
 Vue.component('dora-vscroll', {
     props:
     {
@@ -696,6 +699,14 @@ Vue.component('dora-vscroll', {
 
         this.vscrollelement.addEventListener('DOMMouseScroll', vmouseWheelEvent );
         this.vscrollelement.addEventListener('mousewheel', vmouseWheelEvent );
+
+        //スクロールバーのmouseover時（こちら入れないとエラー後にスクロールバーをクリックすると怪奇現象が起こる）
+        let vmouseoverEvent =
+            function (evt) {
+                this.mousedown();       //値の確定
+            }.bind(this)
+
+        this.vscrollelement.addEventListener('mouseover', vmouseoverEvent );
 
         //画面をリサイズした場合に表示数を変更
         //課題：スマホの場合　キーボードが表示される際にも実行されるので何かの判定が必要
