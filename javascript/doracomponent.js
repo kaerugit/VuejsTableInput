@@ -471,9 +471,6 @@ Vue.filter('formatdelimiter', function (value, formatvalue) {
 });
 
 //仮想スクロール
-//課題：
-//エラー後、スクロールバーを直クリックすると怪奇現象が起きる（mouseoverイベントで解決）
-//②スマホがNG window.addEventListener("resize", が　ソフトウェアキーボードが表示されるために実行される
 Vue.component('dora-vscroll', {
     props:
     {
@@ -715,7 +712,7 @@ Vue.component('dora-vscroll', {
             function () {
 
                 if (currentWindowWidth == window.innerWidth) {
-                    // ウインドウ横幅が変わっていないため処理をキャンセル。
+                    // ウインドウ横幅が変わっていないため処理をキャンセル。(スマホ用)
                     return;
                 }
             
@@ -730,48 +727,7 @@ Vue.component('dora-vscroll', {
                 this.$forceUpdate();
             }.bind(this)
         );
-
-        //★todo ①　本件　　②　エラー時に　右スクロール位置より下クリックした場合スクロールがおかしい
-
-        //検討中　resize　ではスマホでNG
-        // const target = document.getElementById(this.dora_bind_div);
-        // const observer = new MutationObserver(function()  {
-        //     console.log(target.style.width, target.style.height);
-        //     alert('aaa');
-        // });
-        // // https://qiita.com/MysticDoll/items/7b2654b7a8b58d773286 // ←以前参考にしたのに消えている。。。 一応Optionはここから見れる　https://developer.mozilla.org/ja/docs/Web/API/MutationObserver#Specifications
-        // const options = {
-        //     attriblutes: true,
-        //     attributeFilter: ["style"]
-        // };
-        // observer.observe(target, options);
-
-        // fireOnChange: function (objActive){
-        //     if (objActive != null) {
-        //         if( objActive.fireEvent != null )
-        //         {
-        //           // IEの場合
-        //           objActive.fireEvent("onchange"); 
-        //         }
-        //         else
-        //         {
-        //           // それ以外の場合
-        //           var event = document.createEvent( "MouseEvents" ); 
-        //           event.initEvent("change", false, true); 
-        //           objActive.dispatchEvent(event); 
-        //         }                
-        //         objActive.blur();
-                
-        //         if (typeof objActive.isinputerror == 'function') {
-        //             //エラーの場合
-        //             if (objActive.isinputerror()) { 
-        //                 return false;
-        //             }
-        //         }                
-        //         return true;
-        //     }
-
-        // }                
+        
     }
     ,
     template: '\
