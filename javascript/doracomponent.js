@@ -709,9 +709,20 @@ Vue.component('dora-vscroll', {
         this.vscrollelement.addEventListener('mouseover', vmouseoverEvent );
 
         //画面をリサイズした場合に表示数を変更
-        //課題：スマホの場合　キーボードが表示される際にも実行されるので何かの判定が必要
+        var currentWindowWidth = window.innerWidth;
+
         window.addEventListener("resize",
             function () {
+
+                if (currentWindowWidth == window.innerWidth) {
+                    // ウインドウ横幅が変わっていないため処理をキャンセル。
+                    return;
+                }
+            
+                // ウインドウ横幅が変わったのでリサイズと見なす。
+                // 横幅を更新
+                currentWindowWidth = window.innerWidth;
+
                 this.mousedown();       //値の確定
 
                 this.getVirtualScrollData(true);
